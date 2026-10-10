@@ -2,6 +2,8 @@
 const demoFlow = '/studio/flows/flow_order_alert';
 const anchor = (section) => `/?section=${section}`;
 export const websiteData = {
+  assetRefs: { mark: 'brand-logo-mark', avatar: 'avatar-1', hero: 'illustration-hero-flow', servers: 'illustration-self-host-servers', search: 'illustration-empty-search', generic: 'illustration-empty-generic', lock: 'illustration-denied-lock', healthy: 'illustration-health-ok', alert: 'illustration-health-alert', cube: 'illustration-pricing-cube', samples: [1,2,3].map((index) => ({logo: `sample-logo-${index}`, favicon: `sample-favicon-${index}`})) },
+  assetIds: ['brand-logo-mark', 'brand-logo-full', 'illustration-hero-flow', 'illustration-self-host-servers', 'illustration-empty-search', 'illustration-pricing-cube', 'sample-logo-1', 'sample-logo-2', 'sample-logo-3', 'node-webhook', 'node-schedule', 'node-condition', 'node-wait', 'node-merge', 'node-code', 'node-set-fields', 'node-ai-condition', 'node-http-request', 'node-post-message', 'node-append-row', 'node-send-email'],
   navigation: {
     brand: 'xwflow', home: '/', primaryLabel: 'Primary',
     items: [
@@ -28,6 +30,7 @@ export const websiteData = {
   },
   labels: { loading: 'Loading', retry: 'Try again', close: 'Close', copied: 'Copied to clipboard.', copy: 'Copy command', copyError: 'Clipboard unavailable. Select and copy the command.', clear: 'Clear filters', view: 'View the step', studio: 'Open in the studio', planned: 'Planned', featured: 'Featured', next: 'Next', previous: 'Previous', loadMore: 'Load more', sample: 'Sample data' },
   landing: {
+    directoryLabel: 'Steps you can use', brandingPath: '/admin/branding', comparisonPrefix: 'vs',
     title: 'Workflow automation you own', announcement: 'New: describe a flow, the assistant drafts it', preview: 'Preview',
     hero: { heading: 'Own the workflow.', accent: 'Watch every action.', description: 'Build automations on a canvas that never hides what happened. Every step attempt leaves a receipt. Host it yourself, or ship it under your own brand.', actions: [{ label: 'Build a flow, no account', path: anchor('sandbox'), variant: 'primary' }, { label: 'Self-host it', path: '/self-host', variant: 'outline' }], promises: ['Apache-2.0 core', 'Your credentials stay on your servers', 'English and Arabic'] },
     scene: {
@@ -40,7 +43,7 @@ export const websiteData = {
         { id: 'log', name: 'Log order', type: 'Append a row', icon: 'database', tone: 'violet', status: 'Not run', variant: 'neutral', x: 830, y: 380, z: 40 },
       ],
       receipt: [
-        { label: 'New order', value: '12 ms', variant: 'success' }, { label: 'Look up customer, try 1', value: '503', variant: 'error' }, { label: 'Look up customer, try 2', value: '212 ms', variant: 'success' }, { label: 'Order over 500?', value: 'yes', variant: 'success' }, { label: 'Notify sales', value: 'running', variant: 'info' },
+        { label: 'New order', value: '12 ms', variant: 'success', progress: 4, tone: 'lime' }, { label: 'Look up customer, try 1', value: '503', variant: 'error', progress: 48, tone: 'red' }, { label: 'Look up customer, try 2', value: '212 ms', variant: 'success', progress: 20, tone: 'cyan' }, { label: 'Order over 500?', value: 'yes', variant: 'success', progress: 3, tone: 'orange' }, { label: 'Notify sales', value: 'running', variant: 'info', progress: 21, tone: 'pink' },
       ],
       controls: { reset: 'Reset the sandbox', out: 'Zoom out', in: 'Zoom in', run: 'Run flow' }, complete: 'Sample run completed. Every attempt is recorded.', completedStatus: 'Done', idleStatus: 'Not run',
     },
@@ -59,7 +62,7 @@ export const websiteData = {
       security: { title: 'Your credentials stay on your servers', text: 'The studio shows credential names and health. Stored secrets are never exposed in the interface.', action: 'View connections', path: '/studio/connections' },
     },
   },
-  directory: { title: 'Integrations directory', eyebrow: 'Integrations', heading: 'Every step.', accent: 'One registry.', description: 'N steps and connectors, read from the same catalog the studio palette uses. If it is listed here, you can drag it onto a canvas.', search: 'Search by name or what it does', searchLabel: 'Search integrations', groupsLabel: 'Groups', notice: 'Design mock. The live directory renders every card from the node-type catalog, so nothing appears here that is not registered.', empty: 'No integrations match your search', emptyDescription: 'Try another name or choose a different group.', extra: { title: 'App connectors', description: 'Appear here as they are registered, each with its own page and depth label.' }, pageSize: 12 },
+  directory: { title: 'Integrations directory', eyebrow: 'Integrations', heading: 'Every step.', accent: 'One registry.', description: 'N steps and connectors, read from the same catalog the studio palette uses. If it is listed here, you can drag it onto a canvas.', search: 'Search by name or what it does', searchLabel: 'Search integrations', groupsLabel: 'Groups', notice: 'Design mock. The live directory renders every card from the node-type catalog, so nothing appears here that is not registered.', empty: 'No integrations match your search', emptyDescription: 'Try another name or choose a different group.', extra: { title: 'App connectors', description: 'Appear here as they are registered, each with its own page and depth label.' }, pageSize: 12, searchDelay: 250 },
   categories: [{ id: 'all', label: 'All' }, { id: 'trig', label: 'Triggers', singular: 'Trigger', tone: 'lime' }, { id: 'ctrl', label: 'Control flow', tone: 'orange' }, { id: 'data', label: 'Data', tone: 'violet' }, { id: 'ai', label: 'AI', tone: 'pink' }, { id: 'int', label: 'Apps and APIs', tone: 'cyan' }],
   integrations: [
     { id: 'ai-condition', name: 'AI condition', category: 'ai', icon: 'sparkles', featured: true, description: "Branch on a model's answer with three honest outputs: yes, no and unsure. The receipt records the verdict, model and token count, never the prompt." },
@@ -74,7 +77,7 @@ export const websiteData = {
     { id: 'merge', name: 'Merge', category: 'ctrl', icon: 'git-merge', description: 'Join branches back into one stream.' },
     { id: 'wait', name: 'Wait', category: 'ctrl', icon: 'player-pause', description: 'Pause until a time or a condition.' },
     { id: 'sub-flow', name: 'Sub-flow', category: 'ctrl', icon: 'sitemap', description: 'Call another flow as one step.' },
-  ].map((item) => ({ ...item, path: `${demoFlow}?nodeType=${item.id}` })),
+  ].map((item) => ({ ...item, assetId: `node-${({ 'field-changed': 'set-fields', switch: 'condition', 'sub-flow': 'merge' })[item.id] ?? item.id}`, path: `${demoFlow}?nodeType=${item.id}` })),
   dialects: [['n8n', 'n8', 'pink'], ['Zapier', 'Za', 'orange'], ['Power Automate', 'PA', 'blue'], ['Make', 'Mk', 'violet'], ['Activepieces', 'Ap', 'cyan'], ['Windmill', 'Wm', 'lime'], ['Node-RED', 'NR', 'red'], ['Temporal', 'Tm', 'amber'], ['Airflow', 'Af', 'green'], ['Camunda 8', 'C8', 'pink']].map(([name, initials, tone]) => ({ name, initials, tone, depth: 'catalog' })),
   notationItems: [
     ['Node graph', '', 'lime'], ['Classic flowchart', 'flowchart', 'cyan'], ['Swimlanes', 'swimlane', 'violet'], ['BPMN 2.0.2', 'bpmn', 'orange'], ['BPMN 1.x', null, 'orange'], ['Choreography', null, 'orange'], ['Conversation', null, 'orange'], ['UML sequence', 'sequence', 'pink'], ['UML activity', null, 'pink'], ['State machine', null, 'pink'], ['Simulation', 'sim', 'amber'], ['Petri net'], ['DAG'], ['Data flow'], ['EPC'], ['IDEF0'], ['Value stream'], ['SIPOC'], ['Decision tree'], ['Blueprint'], ['Timeline'], ['Flow as code'], ['List mode'], ['3D space', '3d', 'lime'],

@@ -1,5 +1,6 @@
 import { respond, paginate, createCollection, ApiError } from '../core/mock.js';
 import { adminData, ADMIN_RULES } from '../data/admin.data.js';
+import { resolveAssets } from './assets.api.js';
 
 const brands = createCollection('admin_brands', [adminData.brandSeed]);
 const events = createCollection('admin_audit', adminData.auditSeed);
@@ -13,8 +14,10 @@ function filteredEvents({ q = '', actor = '', actorClass = '', action = '', obje
   return events.list((event) => (!q || `${event.action} ${event.object} ${event.actor} ${event.actorClass}`.toLowerCase().includes(q.trim().toLowerCase())) && (!actor || event.actor === actor) && (!actorClass || event.actorClass === actorClass) && (!action || event.action === action) && (!object || event.object === object) && (days === 'all' || Date.parse(event.timestamp) >= reference - Number(days) * ADMIN_RULES.dayMs)).sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
 }
 export const adminApi = {
+  /** @returns {Promise<object>} Fictional sample logo and favicon loaded by manifest ID. */
+  getBrandingSample: (index) => respond(async () => { const refs = adminData.assetRefs.samples[index]; if (!refs) throw new ApiError('not_found', 'Sample brand not found.'); const assets = await resolveAssets(Object.values(refs)); const result = {}; for (const key of ['logo', 'favicon']) { const asset = assets[refs[key]]; const response = await fetch(asset.path); if (!response.ok) throw new ApiError('unavailable', 'Sample image could not be loaded.'); result[key] = { id: asset.id, content: await response.text() }; } return result; }),
   /** @returns {Promise<object>} Shared navigation, labels and placeholder metadata. */
-  getNavigation: () => respond(() => ({ ...adminData.navigation, labels: adminData.labels, placeholder: adminData.placeholder })),
+  getNavigation: () => respond(async () => ({ ...adminData.navigation, labels: adminData.labels, placeholder: adminData.placeholder, assetRefs: adminData.assetRefs, assets: await resolveAssets(adminData.assetIds) })),
   /** @returns {Promise<object>} Overview heading and panel definitions. */
   getOverview: () => respond(() => ({ title: adminData.overview.title, description: adminData.overview.description, labels: adminData.labels })),
   /** @returns {Promise<object[]>} KPI records, independently loadable. */
@@ -26,7 +29,7 @@ export const adminApi = {
   /** @returns {Promise<object>} Failed-run rows and column definitions. */
   getFailedRuns: () => respond(() => adminData.overview.failures),
   /** @returns {Promise<{content:object,kit:object,labels:object,rules:object}>} Brand kit and form/preview metadata. */
-  getBranding: () => respond(() => ({ content: adminData.branding, kit: brands.get('personal'), labels: adminData.labels, rules: { maxBytes: ADMIN_RULES.uploadMaxBytes, mime: ADMIN_RULES.uploadMime } })),
+  getBranding: () => respond(async () => ({ content: adminData.branding, kit: brands.get('personal'), labels: adminData.labels, rules: { maxBytes: ADMIN_RULES.uploadMaxBytes, mime: ADMIN_RULES.uploadMime, darkText: ADMIN_RULES.darkText }, assetRefs: adminData.assetRefs, assets: await resolveAssets(adminData.assetIds) })),
   /** @returns {Promise<object>} Validated and persisted brand kit. */
   saveBrandKit: (patch, options) => respond(() => {
     const keys = Object.keys(adminData.brandSeed).filter((key) => !['id', 'savedAt'].includes(key));
@@ -45,15 +48,15 @@ export const adminApi = {
   /** @returns {Promise<object>} HTTPS SIEM endpoint and enabled state. */
   configureStreaming: ({ endpoint, enabled }, options) => respond(() => { let url; try { url = new URL(endpoint); } catch { /* reported below */ } if (!url || url.protocol !== 'https:' || url.username || url.password) throw new ApiError('validation', adminData.audit.streaming.validation); const result = streaming.update('personal', { endpoint: url.href, enabled: Boolean(enabled), savedAt: new Date().toISOString() }); log('Audit streaming configured', url.hostname); return result; }, mutation(options)),
   /** @returns {Promise<{content:object,state:object,labels:object}>} Health content and persisted check/action state. */
-  getHealth: () => respond(() => ({ content: adminData.health, state: health.get('system'), labels: adminData.labels })),
+  getHealth: () => respond(async () => ({ content: adminData.health, state: health.get('system'), labels: adminData.labels, assetRefs: adminData.assetRefs, assets: await resolveAssets(adminData.assetIds) })),
   /** @returns {Promise<object>} Refreshed checks. The deterministic sample service recovers on recheck. */
-  checkHealth: (options) => respond(() => { const current = health.get('system'); const checks = current.checks.map((check) => ({ ...check, age: adminData.healthResults.age, ...(check.id === 'storage' ? adminData.healthResults.storage : check.id === 'scheduler' ? current.schedulesPaused ? adminData.healthResults.pausedScheduler : adminData.healthResults.scheduler : {}) })); return health.update('system', { checkCount: current.checkCount + 1, checkedAt: new Date().toISOString(), checks }); }, mutation(options)),
+  checkHealth: (options) => respond(() => { const current = health.get('system'); const checks = current.checks.map((check) => ({ ...check, age: adminData.healthResults.age, ...(check.id === 'storage' ? adminData.healthResults.storage : check.id === 'scheduler' ? current.schedulesPaused ? adminData.healthResults.pausedScheduler : adminData.healthResults.scheduler : {}) })); return health.update('system', { checkCount: current.checkCount + 1, checkedAt: new Date().toISOString(), checks, uptime: current.uptime.map((row) => ({ ...row, days: row.days.map((variant, index) => index === row.days.length - 1 ? 'success' : variant) })) }); }, mutation(options)),
   /** @returns {Promise<object>} Paused schedule state; repeated requests are idempotent. */
   pauseSchedules: (options) => respond(() => { const current = health.get('system'); if (current.schedulesPaused) return current; log('Schedules paused', 'All schedules in Personal workspace'); return health.update('system', { schedulesPaused: true, checks: current.checks.map((check) => check.id === 'scheduler' ? { ...check, ...adminData.healthResults.pausedScheduler } : check) }); }, mutation(options)),
   /** @returns {Promise<object>} Worker admission state; repeated drain requests are idempotent. */
   drainWorker: (worker = adminData.health.actions.worker, options) => respond(() => { if (worker !== adminData.health.actions.worker) throw new ApiError('not_found', 'Worker not found.'); const current = health.get('system'); if (current.drainedWorkers.includes(worker)) return current; log('Worker drained', worker); return health.update('system', { drainedWorkers: [...current.drainedWorkers, worker], checks: current.checks.map((check) => check.id === 'workers' ? { ...check, ...adminData.healthResults.drainedWorkers } : check) }); }, mutation(options)),
   /** @returns {Promise<object>} Access-denied content and current request, never quota data. */
-  getDenied: () => respond(() => ({ ...adminData.denied, requestRecord: access.get('quotas'), labels: adminData.labels })),
+  getDenied: () => respond(async () => ({ ...adminData.denied, requestRecord: access.get('quotas'), labels: adminData.labels, assetRefs: adminData.assetRefs, assets: await resolveAssets(adminData.assetIds) })),
   /** @returns {Promise<object>} One persistent request for Quotas access. */
   requestAccess: (resource = 'quotas', options) => respond(() => { if (resource !== adminData.denied.resource) throw new ApiError('not_found', 'Resource not found.'); const existing = access.get(resource); if (existing) return existing; const request = access.create({ id: resource, role: 'Operator', status: 'pending', createdAt: new Date().toISOString() }); log('Access requested', 'Quotas: Operator role'); return request; }, mutation(options)),
 };
