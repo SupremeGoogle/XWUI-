@@ -1,13 +1,15 @@
 /** Zone-local extensions of the shared XWUI kit. All controls remain XWUI basic. */
-import { XWUICard, XWUIInputText, XWUIInputSelect, XWUIInputColor, XWUIInputSwitch, XWUIInputUpload, XWUIDisplayStatus, XWUIDisplayStatistic, XWUIList, XWUINavTabs, XWUINavPagination, XWUIOverlayDialog } from '@exonware/xwui/basic';
+import { XWUICard, XWUIInputText, XWUIInputSelect, XWUIInputColor, XWUIInputSwitch, XWUIInputUpload, XWUIDisplayStatusPill, XWUIDisplayStatistic, XWUIList, XWUINavTabs, XWUINavPagination, XWUIOverlayDialog } from '@exonware/xwui/basic';
 import { createKit } from '../core/ui.js';
-import { h } from '../core/dom.js';
+import { h, ensureStylesheet } from '../core/dom.js';
 
 export function createXwfKit(owner) {
+  // The concrete pill shares the base stylesheet; its own inferred CDN path is absent.
+  ensureStylesheet('xwui-css-xwuidisplaystatuspill', 'https://xwui.dev/styles/components/basic/XWUIDisplayStatus/XWUIDisplayStatus.css');
   const kit = createKit(owner);
   const { ui, scope } = kit;
   ui.card = (body, conf = {}, data = {}) => ui.mount(XWUICard, { body, ...data }, { variant: 'outlined', padding: 'large', glassEffect: true, ...conf }, { className: 'xwf-card-host' });
-  ui.status = (label, variant = 'neutral') => ui.mount(XWUIDisplayStatus, { label }, { variant, size: 'sm', dot: true }, { tag: 'span', className: 'xwf-status-host' });
+  ui.status = (label, variant = 'neutral') => ui.mount(XWUIDisplayStatusPill, { label }, { variant, size: 'sm', dot: true }, { tag: 'span', className: 'xwf-status-host' });
   ui.statistic = (data, conf = {}) => ui.mount(XWUIDisplayStatistic, data, { countUp: false, size: 'lg', ...conf });
   ui.text = (data, onChange, conf = {}) => {
     const el = ui.mount(XWUIInputText, data, { fullWidth: true, ...conf });
@@ -15,15 +17,20 @@ export function createXwfKit(owner) {
     return el;
   };
   ui.select = (data, onChange, conf = {}) => {
-    const el = ui.mount(XWUIInputSelect, data, { fullWidth: true, ...conf });
+    const el = ui.mount(XWUIInputSelect, data, { fullWidth: true, placeholder: data.options?.find((item) => item.value === '')?.label, ...conf });
     if (onChange) el.xw.onChange(onChange);
     return el;
   };
   ui.color = (value, onChange, conf = {}) => {
-    const el = ui.mount(XWUIInputColor, { value }, conf);
+    const { fieldLabel, ...config } = conf;
+    const el = ui.mount(XWUIInputColor, { value }, config);
+    const labelField = () => { if (!fieldLabel) return; el.querySelector('input')?.setAttribute('aria-label', fieldLabel); el.querySelector('button')?.setAttribute('aria-label', `${fieldLabel} picker`); };
+    labelField();
+    scope.onDispose(el.xw.getInput()?.logic.subscribe(labelField));
     // The picker forwards a value event; native typing is observed separately.
     if (onChange) {
-      scope.listen(el, 'input', () => onChange(el.xw.getValue?.() ?? el.xw.data.value));
+      el.xw.getPicker?.()?.onChange(onChange);
+      scope.listen(el, 'input', () => { onChange(el.xw.getValue?.() ?? el.xw.data.value); labelField(); });
       scope.listen(el, 'change', (event) => onChange(event.detail?.value ?? el.xw.getValue?.() ?? el.xw.data.value));
       const off = el.xw.logic.subscribe(() => { const next = el.xw.data.value; if (next !== value) { value = next; onChange(next); } });
       scope.onDispose(off);
@@ -36,7 +43,8 @@ export function createXwfKit(owner) {
     return el;
   };
   ui.upload = (label, onUpload, conf = {}) => {
-    const el = ui.mount(XWUIInputUpload, { label, files: [] }, { multiple: false, maxCount: 1, dragDrop: false, ...conf });
+    const el = ui.mount(XWUIInputUpload, { label, files: [] }, { multiple: false, maxCount: 1, dragDrop: true, ...conf });
+    el.querySelector('[role="button"]')?.setAttribute('aria-label', label);
     el.xw.onUpload(onUpload);
     return el;
   };
@@ -104,4 +112,9 @@ export function saveDownload(text, name, type = 'text/csv;charset=utf-8') {
   const link = h('a', { href: url, download: name });
   document.body.append(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+export function assetImage(assets, id, className = '', decorative = false) {
+  const asset = assets[id];
+  return asset ? h('img', { src: asset.path, alt: decorative ? '' : asset.alt, width: asset.width, height: asset.height, class: className, loading: 'lazy' }) : null;
 }
