@@ -50,7 +50,7 @@ Asset IDs are declared in data records (`assetRefs` and catalog `assetId`). Doma
 - Seven API tests pass: catalog filtering/pagination/clones/manifest, brand validation and reimport persistence, filtered CSV and formula escaping, SIEM validation/persistence, health recovery and idempotence, access requests and quote validation, independent failures without mutation corruption.
 - JavaScript syntax checks pass for all owned source files.
 - Browser review covered Landing, Integrations, Pricing, Self-host, Overview, Branding, Audit, Health, Quotas denied and an Admin placeholder at 1440px and 1024px. No horizontal document overflow, broken images or browser errors were observed.
-- Exercised sandbox run; category/search/empty reset and details dialog; quote validation/success; clipboard copying; branding edits, palette colors, font, real SVG file chooser, fictional samples, removal, save/reload; audit filters/pagination/CSV/SIEM; health recheck/cancel/confirm/pause/drain; access request; independent panel retry; persisted RTL navigation with the graph kept LTR; and an Admin receipt link into Studio.
+- Exercised sandbox run; category/search/empty reset and details dialog; quote validation/success; clipboard copying; branding edits, palette colors, font, real SVG file chooser, fictional samples, removal, save/reload; audit filters/pagination/CSV/SIEM; health recheck/cancel/confirm/pause/drain; access request; independent panel retry; persisted RTL navigation with the graph kept LTR; an Admin receipt link into Studio, and the self-host editor link against the latest main.
 - Review screenshots and metrics are stored outside the repository in `../xwflow-preview/`. Full asset contact sheets and structural checks are in `../xwflow-asset-review/`.
 
 ## Assumptions and intentionally incomplete areas
@@ -60,4 +60,4 @@ Asset IDs are declared in data records (`assetRefs` and catalog `assetId`). Doma
 - Subpages reuse the complete website footer for consistent working navigation.
 - Tenants, Credentials policy, Node registry, Adapters, Usage, AI governance, Schedules, Workers, All executions, Config and Backups have no supplied artboards and use the agreed placeholder.
 - Branding/SIEM are locally enabled for this frontend demo while the reference commercial-tier note remains visible. Quotes, access requests and operational actions are local mock records; no email, live service command or SIEM transfer occurs.
-- Missing Studio assistant/editor/notation destinations remain Claude's scope. Existing receipt IDs and flow IDs use the agreed contract. No shared core/theme/Studio files were edited by Codex.
+- Studio assistant and notation destinations remain Claude's scope; the editor is now available on the latest main. Existing receipt IDs and flow IDs use the agreed contract. No shared core/theme/Studio files were edited by Codex.
