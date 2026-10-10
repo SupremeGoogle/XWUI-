@@ -1,0 +1,967 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "avatar-1",
+      "path": "assets/avatars/avatar-1.svg",
+      "kind": "avatar",
+      "alt": "Abstract geometric avatar 1",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "cyan",
+        "blue",
+        "text",
+        "bg"
+      ]
+    },
+    {
+      "id": "avatar-2",
+      "path": "assets/avatars/avatar-2.svg",
+      "kind": "avatar",
+      "alt": "Abstract geometric avatar 2",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "violet",
+        "pink",
+        "text",
+        "bg"
+      ]
+    },
+    {
+      "id": "avatar-3",
+      "path": "assets/avatars/avatar-3.svg",
+      "kind": "avatar",
+      "alt": "Abstract geometric avatar 3",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "pink",
+        "orange",
+        "text",
+        "bg"
+      ]
+    },
+    {
+      "id": "avatar-4",
+      "path": "assets/avatars/avatar-4.svg",
+      "kind": "avatar",
+      "alt": "Abstract geometric avatar 4",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "lime",
+        "green",
+        "text",
+        "bg"
+      ]
+    },
+    {
+      "id": "avatar-5",
+      "path": "assets/avatars/avatar-5.svg",
+      "kind": "avatar",
+      "alt": "Abstract geometric avatar 5",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "blue",
+        "violet",
+        "text",
+        "bg"
+      ]
+    },
+    {
+      "id": "avatar-6",
+      "path": "assets/avatars/avatar-6.svg",
+      "kind": "avatar",
+      "alt": "Abstract geometric avatar 6",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "green",
+        "cyan",
+        "text",
+        "bg"
+      ]
+    },
+    {
+      "id": "avatar-7",
+      "path": "assets/avatars/avatar-7.svg",
+      "kind": "avatar",
+      "alt": "Abstract geometric avatar 7",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "cyan",
+        "blue",
+        "text",
+        "bg"
+      ]
+    },
+    {
+      "id": "avatar-8",
+      "path": "assets/avatars/avatar-8.svg",
+      "kind": "avatar",
+      "alt": "Abstract geometric avatar 8",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "violet",
+        "pink",
+        "text",
+        "bg"
+      ]
+    },
+    {
+      "id": "brand-logo-full",
+      "path": "assets/brand/logo-full.svg",
+      "kind": "brand",
+      "alt": "xwflow",
+      "width": 340,
+      "height": 64,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "orange",
+        "lime",
+        "bg",
+        "text"
+      ]
+    },
+    {
+      "id": "brand-logo-mark",
+      "path": "assets/brand/logo-mark.svg",
+      "kind": "brand",
+      "alt": "xwflow neon spectrum mark",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "orange",
+        "lime",
+        "bg",
+        "text"
+      ]
+    },
+    {
+      "id": "brand-logo-mono",
+      "path": "assets/brand/logo-mono.svg",
+      "kind": "brand",
+      "alt": "xwflow monochrome mark and word",
+      "width": 340,
+      "height": 64,
+      "tones": [
+        "currentColor"
+      ]
+    },
+    {
+      "id": "brand-og-image",
+      "path": "assets/brand/og-image.webp",
+      "kind": "brand",
+      "alt": "xwflow with luminous connected glass workflow nodes",
+      "width": 1200,
+      "height": 630,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "orange",
+        "lime",
+        "bg",
+        "bg2",
+        "bg3",
+        "text"
+      ]
+    },
+    {
+      "id": "illustration-assistant-core",
+      "path": "assets/illustrations/assistant-core.svg",
+      "kind": "illustration",
+      "alt": "Luminous assistant sphere with three orbital rings",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-denied-lock",
+      "path": "assets/illustrations/denied-lock.svg",
+      "kind": "illustration",
+      "alt": "Glass access lock with protective neon orbits",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "text",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-empty-flows",
+      "path": "assets/illustrations/empty-flows.svg",
+      "kind": "illustration",
+      "alt": "Three unconnected workflow tiles ready for a new flow",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-empty-generic",
+      "path": "assets/illustrations/empty-generic.svg",
+      "kind": "illustration",
+      "alt": "Empty glass container surrounded by a neon orbit",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-empty-runs",
+      "path": "assets/illustrations/empty-runs.svg",
+      "kind": "illustration",
+      "alt": "Glass play button waiting for the first workflow run",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "lime",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-empty-search",
+      "path": "assets/illustrations/empty-search.svg",
+      "kind": "illustration",
+      "alt": "Floating magnifying glass with no search results",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "muted",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-health-alert",
+      "path": "assets/illustrations/health-alert.svg",
+      "kind": "illustration",
+      "alt": "Alerting red heartbeat on a floating glass health panel",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "red",
+        "muted",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-health-ok",
+      "path": "assets/illustrations/health-ok.svg",
+      "kind": "illustration",
+      "alt": "Healthy green heartbeat on a floating glass health panel",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "green",
+        "muted",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-hero-flow",
+      "path": "assets/illustrations/hero-flow.svg",
+      "kind": "illustration",
+      "alt": "Floating glass workflow nodes linked by neon cables",
+      "width": 720,
+      "height": 400,
+      "tones": [
+        "lime",
+        "cyan",
+        "violet",
+        "pink",
+        "orange",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-not-found",
+      "path": "assets/illustrations/not-found.svg",
+      "kind": "illustration",
+      "alt": "Lost workflow node with a broken neon connection",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "amber",
+        "muted",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-pricing-cube",
+      "path": "assets/illustrations/pricing-cube.svg",
+      "kind": "illustration",
+      "alt": "Customizable neon glass cube for white-label plans",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "pink",
+        "orange",
+        "bg3"
+      ]
+    },
+    {
+      "id": "illustration-self-host-servers",
+      "path": "assets/illustrations/self-host-servers.svg",
+      "kind": "illustration",
+      "alt": "Stack of three illuminated isometric server plates",
+      "width": 480,
+      "height": 320,
+      "tones": [
+        "cyan",
+        "violet",
+        "lime",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-accounting",
+      "path": "assets/integrations/accounting.svg",
+      "kind": "integration",
+      "alt": "Accounting integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "green",
+        "cyan",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-ai-model",
+      "path": "assets/integrations/ai-model.svg",
+      "kind": "integration",
+      "alt": "Ai Model integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "lime",
+        "green",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-analytics",
+      "path": "assets/integrations/analytics.svg",
+      "kind": "integration",
+      "alt": "Analytics integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "violet",
+        "pink",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-auth",
+      "path": "assets/integrations/auth.svg",
+      "kind": "integration",
+      "alt": "Auth integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "lime",
+        "green",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-calendar",
+      "path": "assets/integrations/calendar.svg",
+      "kind": "integration",
+      "alt": "Calendar integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "violet",
+        "pink",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-chat",
+      "path": "assets/integrations/chat.svg",
+      "kind": "integration",
+      "alt": "Chat integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "cyan",
+        "blue",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-crm",
+      "path": "assets/integrations/crm.svg",
+      "kind": "integration",
+      "alt": "Crm integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "pink",
+        "orange",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-database",
+      "path": "assets/integrations/database.svg",
+      "kind": "integration",
+      "alt": "Database integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "blue",
+        "violet",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-email",
+      "path": "assets/integrations/email.svg",
+      "kind": "integration",
+      "alt": "Email integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "violet",
+        "pink",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-files",
+      "path": "assets/integrations/files.svg",
+      "kind": "integration",
+      "alt": "Files integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "cyan",
+        "blue",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-forms",
+      "path": "assets/integrations/forms.svg",
+      "kind": "integration",
+      "alt": "Forms integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "pink",
+        "orange",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-git",
+      "path": "assets/integrations/git.svg",
+      "kind": "integration",
+      "alt": "Git integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "cyan",
+        "blue",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-hr",
+      "path": "assets/integrations/hr.svg",
+      "kind": "integration",
+      "alt": "Hr integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "blue",
+        "violet",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-http",
+      "path": "assets/integrations/http.svg",
+      "kind": "integration",
+      "alt": "Http integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "blue",
+        "violet",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-maps",
+      "path": "assets/integrations/maps.svg",
+      "kind": "integration",
+      "alt": "Maps integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "violet",
+        "pink",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-marketing",
+      "path": "assets/integrations/marketing.svg",
+      "kind": "integration",
+      "alt": "Marketing integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "lime",
+        "green",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-monitoring",
+      "path": "assets/integrations/monitoring.svg",
+      "kind": "integration",
+      "alt": "Monitoring integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "green",
+        "cyan",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-payments",
+      "path": "assets/integrations/payments.svg",
+      "kind": "integration",
+      "alt": "Payments integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "cyan",
+        "blue",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-queue",
+      "path": "assets/integrations/queue.svg",
+      "kind": "integration",
+      "alt": "Queue integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "blue",
+        "violet",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-sheets",
+      "path": "assets/integrations/sheets.svg",
+      "kind": "integration",
+      "alt": "Sheets integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "lime",
+        "green",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-sms",
+      "path": "assets/integrations/sms.svg",
+      "kind": "integration",
+      "alt": "Sms integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "pink",
+        "orange",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-storage",
+      "path": "assets/integrations/storage.svg",
+      "kind": "integration",
+      "alt": "Storage integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "green",
+        "cyan",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-support",
+      "path": "assets/integrations/support.svg",
+      "kind": "integration",
+      "alt": "Support integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "pink",
+        "orange",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "integration-webhook",
+      "path": "assets/integrations/webhook.svg",
+      "kind": "integration",
+      "alt": "Webhook integration category",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "green",
+        "cyan",
+        "text",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-ai-condition",
+      "path": "assets/nodes/ai-condition.svg",
+      "kind": "node",
+      "alt": "Ai Condition workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "pink",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-append-row",
+      "path": "assets/nodes/append-row.svg",
+      "kind": "node",
+      "alt": "Append Row workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "cyan",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-code",
+      "path": "assets/nodes/code.svg",
+      "kind": "node",
+      "alt": "Code workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "violet",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-condition",
+      "path": "assets/nodes/condition.svg",
+      "kind": "node",
+      "alt": "Condition workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "orange",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-http-request",
+      "path": "assets/nodes/http-request.svg",
+      "kind": "node",
+      "alt": "Http Request workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "cyan",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-merge",
+      "path": "assets/nodes/merge.svg",
+      "kind": "node",
+      "alt": "Merge workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "orange",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-post-message",
+      "path": "assets/nodes/post-message.svg",
+      "kind": "node",
+      "alt": "Post Message workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "cyan",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-schedule",
+      "path": "assets/nodes/schedule.svg",
+      "kind": "node",
+      "alt": "Schedule workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "lime",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-send-email",
+      "path": "assets/nodes/send-email.svg",
+      "kind": "node",
+      "alt": "Send Email workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "cyan",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-set-fields",
+      "path": "assets/nodes/set-fields.svg",
+      "kind": "node",
+      "alt": "Set Fields workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "violet",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-wait",
+      "path": "assets/nodes/wait.svg",
+      "kind": "node",
+      "alt": "Wait workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "orange",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "node-webhook",
+      "path": "assets/nodes/webhook.svg",
+      "kind": "node",
+      "alt": "Webhook workflow step",
+      "width": 64,
+      "height": 64,
+      "tones": [
+        "lime",
+        "bg2",
+        "bg3"
+      ]
+    },
+    {
+      "id": "pattern-dot-grid",
+      "path": "assets/patterns/dot-grid.svg",
+      "kind": "pattern",
+      "alt": "Seamless subtle violet dot grid",
+      "width": 24,
+      "height": 24,
+      "tones": [
+        "violet"
+      ]
+    },
+    {
+      "id": "pattern-line-grid",
+      "path": "assets/patterns/line-grid.svg",
+      "kind": "pattern",
+      "alt": "Seamless subtle cyan floor line grid",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "cyan"
+      ]
+    },
+    {
+      "id": "pattern-noise",
+      "path": "assets/patterns/noise.webp",
+      "kind": "pattern",
+      "alt": "Seamless transparent fine monochrome grain texture",
+      "width": 128,
+      "height": 128,
+      "tones": [
+        "text"
+      ]
+    },
+    {
+      "id": "sample-favicon-1",
+      "path": "assets/branding-samples/sample-favicon-1.svg",
+      "kind": "sample",
+      "alt": "Prism Works fictional favicon",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "cyan",
+        "violet",
+        "bg3"
+      ]
+    },
+    {
+      "id": "sample-favicon-2",
+      "path": "assets/branding-samples/sample-favicon-2.svg",
+      "kind": "sample",
+      "alt": "Orbit Labs fictional favicon",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "orange",
+        "pink",
+        "bg3"
+      ]
+    },
+    {
+      "id": "sample-favicon-3",
+      "path": "assets/branding-samples/sample-favicon-3.svg",
+      "kind": "sample",
+      "alt": "Evergrid fictional favicon",
+      "width": 48,
+      "height": 48,
+      "tones": [
+        "lime",
+        "green",
+        "bg3"
+      ]
+    },
+    {
+      "id": "sample-logo-1",
+      "path": "assets/branding-samples/sample-logo-1.svg",
+      "kind": "sample",
+      "alt": "Prism Works fictional geometric logo",
+      "width": 176,
+      "height": 40,
+      "tones": [
+        "cyan",
+        "violet",
+        "text"
+      ]
+    },
+    {
+      "id": "sample-logo-2",
+      "path": "assets/branding-samples/sample-logo-2.svg",
+      "kind": "sample",
+      "alt": "Orbit Labs fictional geometric logo",
+      "width": 176,
+      "height": 40,
+      "tones": [
+        "orange",
+        "pink",
+        "text"
+      ]
+    },
+    {
+      "id": "sample-logo-3",
+      "path": "assets/branding-samples/sample-logo-3.svg",
+      "kind": "sample",
+      "alt": "Evergrid fictional geometric logo",
+      "width": 176,
+      "height": 40,
+      "tones": [
+        "lime",
+        "green",
+        "text"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+.xwf-status-host {
+  --accent-info: var(--xw-cyan);
+  --accent-success: var(--xw-green);
+  --accent-error: var(--xw-red);
+  --accent-warning: var(--xw-amber);
+}

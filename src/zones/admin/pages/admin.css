@@ -1,0 +1,318 @@
+.xwf-admin {
+  display: flex;
+  min-height: 100vh;
+  align-items: stretch;
+}
+.xwf-admin__rail {
+  flex: 0 0 232px;
+  min-width: 0;
+  background: var(--xw-bg2);
+  border-inline-end: 1px solid var(--xw-line);
+}
+.xwf-admin-sidebar {
+  height: 100%;
+  min-height: 100vh;
+  --bg-sidebar: var(--xw-bg2);
+  --border-color: var(--xw-line);
+  --menu-item-radius: 12px;
+}
+.xwf-admin-sidebar .xwui-sidebar {
+  height: 100%;
+}
+.xwf-admin-sidebar .xwui-sidebar-header {
+  padding: 20px 12px;
+}
+.xwf-admin-sidebar .xwui-sidebar-menu {
+  padding-inline: 12px;
+}
+.xwf-admin-sidebar .xwui-menu-item {
+  min-height: 38px;
+  border-radius: 12px;
+}
+.xwf-admin-sidebar .xwui-menu-item-selected {
+  background: color-mix(in srgb, var(--xw-lime) 14%, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--xw-lime) 22%, transparent);
+}
+.xwf-admin__brand {
+  font-size: 1.05rem;
+}
+.xwf-admin__main {
+  flex: 1;
+  min-width: 0;
+}
+.xwf-admin__outlet {
+  min-width: 0;
+}
+.xwf-admin__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.xwf-brand-mark {
+  width: 28px;
+  height: 28px;
+}
+.xwf-admin .xwf-card-host > .xwui-card {
+  border-color: var(--xw-line);
+  background: linear-gradient(180deg, var(--xw-panel2), var(--xw-panel));
+  border-radius: var(--xw-radius);
+}
+.xwf-admin .xwf-page-title {
+  font-size: 2rem;
+}
+.xwf-admin__panels {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.xwf-admin__chart {
+  flex: 999 1 520px;
+  min-width: 0;
+}
+.xwf-admin__reachability {
+  flex: 1 1 340px;
+  min-width: 0;
+}
+.xwf-admin__kpis {
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+}
+.xwf-admin__kpi {
+  --border-color: var(--xw-line);
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+}
+.xwf-admin__kpi .xwui-statistic-value {
+  font-family: var(--xw-font-display);
+  color: var(--xwf-tone);
+  font-size: 1.9rem;
+}
+.xwf-admin__kpi::after {
+  content: '';
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--xwf-tone);
+  filter: blur(40px);
+  opacity: 0.25;
+  pointer-events: none;
+}
+.xwf-brand-form {
+  flex: 1 1 410px;
+  min-width: 0;
+}
+.xwf-brand-results {
+  flex: 1 1 480px;
+  min-width: 0;
+}
+.xwf-brand-fields {
+  padding: 24px;
+}
+.xwf-brand-color-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 180px;
+}
+.xwf-brand-upload {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.xwf-brand-upload img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+.xwf-brand-samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.xwf-audit-filters {
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.xwf-audit-filters > .xw-host {
+  flex: 1 1 150px;
+  max-width: 240px;
+}
+.xwf-audit-search {
+  min-width: 240px;
+}
+.xwf-audit-events {
+  flex: 999 1 600px;
+  min-width: 0;
+}
+.xwf-audit-stream {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+.xwf-health-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  padding: 28px;
+  border: 1px solid color-mix(in srgb, var(--xw-red) 40%, transparent);
+  border-radius: 28px;
+  background: var(--xw-panel);
+}
+.xwf-health-summary img {
+  width: 84px;
+  height: 84px;
+}
+.xwf-health-summary > div {
+  flex: 1 1 400px;
+}
+.xwf-health-checks {
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+}
+.xwf-health-topology,
+.xwf-health-history {
+  flex: 1 1 420px;
+  min-width: 0;
+}
+.xwf-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+  gap: 22px;
+  position: relative;
+}
+.xwf-denied__art {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+}
+.xwf-denied__card {
+  width: 100%;
+  max-width: 640px;
+  --card-radius: 30px;
+  box-shadow: 0 40px 120px -40px
+    color-mix(in srgb, var(--xw-amber) 30%, transparent);
+}
+.xwf-denied__roles {
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  gap: 12px;
+}
+.xwf-admin .xwui-table-wrapper {
+  overflow: auto;
+}
+.xwf-admin .xwui-table {
+  min-width: 620px;
+}
+.xwf-brand-results .xwui-table {
+  min-width: 0;
+}
+.xwf-panel-error {
+  padding: 24px;
+}
+.xwf-admin__placeholder {
+  padding: 60px 0;
+}
+.xwf-admin__placeholder .xwui-empty {
+  min-height: 300px;
+}
+@media (max-width: 1100px) {
+  .xwf-admin__rail {
+    flex-basis: 210px;
+  }
+  .xwf-admin-sidebar {
+    width: 210px !important;
+  }
+  .xwf-admin__outlet {
+    padding: 22px;
+  }
+  .xwf-admin__chart {
+    flex-basis: 450px;
+  }
+  .xwf-admin__reachability {
+    flex-basis: 300px;
+  }
+}
+@media (max-width: 760px) {
+  .xwf-admin {
+    display: block;
+  }
+  .xwf-admin__rail {
+    width: 100%;
+    border-inline-end: 0;
+  }
+  .xwf-admin-sidebar {
+    width: 100% !important;
+    min-height: 0;
+    max-height: 250px;
+    overflow: auto;
+  }
+  .xwf-admin__outlet {
+    padding: 16px;
+  }
+  .xwf-admin .topb {
+    padding: 14px 16px;
+  }
+  .xwf-brand-fields {
+    padding: 16px;
+  }
+  .xwf-health-summary {
+    padding: 20px;
+  }
+  .xwf-admin .xwf-page-title {
+    font-size: 1.6rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xwf-admin * {
+    animation: none !important;
+  }
+}
+
+.xwf-admin__kpi > .xwf-card-host,
+.xwf-admin__kpi .xwui-card {
+  height: 100%;
+}
+.xwf-brand-upload .xwui-input-upload-dropzone {
+  padding: 14px;
+}
+.xwf-brand-upload .xwui-input-upload-icon {
+  font-size: 24px;
+}
+.xwf-brand-upload .xwui-input-upload-hint {
+  font-size: 0.65rem;
+}
+.xwf-health-summary {
+  border-color: color-mix(
+    in srgb,
+    var(--xwf-summary-tone, var(--xw-red)) 40%,
+    transparent
+  );
+}
+
+.xwf-admin__kpis {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.xwf-admin__kpi--text .xwui-statistic-value {
+  font-size: 1.15rem;
+}
+@media (max-width: 1100px) {
+  .xwf-admin__kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 500px) {
+  .xwf-admin__kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+.xwf-brand-upload--logo img {
+  width: 160px;
+  max-width: 100%;
+}

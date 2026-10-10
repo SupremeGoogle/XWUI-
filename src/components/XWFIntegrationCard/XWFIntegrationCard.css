@@ -1,0 +1,34 @@
+.xwf-integration-card {
+  height: 100%;
+  --border-color: var(--xw-line);
+  --card-radius: 22px;
+}
+.xwf-integration-card .xwui-card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+.xwf-integration-card .xwui-card::after {
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: var(--xwf-tone);
+  filter: blur(50px);
+  opacity: 0.22;
+  pointer-events: none;
+}
+.xwf-integration-card__icon {
+  width: 44px;
+  height: 44px;
+}
+.xwf-integration-card--featured .xwf-integration-card__icon {
+  width: 76px;
+  height: 76px;
+}
+.xwf-integration-card--featured h2 {
+  font-size: 1.6rem;
+}
