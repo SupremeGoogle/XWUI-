@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" dir="ltr"
+      data-theme="dark"
+      data-brand="xwui"
+      data-style="modern"
+      data-accent="purple"
+      data-roundness="rounded"
+      data-font="inter">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>xwflow</title>
+  <meta name="description" content="xwflow: define a process, publish a version, run it, and keep a receipt of every run.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Noto+Kufi+Arabic:wght@800&display=swap">
+
+  <!-- XWUI: theme preset from the CDN (basic tier is free; nothing else is loaded) -->
+  <link rel="stylesheet" href="https://xwui.dev/styles/presets/dark.css">
+
+  <!-- xwflow theme: prototype tokens mapped onto the XWUI variables -->
+  <link rel="stylesheet" href="src/styles/theme.css">
+  <link rel="stylesheet" href="src/styles/base.css">
+  <link rel="stylesheet" href="src/styles/xwui-overrides.css">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "@exonware/xwui/basic": "https://xwui.dev/esm/basic.bundle.js"
+    }
+  }
+  </script>
+  <script type="module" src="src/app.js"></script>
+</head>
+<body>
+  <div id="app" class="xw" aria-live="polite">
+    <div class="app-boot" role="status">
+      <span class="app-boot__mark disp">xwflow</span>
+      <span class="app-boot__text">Loading</span>
+    </div>
+  </div>
+  <noscript>xwflow needs JavaScript to run.</noscript>
+</body>
+</html>

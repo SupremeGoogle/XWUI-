@@ -1,0 +1,123 @@
+/*
+* XWUI component tuning for the xwflow look.
+ * Tokens in theme.css do most of the work; the rules below cover what XWUI exposes
+ * no variable for (pill geometry, the prototype's glow and glass, font weight).
+ * Selectors stay on XWUI's public class names only; the "html body" prefix outranks the
+ * component stylesheets XWUI injects at runtime (they load after ours).
+ */
+
+/* hosts created by core/ui.js */
+.xw-host { display: inline-flex; vertical-align: middle; min-width: 0; }
+.xw-host--block { display: block; }
+.xw-host--center { display: flex; justify-content: center; }
+.xw-host--icon { line-height: 0; }
+.xw-host--fill, .xw-host--fill > .xwui-button { width: 100%; }
+
+/* ---------- XWUIButton = prototype .btn ---------- */
+html body .xwui-button {
+  font-family: var(--xw-font-body);
+  font-weight: 800;
+  letter-spacing: 0;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: transform .2s, box-shadow .2s, background .2s, color .2s;
+}
+html body .xwui-button.xwui-button-m { min-height: 44px; padding: 0 20px; font-size: .9375rem; }
+html body .xwui-button.xwui-button-s, html body .xwui-button.xwui-button-sm { min-height: 34px; padding: 0 14px; font-size: .8125rem; gap: 6px; }
+html body .xwui-button.xwui-button-l, html body .xwui-button.xwui-button-lg { min-height: 56px; padding: 0 30px; font-size: 1.0625rem; }
+html body .xwui-button:hover:not(:disabled) { transform: translateY(-1px); }
+html body .xwui-button:focus-visible { outline: 2px solid var(--xw-focus); outline-offset: 3px; }
+
+html body .xwui-button.xwui-button-primary {
+  background: var(--xw-lime);
+  border-color: var(--xw-lime);
+  color: var(--xw-ink) !important;
+  box-shadow: 0 0 0 1px rgba(200, 255, 61, .4), 0 10px 40px -8px rgba(200, 255, 61, .6);
+}
+html body .xwui-button.xwui-button-primary:hover:not(:disabled) {
+  background: var(--xw-lime);
+  box-shadow: 0 0 0 1px rgba(200, 255, 61, .6), 0 14px 50px -6px rgba(200, 255, 61, .8);
+}
+
+html body .xwui-button.xwui-button-secondary {
+  background: var(--xw-panel2);
+  border: 1px solid var(--xw-line2);
+  color: var(--xw-tx) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: none;
+}
+html body .xwui-button.xwui-button-secondary:hover:not(:disabled) { background: var(--xw-panel3); }
+
+html body .xwui-button.xwui-button-outline {
+  border: 1px solid transparent;
+  background: linear-gradient(var(--xw-bg2), var(--xw-bg2)) padding-box, var(--xw-grad) border-box;
+  color: var(--xw-tx) !important;
+}
+
+html body .xwui-button.xwui-button-ghost { background: transparent; border-color: transparent; color: var(--xw-tx) !important; box-shadow: none; }
+html body .xwui-button.xwui-button-ghost:hover:not(:disabled) { background: var(--xw-panel2); }
+
+html body .xwui-button.xwui-button-danger {
+  background: rgba(255, 92, 108, .12);
+  border: 1px solid rgba(255, 92, 108, .45);
+  color: #ff99a3 !important;
+  box-shadow: none;
+}
+html body .xwui-button.xwui-button-danger:hover:not(:disabled) { background: rgba(255, 92, 108, .2); }
+
+html body .xwui-button:disabled, html body .xwui-button[aria-disabled="true"] { opacity: .45; transform: none; box-shadow: none; }
+
+/* ---------- XWUIDisplayTag = prototype .tag ---------- */
+html body .xwui-tag {
+  border-radius: 999px;
+  font-family: var(--xw-font-body);
+  font-weight: 800;
+  font-size: .72rem;
+  line-height: 1.7;
+  padding: 2px 10px;
+  background: var(--xw-panel2);
+  color: var(--xw-tx2);
+  border: 1px solid var(--xw-line);
+}
+html body .xwui-tag.xwui-tag-primary { color: var(--xw-lime); background: rgba(200, 255, 61, .1); border-color: rgba(200, 255, 61, .3); }
+html body .xwui-tag.xwui-tag-success { color: var(--xw-green); background: rgba(61, 255, 162, .1); border-color: rgba(61, 255, 162, .3); }
+html body .xwui-tag.xwui-tag-warning { color: #ffd77a; background: rgba(255, 197, 61, .12); border-color: rgba(255, 197, 61, .35); }
+html body .xwui-tag.xwui-tag-error { color: #ff99a3; background: rgba(255, 92, 108, .12); border-color: rgba(255, 92, 108, .35); }
+/* extra tones used by the prototype, applied through conf_comp.className */
+html body .xwui-tag.xw-tone-cyan { color: var(--xw-cyan); background: rgba(46, 230, 255, .1); border-color: rgba(46, 230, 255, .3); }
+html body .xwui-tag.xw-tone-violet { color: #c4adff; background: rgba(155, 107, 255, .14); border-color: rgba(155, 107, 255, .35); }
+html body .xwui-tag.xw-tone-pink { color: #ff8cc5; background: rgba(255, 79, 163, .12); border-color: rgba(255, 79, 163, .35); }
+html body .xwui-tag.xw-tone-orange { color: #ffb07f; background: rgba(255, 138, 61, .12); border-color: rgba(255, 138, 61, .35); }
+html body .xwui-tag.xw-tone-plan { background: transparent; border: 1px dashed var(--xw-tx3); color: var(--xw-tx2); }
+
+/* ---------- XWUITable = prototype .tbw/.tbl ---------- */
+html body .xwui-table-wrapper {
+  border: 1px solid var(--xw-line);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .015));
+  overflow: hidden;
+}
+html body .xwui-table { font-family: var(--xw-font-body); font-size: .875rem; background: transparent; }
+html body .xwui-table th, html body .xwui-table .xwui-table-header {
+  text-align: start;
+  font-weight: 800;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--xw-tx2);
+  background: rgba(255, 255, 255, .02);
+  border-bottom: 1px solid var(--xw-line);
+}
+html body .xwui-table td { border-bottom: 1px solid var(--xw-line); background: transparent; }
+html body .xwui-table tbody tr:last-child td { border-bottom: 0; }
+html body .xwui-table tbody tr:hover td { background: rgba(255, 255, 255, .03); }
+
+/* ---------- inputs ---------- */
+html body .xwui-input, html body .xwui-input-text input, html body .xwui-select-trigger, html body .xwui-textarea textarea {
+  font-family: var(--xw-font-body);
+}
+
+/* ---------- overlays ---------- */
+.xw-dialog-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.xw-toaster { position: fixed; z-index: 1000; }
+html body .xwui-button .xwui-button-text { font-weight: 800; }

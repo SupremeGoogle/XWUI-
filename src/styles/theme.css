@@ -1,0 +1,166 @@
+/*
+ * xwflow theme.
+ * 1. --xw-* tokens: the prototype's palette ("Neon Depth").
+ * 2. The same values pushed into XWUI's own variables, so every XWUI component
+ *    (buttons, inputs, tables, dialogs, toasts...) renders in the xwflow look
+ *    without per-component restyling. Selector specificity beats the CDN preset.
+ */
+:root {
+  /* surfaces */
+  --xw-bg: #05050a;
+  --xw-bg2: #0a0a14;
+  --xw-bg3: #11111e;
+  --xw-panel: rgba(255, 255, 255, .035);
+  --xw-panel2: rgba(255, 255, 255, .06);
+  --xw-panel3: rgba(255, 255, 255, .09);
+  --xw-line: rgba(255, 255, 255, .08);
+  --xw-line2: rgba(255, 255, 255, .16);
+  --xw-ink: #0a0a0a;
+
+  /* text */
+  --xw-tx: #f5f5fa;
+  --xw-tx2: #a9a9c2;
+  --xw-tx3: #6f6f8a;
+
+  /* accents */
+  --xw-lime: #c8ff3d;
+  --xw-cyan: #2ee6ff;
+  --xw-violet: #9b6bff;
+  --xw-pink: #ff4fa3;
+  --xw-orange: #ff8a3d;
+  --xw-green: #3dffa2;
+  --xw-amber: #ffc53d;
+  --xw-red: #ff5c6c;
+  --xw-blue: #4d8bff;
+
+  /* node groups (trigger, control, data, ai, integration) */
+  --xw-g-trig: var(--xw-lime);
+  --xw-g-ctrl: var(--xw-orange);
+  --xw-g-data: var(--xw-violet);
+  --xw-g-ai: var(--xw-pink);
+  --xw-g-int: var(--xw-cyan);
+
+  --xw-grad: linear-gradient(100deg, #2ee6ff 0%, #9b6bff 34%, #ff4fa3 66%, #ff8a3d 100%);
+  --xw-grad2: linear-gradient(135deg, #c8ff3d 0%, #2ee6ff 100%);
+  --xw-radius: 20px;
+
+  --xw-font-display: Unbounded, Manrope, sans-serif;
+  --xw-font-body: Manrope, "Segoe UI", system-ui, sans-serif;
+  --xw-font-mono: "JetBrains Mono", Consolas, monospace;
+  --xw-font-arabic: "Noto Kufi Arabic", Manrope, sans-serif;
+
+  --xw-shell-rail: 256px;
+  --xw-focus: var(--xw-cyan);
+}
+
+/* XWUI variable mapping (dark theme is the only theme the prototype shows) */
+html:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-primary: var(--xw-bg);
+  --bg-secondary: var(--xw-bg2);
+  --bg-tertiary: var(--xw-bg3);
+  --bg-app: var(--xw-bg);
+  --bg-elevated: #10101c;
+  --bg-card: rgba(255, 255, 255, .045);
+  --bg-muted: var(--xw-panel2);
+  --bg-hover: var(--xw-panel2);
+  --bg-active: var(--xw-panel3);
+  --bg-input: rgba(0, 0, 0, .35);
+  --bg-menu: #10101c;
+  --bg-header: rgba(5, 5, 10, .5);
+  --skeleton-bg: rgba(255, 255, 255, .07);
+
+  --text-primary: var(--xw-tx);
+  --text-secondary: var(--xw-tx2);
+  --text-tertiary: var(--xw-tx3);
+  --text-inverse: var(--xw-ink);
+  --text-on-accent: var(--xw-ink);
+
+  --border-color: var(--xw-line);
+  --border-light: var(--xw-line);
+  --border-subtle: var(--xw-line);
+  --border-medium: var(--xw-line2);
+  --border-strong: rgba(255, 255, 255, .24);
+
+  --control-bg: var(--xw-panel2);
+  --control-bg-hover: var(--xw-panel3);
+  --control-bg-active: rgba(255, 255, 255, .12);
+  --control-border: var(--xw-line2);
+  --control-text: var(--xw-tx);
+  --control-text-secondary: var(--xw-tx2);
+  --control-active: var(--xw-lime);
+
+  --accent-primary: var(--xw-lime);
+  --accent-hover: #d6ff6a;
+  --accent-light: rgba(200, 255, 61, .12);
+  --accent-primary-ink: var(--xw-ink);
+  --accent-success: var(--xw-green);
+  --accent-success-hover: #6bffb9;
+  --accent-warning: var(--xw-amber);
+  --accent-error: var(--xw-red);
+
+  /* role-*-fg = text drawn ON a filled role surface */
+  --role-primary-fg: var(--xw-ink);
+  --role-success-fg: var(--xw-ink);
+  --role-warning-fg: var(--xw-ink);
+  --role-danger-fg: var(--xw-ink);
+  --role-info-fg: var(--xw-ink);
+
+  --color-purple: var(--xw-violet);
+  --color-pink: var(--xw-pink);
+
+  --font-family: var(--xw-font-body);
+  --font-family-base: var(--xw-font-body);
+  --font-button-family: var(--xw-font-body);
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-button: 999px;
+  --radius-input: 12px;
+  --radius-badge: 999px;
+  --radius-chip: 999px;
+  --radius-tab: 999px;
+  --radius-table: 18px;
+  --radius-dialog: 24px;
+  --radius-toast: 16px;
+  --radius-menu: 14px;
+  --radius-container: var(--xw-radius);
+}
+
+html[dir="rtl"] { --xw-font-display: var(--xw-font-arabic), Unbounded, sans-serif; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--xw-bg);
+}
+
+body { overflow-x: hidden; }
+
+/* app root carries the prototype's ambient background */
+#app.xw {
+  min-height: 100vh;
+  overflow: visible;
+}
+
+.app-boot {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.app-boot__mark { font-size: 2rem; font-weight: 800; }
+.app-boot__text { color: var(--xw-tx3); font-size: .875rem; animation: pulse 1.4s infinite; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

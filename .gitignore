@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+Thumbs.db
+CODEX_PROMPT.md
+_reference/
+*.log
