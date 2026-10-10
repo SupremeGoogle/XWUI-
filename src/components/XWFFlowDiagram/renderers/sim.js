@@ -87,8 +87,12 @@ export function renderSim({ flow, types, labels, uid, simState, animate }) {
     paths.push({ id: `${uid}-d${i}`, d: y1 === dy + 45 ? `M${x1} ${y1} H${dx - 4}` : `M${x1} ${y1} H${(x1 + dx) / 2} V${dy + 45} H${dx - 4}` });
   });
   const pathEls = h('g', { stroke: LINE, 'stroke-width': '2.4', fill: 'none' }, paths.map((p) => h('path', { id: p.id, d: p.d, 'marker-end': marker(uid) })));
-  const tokens = animate && simState?.running ? h('g', { fill: 'var(--xw-lime)' }, paths.flatMap((p, i) => [0, 1].map((k) => h('circle', { r: k ? 5 : 7, filter: k ? null : `url(#${uid}-glow)` },
-    h('animateMotion', { dur: `${1.2 + (i % 4) * 0.3}s`, begin: `${-((i + k) * 0.45)}s`, repeatCount: 'indefinite' }, h('mpath', { href: `#${p.id}` })))))) : null;
+  const tokens = animate && simState?.running ? h('g', { fill: 'var(--xw-lime)' }, paths.flatMap((p, i) => [0, 1].map((k) => {
+    const motionId = `${p.id}-motion${k}`;
+    return h('circle', { r: k ? 5 : 7, visibility: 'hidden', filter: k ? null : `url(#${uid}-glow)` },
+      h('set', { attributeName: 'visibility', to: 'visible', begin: `${motionId}.begin`, fill: 'freeze' }),
+      h('animateMotion', { id: motionId, dur: `${1.2 + (i % 4) * 0.3}s`, begin: `${(i + k) * 0.15}s`, repeatCount: 'indefinite' }, h('mpath', { href: `#${p.id}` })));
+  }))) : null;
 
   return svgRoot({ width, height, ariaLabel: `${labels.simAria} ${flow.name}` }, defs(uid), pathEls, out, tokens);
 }

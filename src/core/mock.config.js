@@ -11,7 +11,7 @@ export const MOCK_CONFIG = {
   failureMultiplier: params.get('mock') === 'flaky' ? 6 : 1,
   storagePrefix: 'xwflow:',
   /** bump to invalidate everything stored by an older build */
-  schemaVersion: 'v2',
+  schemaVersion: 'v3',
   messages: {
     transient: 'The server did not answer in time. Try again.',
   },

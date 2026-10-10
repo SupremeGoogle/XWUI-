@@ -3,7 +3,7 @@
  * plus a top bar whose breadcrumbs and actions each page sets through setTopbar().
  */
 import {
-  XWUINavSidebar, XWUIInputText, XWUIProgressBar, XWUINavBreadcrumbs, XWUIDisplayAvatar, XWUINavMenuDropdown,
+  XWUINavSidebar, XWUIInputText, XWUIProgressBar, XWUINavBreadcrumbs, XWUIDisplayAvatar, XWUINavMenuDropdown, XWUIDisplayKbd,
 } from '@exonware/xwui/basic';
 import { h, ensureStylesheet } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
@@ -43,6 +43,7 @@ export class StudioLayout {
       }
     };
     window.addEventListener('keydown', this.onKeydown);
+    this.offHelp = ctx.bus.on('studio:help', () => this.openHelp());
     this.ready = this.load();
   }
 
@@ -145,6 +146,22 @@ export class StudioLayout {
     openStudioSearch(this.ctx);
   }
 
+  async openHelp() {
+    if (!this.shell || this.helpOpen) return;
+    this.helpOpen = true;
+    const help = this.shell.nav.help;
+    const kit = createKit();
+    const content = h('div', { class: 'stack gap16' },
+      h('p', { class: 'small sec' }, help.body),
+      h('dl', { class: 'studio-help' }, help.shortcuts.map(({ keys, label }) => [
+        h('dt', {}, kit.ui.mount(XWUIDisplayKbd, { keys }, { size: 'sm' })),
+        h('dd', {}, label),
+      ])));
+    try {
+      await this.kit.ui.dialog({ title: help.title, content, actions: [{ id: 'close', label: help.close, variant: 'primary' }] });
+    } finally { kit.scope.destroy(); this.helpOpen = false; }
+  }
+
   /** Pages call this to fill the top bar. crumbs: [{ label, route? }], actions: Node[] */
   setTopbar({ crumbs = [], actions = [], meta = [] } = {}) {
     this.topKit.scope.destroy();
@@ -167,6 +184,7 @@ export class StudioLayout {
   }
 
   destroy() {
+    this.offHelp?.();
     window.removeEventListener('keydown', this.onKeydown);
     this.kit.scope.destroy();
     this.topKit.scope.destroy();

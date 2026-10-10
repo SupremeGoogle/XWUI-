@@ -123,7 +123,7 @@ export default {
 
       tableHost.replaceChildren();
       if (!result.items.length) {
-        tableHost.append(tableKit.ui.empty({ title: C.emptyTitle, description: C.emptyBody, icon: 'search' }));
+        tableHost.append(tableKit.ui.empty({ title: C.emptyTitle, description: C.emptyBody, image: catalog.assets[catalog.assetRefs.emptyFlows].path }));
       } else {
         const host = h('div');
         tableHost.append(host);

@@ -261,3 +261,5 @@ html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt 
 .kc.warnc { border-color: rgba(255, 197, 61, .4); }
 .kc .ico { color: var(--xw-ink); }
 .mask { font-family: var(--xw-font-mono); letter-spacing: .25em; color: var(--xw-tx3); }
+.studio-help { display: grid; grid-template-columns: auto 1fr; gap: 16px 24px; align-items: center; }
+.studio-help dt, .studio-help dd { margin: 0; }

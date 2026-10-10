@@ -8,6 +8,7 @@ import {
 import * as db from '../data/studio.data.js';
 import { simulateRun, progressAt } from './studio.engine.js';
 import { gallery } from '../data/notations.data.js';
+import { resolveAssets } from './assets.api.js';
 
 /* ------------------------------------------------------------ seeding */
 
@@ -133,7 +134,9 @@ export const studioApi = {
   }), { latency: [120, 260] }),
 
   /** Static catalog: step types, groups, lanes, labels, notations. */
-  getCatalog: () => respond(() => ({
+  getCatalog: () => respond(async () => ({
+    assetRefs: db.studioAssetRefs,
+    assets: await resolveAssets(Object.values(db.studioAssetRefs)),
     nodeGroups: db.nodeGroups,
     nodeTypes: db.nodeTypes,
     lanes: db.lanes,

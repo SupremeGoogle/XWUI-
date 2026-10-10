@@ -602,6 +602,11 @@ export const chats = [
 
 /* ------------------------------------------------------------- navigation */
 
+export const studioAssetRefs = {
+  emptyFlows: 'illustration-empty-flows',
+  emptyRuns: 'illustration-empty-runs',
+};
+
 export const studioNav = {
   brand: 'xwflow',
   collapseLabel: 'Collapse the rail',
@@ -623,6 +628,21 @@ export const studioNav = {
     { id: 'settings', label: 'Settings', icon: 'settings', route: null },
   ],
   helpLabel: 'Help',
+  help: {
+    title: 'Studio keyboard shortcuts',
+    body: 'Canvas shortcuts apply to the selected step. Search works throughout Studio; assistant focus works on the assistant home and in the editor.',
+    close: 'Got it',
+    shortcuts: [
+      { keys: ['Ctrl', 'K'], label: 'Search flows, runs and connections' },
+      { keys: ['Ctrl', 'Enter'], label: 'Run the flow' },
+      { keys: ['F2'], label: 'Rename the selected step' },
+      { keys: ['P'], label: 'Pin the selected step output' },
+      { keys: ['Delete'], label: 'Delete the selected step or connection' },
+      { keys: ['←', '↑', '↓', '→'], label: 'Move the selected step' },
+      { keys: ['Tab'], label: 'Focus the step palette' },
+      { keys: ['Ctrl', 'I'], label: 'Focus the assistant' },
+    ],
+  },
   accountLabel: 'Your account',
   createMenu: [
     { id: 'flow', label: 'Flow', icon: 'workflow', action: 'create-flow' },

@@ -14,6 +14,7 @@ const SVG_TAGS = new Set([
   'svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'text', 'tspan',
   'defs', 'marker', 'linearGradient', 'radialGradient', 'stop', 'clipPath', 'mask', 'pattern', 'use', 'title',
   'foreignObject', 'filter', 'feGaussianBlur', 'feMerge', 'feMergeNode',
+  'animateMotion', 'mpath', 'set',
 ]);
 
 export function classNames(value) {
