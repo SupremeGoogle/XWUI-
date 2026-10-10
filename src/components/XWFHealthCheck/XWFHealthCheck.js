@@ -5,19 +5,38 @@ import { createXWFHealthCheckLogic } from './XWFHealthCheck.logic.js';
 import { projectXWFHealthCheckView } from './XWFHealthCheck.view.js';
 /** Specialized visual composed of XWUI basic primitives. */
 export class XWFHealthCheck extends XWUIComponent {
- static componentName = 'XWFHealthCheck';
- constructor(container, data = {}, conf_comp = {}) {
-  ensureStylesheet('xwui-css-xwfhealthcheck', new URL('./XWFHealthCheck.css', import.meta.url));
-  super(container, createXWFHealthCheckLogic(data, conf_comp));
-  this.kit = null;
-  this.unsubscribe = this.logic.subscribe(() => this.renderView());
-  this.renderView();
- }
- renderView() {
-  this.kit?.scope.destroy();
-  this.kit = createXwfKit(this);
-  this.container.replaceChildren(projectXWFHealthCheckView(this.data, { onAction: (detail) => this.container.dispatchEvent(new CustomEvent('xwf-action', { bubbles: true, detail })) }, this.kit.ui));
- }
- destroy() { this.unsubscribe?.(); this.kit?.scope.destroy(); this.kit = null; super.destroy(); }
+  static componentName = 'XWFHealthCheck';
+  constructor(container, data = {}, conf_comp = {}) {
+    ensureStylesheet(
+      'xwui-css-xwfhealthcheck',
+      new URL('./XWFHealthCheck.css', import.meta.url),
+    );
+    super(container, createXWFHealthCheckLogic(data, conf_comp));
+    this.kit = null;
+    this.unsubscribe = this.logic.subscribe(() => this.renderView());
+    this.renderView();
+  }
+  renderView() {
+    this.kit?.scope.destroy();
+    this.kit = createXwfKit(this);
+    this.container.replaceChildren(
+      projectXWFHealthCheckView(
+        this.data,
+        {
+          onAction: (detail) =>
+            this.container.dispatchEvent(
+              new CustomEvent('xwf-action', { bubbles: true, detail }),
+            ),
+        },
+        this.kit.ui,
+      ),
+    );
+  }
+  destroy() {
+    this.unsubscribe?.();
+    this.kit?.scope.destroy();
+    this.kit = null;
+    super.destroy();
+  }
 }
 createXWUIElement(XWFHealthCheck, 'xwf-health-check');

@@ -1,34 +1,39 @@
 /** Component definition and geometry constants. */
 export const DEFINITION = {
-  "id": "XWFBrandPreview",
-  "component": "XWFBrandPreview",
-  "properties": {
-    "data": {
-      "properties": {
-        "kit": {
-          "default": {}
+  id: 'XWFBrandPreview',
+  component: 'XWFBrandPreview',
+  properties: {
+    data: {
+      properties: {
+        kit: {
+          default: {},
         },
-        "content": {
-          "default": {}
+        content: {
+          default: {},
         },
-        "dirty": {
-          "default": false
+        dirty: {
+          default: false,
         },
-        "labels": {
-          "default": {}
+        labels: {
+          default: {},
         },
-        "uid": {
-          "type": "string"
-        }
-      }
+        uid: {
+          type: 'string',
+        },
+      },
     },
-    "conf_comp": {
-      "properties": {
-        "className": {
-          "type": "string"
-        }
-      }
-    }
-  }
+    conf_comp: {
+      properties: {
+        className: {
+          type: 'string',
+        },
+      },
+    },
+  },
 };
 
+export const FONT_FAMILIES = {
+  unbounded: '"Unbounded", sans-serif',
+  manrope: '"Manrope", sans-serif',
+  mono: '"JetBrains Mono", monospace',
+};

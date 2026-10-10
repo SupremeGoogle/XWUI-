@@ -1,28 +1,27 @@
 /** Component definition and geometry constants. */
 export const DEFINITION = {
-  "id": "XWFHealthCheck",
-  "component": "XWFHealthCheck",
-  "properties": {
-    "data": {
-      "properties": {
-        "check": {
-          "default": {}
+  id: 'XWFHealthCheck',
+  component: 'XWFHealthCheck',
+  properties: {
+    data: {
+      properties: {
+        check: {
+          default: {},
         },
-        "busy": {
-          "default": false
+        busy: {
+          default: false,
         },
-        "uid": {
-          "type": "string"
-        }
-      }
+        uid: {
+          type: 'string',
+        },
+      },
     },
-    "conf_comp": {
-      "properties": {
-        "className": {
-          "type": "string"
-        }
-      }
-    }
-  }
+    conf_comp: {
+      properties: {
+        className: {
+          type: 'string',
+        },
+      },
+    },
+  },
 };
-

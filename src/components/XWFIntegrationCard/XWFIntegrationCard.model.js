@@ -1,34 +1,33 @@
 /** Component definition and geometry constants. */
 export const DEFINITION = {
-  "id": "XWFIntegrationCard",
-  "component": "XWFIntegrationCard",
-  "properties": {
-    "data": {
-      "properties": {
-        "item": {
-          "default": {}
+  id: 'XWFIntegrationCard',
+  component: 'XWFIntegrationCard',
+  properties: {
+    data: {
+      properties: {
+        item: {
+          default: {},
         },
-        "assets": {
-          "default": {}
+        assets: {
+          default: {},
         },
-        "labels": {
-          "default": {}
+        labels: {
+          default: {},
         },
-        "featured": {
-          "default": false
+        featured: {
+          default: false,
         },
-        "uid": {
-          "type": "string"
-        }
-      }
+        uid: {
+          type: 'string',
+        },
+      },
     },
-    "conf_comp": {
-      "properties": {
-        "className": {
-          "type": "string"
-        }
-      }
-    }
-  }
+    conf_comp: {
+      properties: {
+        className: {
+          type: 'string',
+        },
+      },
+    },
+  },
 };
-

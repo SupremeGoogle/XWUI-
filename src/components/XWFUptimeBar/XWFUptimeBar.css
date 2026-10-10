@@ -1,1 +1,26 @@
-.xwf-uptime-bar__label{width:90px;flex:none}.xwf-uptime-bar__days{display:flex;gap:3px;flex:1;min-width:0}.xwf-uptime-bar__days i{width:7px;min-width:3px;flex:1;max-width:10px;height:26px;border-radius:3px;background:var(--xw-green);box-shadow:0 0 6px color-mix(in srgb,var(--xw-green) 35%,transparent)}.xwf-uptime-bar__days .xwf-uptime-bar__day--warning{background:var(--xw-amber)}.xwf-uptime-bar__days .xwf-uptime-bar__day--error{background:var(--xw-red)}
+.xwf-uptime-bar__label {
+  width: 90px;
+  flex: none;
+}
+.xwf-uptime-bar__days {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+.xwf-uptime-bar__days i {
+  width: 7px;
+  min-width: 3px;
+  flex: 1;
+  max-width: 10px;
+  height: 26px;
+  border-radius: 3px;
+  background: var(--xw-green);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--xw-green) 35%, transparent);
+}
+.xwf-uptime-bar__days .xwf-uptime-bar__day--warning {
+  background: var(--xw-amber);
+}
+.xwf-uptime-bar__days .xwf-uptime-bar__day--error {
+  background: var(--xw-red);
+}

@@ -1,28 +1,27 @@
 /** Component definition and geometry constants. */
 export const DEFINITION = {
-  "id": "XWFIsoTiles",
-  "component": "XWFIsoTiles",
-  "properties": {
-    "data": {
-      "properties": {
-        "tiles": {
-          "default": []
+  id: 'XWFIsoTiles',
+  component: 'XWFIsoTiles',
+  properties: {
+    data: {
+      properties: {
+        tiles: {
+          default: [],
         },
-        "topology": {
-          "default": false
+        topology: {
+          default: false,
         },
-        "uid": {
-          "type": "string"
-        }
-      }
+        uid: {
+          type: 'string',
+        },
+      },
     },
-    "conf_comp": {
-      "properties": {
-        "className": {
-          "type": "string"
-        }
-      }
-    }
-  }
+    conf_comp: {
+      properties: {
+        className: {
+          type: 'string',
+        },
+      },
+    },
+  },
 };
-

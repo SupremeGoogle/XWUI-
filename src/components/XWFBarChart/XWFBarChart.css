@@ -1,1 +1,11 @@
-.xwf-bar-chart svg{width:100%;height:220px;border-bottom:1px solid var(--xw-line);overflow:visible}.xwf-bar-chart rect{filter:drop-shadow(0 0 4px color-mix(in srgb,var(--xw-cyan) 15%,transparent))}
+.xwf-bar-chart svg {
+  width: 100%;
+  height: 220px;
+  border-bottom: 1px solid var(--xw-line);
+  overflow: visible;
+}
+.xwf-bar-chart rect {
+  filter: drop-shadow(
+    0 0 4px color-mix(in srgb, var(--xw-cyan) 15%, transparent)
+  );
+}
