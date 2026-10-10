@@ -55,7 +55,7 @@ export function createHeader({ ctx, flow, project, catalog, copy, handlers }) {
       h('div', { class: 'rowf gap8 sp' },
         ui.button(copy.askAi, { variant: 'secondary', size: 'sm', icon: 'sparkles', onClick: handlers.onAsk }),
         runBtn,
-        ui.button(copy.publish, { variant: 'primary', size: 'sm', disabled: state.statusKey === 'published' && !state.dirty, onClick: handlers.onPublish })));
+        ui.button(copy.publish, { variant: 'primary', size: 'sm', onClick: handlers.onPublish })));
   }
 
   render({ name: flow.name, statusKey: flow.statusKey, publishedVersion: flow.publishedVersion });

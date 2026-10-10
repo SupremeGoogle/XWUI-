@@ -3,6 +3,7 @@
  * hard-codes user-facing text; record data comes from the studio API.
  */
 export const STUDIO_COPY = {
+  assistantTitle: 'Assistant',
   notInPrototype: '{name} is not part of this prototype yet.',
   projectTabsLabel: 'Project',
   chainLabel: '{n} steps',
@@ -223,6 +224,7 @@ export const STUDIO_COPY = {
     publishNotePlaceholder: 'For example: retry the customer lookup',
     publishConfirm: 'Publish',
     publishDone: 'Version {v} published.',
+    nothingToPublish: 'Nothing to publish: the draft matches version {v}.',
     cancel: 'Cancel',
     versionsTitle: 'Versions',
     versionsCurrent: 'Live',

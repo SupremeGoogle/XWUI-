@@ -25,7 +25,8 @@ export function openStudioSearch(ctx) {
     openDialog = null;
   };
 
-  const dialog = new XWUIOverlayDialog(host, { title: STUDIO_SEARCH.title, content, open: true }, { size: 'md' });
+  const dialog = new XWUIOverlayDialog(host, { title: STUDIO_SEARCH.title, content }, { size: 'md' });
+  dialog.open?.();
   dialog.onClose?.(close);
   openDialog = dialog;
 

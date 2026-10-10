@@ -210,6 +210,10 @@ export default {
     }
 
     async function publish() {
+      if (state.statusKey === 'published') {
+        ctx.notify.info(template(C.nothingToPublish, { v: state.publishedVersion }));
+        return;
+      }
       const next = (state.publishedVersion ?? 0) + 1;
       const { scope } = createKit();
       const host = h('div', { class: 'stack gap12' }, h('p', { class: 'small sec' }, C.publishBody));
@@ -303,6 +307,9 @@ export default {
     refreshPanels();
     if (state.selectedId) requestAnimationFrame(() => canvas.focusNode(state.selectedId));
     if (ctx.query.demo) setTimeout(() => startRun(), 400);
+    // deep link from the integrations directory: ?nodeType=http-request adds that step
+    const linkedType = ctx.query.nodeType?.replace(/-/g, '_');
+    if (linkedType && typeIndex[linkedType]) setTimeout(() => addStep(linkedType), 300);
 
     return {
       unmount() {

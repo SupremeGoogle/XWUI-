@@ -150,7 +150,8 @@ export function createUi(scope) {
         const footerUi = createUi(footerScope);
         const footer = h('div', { class: 'xw-dialog-actions' },
           actions.map((a) => footerUi.button(a.label, { variant: a.variant ?? 'secondary', onClick: () => finish(a.id) })));
-        dialog = new XWUIOverlayDialog(el, { title, content, footer, open: true }, { size });
+        dialog = new XWUIOverlayDialog(el, { title, content, footer }, { size });
+        dialog.open?.();
         dialog.onClose?.(() => finish(null));
         el.addEventListener('close', () => finish(null));
         const observer = new MutationObserver(() => {

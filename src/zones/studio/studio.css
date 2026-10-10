@@ -224,3 +224,26 @@ html body .editor-runpanel tbody tr.is-selected td:first-child { box-shadow: ins
 .view-3d__controls { flex: 1 1 100%; align-items: flex-end; }
 .view-3d__hint { flex: 1 1 100%; }
 .view-3d__field { width: 160px; }
+
+/* ---------- assistant ---------- */
+.assistant { align-items: center; padding-top: 36px; position: relative; }
+.assistant__col { width: 100%; max-width: 900px; position: relative; }
+.assistant-core { position: relative; width: 200px; height: 200px; margin: 0 auto; perspective: 900px; }
+.assistant-core__ring1 { position: absolute; inset: 0; transform: rotateX(72deg); transform-style: preserve-3d; }
+.assistant-core__ring2 { position: absolute; left: 15px; top: 15px; width: 170px; height: 170px; transform: rotateY(70deg) rotateX(20deg); }
+.assistant-prompt { border-radius: 26px; padding: 14px; box-shadow: 0 40px 100px -40px rgba(155, 107, 255, .9); }
+html body .assistant-textarea textarea, html body .assistant-prompt textarea { border: 0 !important; background: transparent !important; box-shadow: none !important; font-size: 1.1rem; min-height: 96px; padding: 12px; resize: none; }
+html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt [class*="textarea-container"] { border: 0; background: transparent; box-shadow: none; }
+.assistant-prompt__bar { flex-wrap: wrap; padding: 0 4px; }
+.assistant-pills { justify-content: center; }
+.assistant-preview { padding: 16px; border-radius: 24px; }
+.assistant-preview__head { padding: 0 4px 12px; }
+.assistant-preview__canvas { border-radius: 18px; overflow: hidden; }
+.assistant-preview__canvas .xwf-flow-canvas { cursor: default; }
+.assistant-preview__foot { padding: 12px 4px 0; }
+.assistant-kinds { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); }
+.mk { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 20px; border: 1px solid var(--xw-line); background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .012)); color: var(--xw-tx); font: inherit; text-align: start; cursor: pointer; }
+.mk:hover, .mk:focus-visible { border-color: color-mix(in srgb, var(--gc) 55%, transparent); box-shadow: 0 20px 50px -24px var(--gc); outline: none; }
+.mk .ico.s { color: var(--xw-ink); }
+.assistant-reco { gap: 12px; }
+.assistant-reco__dot { width: 24px !important; height: 24px !important; }
