@@ -202,17 +202,20 @@ export const connections = [
 
 const orderAlertGraph = {
   nodes: [
-    { id: 'n_new_order', type: 'webhook', name: 'New order', x: 296, y: 360, pinned: true, disabled: false,
+    { id: 'n_new_order', system: 'shop', type: 'webhook', name: 'New order', x: 296, y: 360, pinned: true, disabled: false,
       params: { path: '/hooks/orders', method: 'POST' } },
-    { id: 'n_lookup', type: 'http_request', name: 'Look up customer', x: 496, y: 360, pinned: false, disabled: false,
+    { id: 'n_lookup', system: 'customer_api', type: 'http_request', name: 'Look up customer', x: 496, y: 360, pinned: false, disabled: false,
+      call: 'GET /customers/{customer_id}', reply: '200 customer',
       params: { method: 'GET', url: 'https://api.example.com/customers/', urlExpression: 'order.customer_id', connectionId: 'conn_customer_api', retry: true },
       notes: '',
       sim: { failAttempts: 1, failStatus: 503, attemptDurationsMs: [840, 212], output: { customer_id: 'c_1042', tier: 'gold' } } },
     { id: 'n_over_500', type: 'condition', name: 'Over 500?', x: 696, y: 350, pinned: false, disabled: false,
       params: { expression: 'order.total > 500' } },
-    { id: 'n_notify', type: 'post_message', name: 'Notify sales', x: 906, y: 250, pinned: false, disabled: true,
+    { id: 'n_notify', system: 'sales', type: 'post_message', name: 'Notify sales', x: 906, y: 250, pinned: false, disabled: true,
+      call: 'post message: order over 500', reply: 'ok',
       params: { channel: '#sales', connectionId: '' } },
-    { id: 'n_log', type: 'append_row', name: 'Log order', x: 906, y: 470, pinned: false, disabled: false,
+    { id: 'n_log', system: 'orders', type: 'append_row', name: 'Log order', x: 906, y: 470, pinned: false, disabled: false,
+      call: 'append row', reply: 'row stored',
       params: { table: 'Orders' } },
   ],
   edges: [
@@ -231,6 +234,14 @@ export const flows = [
     description: 'Tell sales when an order over 500 arrives, and log every order to a table.',
     trigger: 'On webhook', updated: { minutes: 30 }, publishedVersion: 3, draftChanged: false,
     samplePayload: { order: { id: 'o_5581', customer_id: 'c_1042', total: 740, currency: 'USD' } },
+    systems: [
+      { id: 'shop', label: 'Shop', hint: 'customer storefront', tone: 'cyan', kind: 'source', call: 'POST /webhook/order', reply: '200 accepted', event: 'Order placed' },
+      { id: 'engine', label: 'xwflow', hint: 'engine', tone: 'violet', kind: 'engine' },
+      { id: 'customer_api', label: 'Customer API', hint: 'external system', tone: 'orange', kind: 'system' },
+      { id: 'sales', label: 'Sales', hint: 'chat channel', tone: 'pink', kind: 'people' },
+      { id: 'orders', label: 'Orders table', hint: 'data store', tone: 'lime', kind: 'store' },
+    ],
+    sim: { arrivalsPerHour: 128, workers: 4, branchShare: { yes: 0.32 }, hours: 8, serviceMinutes: 1.6 },
     graph: orderAlertGraph,
   },
   {

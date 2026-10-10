@@ -1,0 +1,31 @@
+/* XWFFlowDiagram - notation renderings. Tokens only. */
+.xwf-diagram { position: relative; width: 100%; }
+.xwf-diagram__svg { display: block; position: relative; }
+.xwf-diagram.is-thumbnail { pointer-events: none; }
+.xwf-seq-dot { cursor: pointer; }
+.xwf-seq-dot:hover circle, .xwf-seq-dot:focus-visible circle { stroke: #fff; stroke-width: 2; }
+.xwf-seq-dot:focus-visible { outline: none; }
+
+/* 3D space */
+.xwf-diagram--3d { height: 100%; }
+.xwf-3d__stage {
+  position: relative; height: 100%; min-height: 560px; overflow: hidden; cursor: grab;
+  perspective: 1900px; perspective-origin: 50% 20%;
+  background: radial-gradient(900px 500px at 50% 60%, rgba(155, 107, 255, .18), transparent 70%), var(--xw-bg);
+}
+.xwf-3d__stage:active { cursor: grabbing; }
+.xwf-3d__plane { position: absolute; left: 50%; top: 150px; transform-style: preserve-3d; transition: transform .25s ease; }
+.xwf-3d__lane {
+  position: absolute; left: 0; height: 128px;
+  border-top: 1px solid color-mix(in srgb, var(--lc) 60%, transparent);
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--lc) 18%, transparent), transparent),
+    linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+}
+.xwf-3d__lane b { position: absolute; left: 16px; top: 12px; font-size: .72rem; letter-spacing: .16em; color: var(--lc); }
+.xwf-3d__wires { position: absolute; left: 0; top: 0; overflow: visible; }
+.xwf-3d__shadow { position: absolute; width: 180px; height: 60px; border-radius: 16px; background: color-mix(in srgb, var(--sc) 30%, transparent); filter: blur(14px); }
+.xwf-3d__node { position: absolute; transform: translateZ(var(--z)); }
+.xwf-3d__node .ico.s { color: var(--xw-ink); }
+.xwf-3d__node .ico.s svg { width: 16px; height: 16px; }
+@media (prefers-reduced-motion: reduce) { .xwf-3d__plane { transition: none; } }

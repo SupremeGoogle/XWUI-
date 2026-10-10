@@ -199,3 +199,28 @@ html body .editor-runpanel tbody tr.is-selected td:first-child { box-shadow: ins
 .pill { min-height: 38px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--xw-line2); background: rgba(255, 255, 255, .04); color: var(--xw-tx); font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer; }
 .pill:hover { border-color: var(--xw-lime); }
 .pill.on { border-color: var(--xw-lime); color: var(--xw-lime); background: rgba(200, 255, 61, .08); box-shadow: 0 0 20px -4px rgba(200, 255, 61, .5); }
+
+/* ---------- notation views ---------- */
+.view-page { min-height: 100vh; padding-bottom: 24px; }
+.view-header { margin: 16px 16px 0; padding: 10px 14px; border-radius: 999px; flex-wrap: wrap; }
+.view-header__mark { width: 26px; height: 26px; }
+.view-stage { position: relative; margin: 16px; border-radius: 28px; border: 1px solid var(--xw-line); background-color: #06060d; background-image: radial-gradient(rgba(255, 255, 255, .07) 1px, transparent 1px); background-size: 24px 24px; overflow: hidden; }
+.view-stage--swimlane, .view-stage--sequence { background-image: none; }
+.view-stage--sim { background-image: linear-gradient(rgba(46, 230, 255, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(46, 230, 255, .05) 1px, transparent 1px); background-size: 40px 40px; padding-top: 56px; }
+.view-stage--3d { height: 760px; border-radius: 28px; background: none; }
+.view-diagram { position: relative; height: 100%; }
+.view-footer { margin: 0 16px; align-items: stretch; }
+.view-footer > .kpi { flex: 1 1 200px; }
+.view-legend { flex: 1 1 100%; }
+.view-laneby { flex: 2 1 380px; }
+.view-note { flex: 1 1 100%; padding: 12px 20px; border-radius: 20px; border: 1px solid var(--xw-line); background: rgba(255, 255, 255, .03); align-items: center; }
+.view-sim__tags { position: absolute; left: 20px; top: 16px; flex-wrap: wrap; z-index: 2; }
+.view-sim__clockwrap { position: absolute; right: 20px; top: 18px; z-index: 2; }
+.view-sim__clock { color: var(--xw-cyan); }
+.view-sim__controls { flex: 1 1 340px; }
+.view-sim__statsbox { flex: 2 1 480px; }
+.view-sim__stat { min-width: 120px; }
+.view-sim__value { font-size: 1.6rem; font-weight: 700; }
+.view-3d__controls { flex: 1 1 100%; align-items: flex-end; }
+.view-3d__hint { flex: 1 1 100%; }
+.view-3d__field { width: 160px; }
