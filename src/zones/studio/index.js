@@ -9,9 +9,10 @@ import editor from './pages/editor/editor.page.js';
 import view from './pages/view.page.js';
 import assistant from './pages/assistant.page.js';
 import connections from './pages/connections.page.js';
+import notations from './pages/notations.page.js';
 
 export default {
   id: 'studio',
   layouts: { [STUDIO_LAYOUT_ID]: StudioLayout, [CANVAS_LAYOUT_ID]: CanvasLayout },
-  pages: [assistant, flows, runs, run, connections, editor, view],
+  pages: [assistant, flows, runs, run, connections, editor, view, notations],
 };

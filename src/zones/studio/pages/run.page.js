@@ -25,7 +25,7 @@ function attemptLabel(row) {
   return (row.maxAttempts ?? 1) > 1 ? `${row.stepName}, ${row.attempt}` : row.stepName;
 }
 
-function timelineRows(run) {
+export function timelineRows(run) {
   return run.ledger.map((row, i) => {
     const tone = RESULT_TONE[row.result] ?? 'muted';
     const hasBar = row.offsetMs !== null && row.offsetMs !== undefined && row.result !== 'disabled' && row.result !== 'not_run';

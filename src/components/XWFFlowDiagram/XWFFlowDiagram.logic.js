@@ -251,8 +251,7 @@ export function flowToMermaid(graph, types) {
     lines.push(`  ${ref(a)} -->${label} ${ref(b)}`);
   });
   steps.forEach((s) => { if (!declared.has(letter.get(s.node.id))) lines.push(`  ${ref(s)}`); });
-  return lines.join('
-');
+  return lines.join('\n');
 }
 
 /**

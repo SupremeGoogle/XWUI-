@@ -136,9 +136,8 @@ export class XWFFlowCanvas extends XWUIComponent {
   /* ------------------------------------------------------------ viewport */
 
   viewportRect() {
-    const r = this.root.getBoundingClientRect();
     const s = this.config.safeArea;
-    return { x: s.left, y: s.top, w: Math.max(200, r.width - s.left - s.right), h: Math.max(160, r.height - s.top - s.bottom) };
+    return { x: s.left, y: s.top, w: Math.max(200, this.root.clientWidth - s.left - s.right), h: Math.max(160, this.root.clientHeight - s.top - s.bottom) };
   }
 
   setTransform(next) {

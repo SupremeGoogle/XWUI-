@@ -1,0 +1,218 @@
+.notations-page {
+  overflow: hidden;
+}
+.notations-hero {
+  position: relative;
+  padding-top: 60px;
+  background:
+    radial-gradient(ellipse at 20% 55%, #9b6bff20, transparent 45%),
+    radial-gradient(ellipse at 80% 75%, #ff4fa31c, transparent 45%);
+}
+.notations-hero .h-mega {
+  font-size: clamp(2.4rem, 6vw, 5.4rem);
+}
+.notations-hero .lead {
+  max-width: 760px;
+}
+.notations-tabs .xwui-navtabs__content {
+  display: none;
+}
+.notations-tabs {
+  max-width: 100%;
+}
+.notations-tabs [role='tablist'] {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.seg {
+  display: inline-flex;
+  padding: 5px;
+  border-radius: 999px;
+  background: #ffffff0d;
+  border: 1px solid var(--xw-line);
+}
+.notations-hero__visual {
+  height: 600px;
+}
+.layers {
+  pointer-events: none;
+  position: relative;
+  height: 600px;
+  perspective: 1800px;
+}
+.lay {
+  position: absolute;
+  left: 50%;
+  top: 150px;
+  width: 600px;
+  height: 320px;
+  margin-left: -300px;
+  border-radius: 30px;
+  transform: rotateX(60deg) rotateZ(-34deg) translateZ(var(--z));
+  background: #0c0c1ab8;
+  border: 1px solid var(--lc);
+  box-shadow:
+    0 0 0 1px #0008,
+    0 0 80px -10px var(--lc);
+  overflow: hidden;
+}
+.lay__preview {
+  height: 100%;
+}
+.laylbl {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+}
+.laylbl::before {
+  content: '';
+  width: 60px;
+  height: 2px;
+  background: var(--lc);
+  box-shadow: 0 0 10px var(--lc);
+}
+.notations-hero__stage {
+  width: min(100% - 48px, 1120px);
+  height: 460px;
+  margin: 48px auto;
+  padding: 24px;
+  overflow: auto;
+}
+.notations-hero__stage:has(.xwf-flow-canvas) {
+  padding: 0;
+}
+.notations-modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 20px;
+}
+.mode {
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid var(--xw-line);
+  background: linear-gradient(160deg, #ffffff0f, #ffffff03);
+}
+.notations-gallery__head {
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.nc {
+  border-radius: 24px;
+  border: 1px solid var(--xw-line);
+  background: linear-gradient(180deg, #ffffff0e, #ffffff03);
+  min-width: 0;
+}
+.nc__body {
+  padding: 16px;
+  height: 100%;
+}
+.nc h3 {
+  font:
+    700 1.05rem Unbounded,
+    sans-serif;
+}
+.nc__tags {
+  margin-top: auto;
+}
+.nc .dg {
+  border-radius: 16px;
+  background: #07070f;
+  border: 1px solid var(--xw-line);
+  padding: 6px;
+  overflow: hidden;
+  height: 232px;
+  position: relative;
+}
+.nc .dg svg {
+  display: block;
+  width: 100%;
+  height: 220px;
+}
+.nc .dg > .xwf-diagram {
+  height: 100%;
+}
+.nc .dg .xwf-3d__stage { min-height: 220px; height: 220px; }
+.nc .dg .xwf-3d__plane { top: 50px; scale: .34; transform-origin: 50% 0; }
+.nc .dg .xwf-3d__node, .notations-page .flow { animation: none; }
+.nc .dg:has(.xwf-flow-canvas) {
+  padding: 0;
+}
+.nc .dg .xwf-run-timeline {
+  font-size: 0.65rem;
+}
+.nc .dg .xwf-run-timeline__label {
+  max-width: 95px;
+}
+.notations-page .xwf-flow-canvas {
+  height: 100%;
+  min-height: 0;
+}
+.notations-page .xwf-edge__flow {
+  animation: none;
+}
+.nc .dg .xwui-codeblock {
+  font-size: 0.7rem;
+}
+.nc [class*='xwui-card'] {
+  background: none;
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
+}
+.mode [class*='xwui-card'] {
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.std {
+  font:
+    700 0.7rem 'JetBrains Mono',
+    monospace;
+  color: var(--xw-tx3);
+  letter-spacing: 0.04em;
+}
+.listv {
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+.listv li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #ffffff0a;
+}
+.listv li.ind {
+  margin-left: 26px;
+}
+@media (max-width: 1100px) {
+  .notations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .laylbl {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .notations-grid {
+    grid-template-columns: 1fr;
+  }
+  .lay {
+    width: 420px;
+    margin-left: -210px;
+  }
+  .notations-hero__stage {
+    padding: 12px;
+  }
+  .notations-tabs [role='tablist'] {
+    gap: 2px;
+  }
+}
