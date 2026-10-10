@@ -3,7 +3,6 @@ import { XWUICard, XWUINavTabs, XWUICodeBlock } from '@exonware/xwui/basic';
 import { h, ensureStylesheet } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatDuration } from '../../../core/format.js';
-import { STUDIO_COPY } from '../studio.copy.js';
 import { XWFFlowDiagram } from '../../../components/XWFFlowDiagram/XWFFlowDiagram.js';
 import {
   flowToMermaid,
@@ -32,6 +31,7 @@ export default {
       ctx.api.studioApi.getCatalog(),
       ctx.api.studioApi.listConnections(),
     ]);
+    const STUDIO_COPY = catalog.copy;
     ctx.setTitle(gallery.hero.title);
     const typeIndex = Object.fromEntries(
       catalog.nodeTypes.map((type) => [type.id, type]),
@@ -116,7 +116,7 @@ export default {
             ),
           );
         kit.scope.mount(XWFRunTimeline, host, {
-          rows: timelineRows(run),
+          rows: timelineRows(run, STUDIO_COPY.run),
           totalMs: total,
           startLabel: formatDuration(0),
           endLabel: formatDuration(total),

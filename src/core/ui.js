@@ -146,6 +146,7 @@ export function createUi(scope) {
             el.remove();
           });
         };
+        scope.onDispose(() => finish(null));
         const footerScope = createScope();
         const footerUi = createUi(footerScope);
         const footer = h('div', { class: 'xw-dialog-actions' },

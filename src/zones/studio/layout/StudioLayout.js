@@ -21,6 +21,7 @@ export class StudioLayout {
     this.kit = createKit();
     this.topKit = createKit();
     this.shell = null;
+    this.disposed = false;
     this.sidebar = null;
 
     this.railHost = h('div', { class: 'studio-rail' });
@@ -50,6 +51,7 @@ export class StudioLayout {
   async load() {
     try {
       this.shell = await this.ctx.api.studioApi.getShell();
+      if (this.disposed) return;
     } catch (error) {
       this.ctx.notify.fromError(error);
       return;
@@ -184,6 +186,7 @@ export class StudioLayout {
   }
 
   destroy() {
+    this.disposed = true;
     this.offHelp?.();
     window.removeEventListener('keydown', this.onKeydown);
     this.kit.scope.destroy();

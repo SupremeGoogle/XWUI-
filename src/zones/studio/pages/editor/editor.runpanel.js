@@ -8,9 +8,9 @@ import { createKit } from '../../../../core/ui.js';
 import { template, formatDuration } from '../../../../core/format.js';
 import { statusEl } from '../../shared/studio-ui.js';
 import { runSummary, ledgerItems } from './editor.logic.js';
-import { STUDIO_COPY } from '../../studio.copy.js';
 
 export function createRunPanel({ ctx, catalog, copy }) {
+  const STUDIO_COPY = catalog.copy;
   let kit = createKit();
   let tab = 'ledger';
   const el = h('section', { class: 'fl stack editor-runpanel', 'aria-label': copy.panelLabel });

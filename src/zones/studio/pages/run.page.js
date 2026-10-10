@@ -9,12 +9,10 @@ import {
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatDateTime, formatDuration, formatNumber } from '../../../core/format.js';
-import { STUDIO_COPY } from '../studio.copy.js';
 import { STUDIO_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { statusEl, downloadText } from '../shared/studio-ui.js';
 import { XWFRunTimeline } from '../../../components/XWFRunTimeline/XWFRunTimeline.js';
 
-const C = STUDIO_COPY.run;
 const LIVE_POLL_MS = 450;
 const RETENTION_DAYS = 30;
 
@@ -25,11 +23,11 @@ function attemptLabel(row) {
   return (row.maxAttempts ?? 1) > 1 ? `${row.stepName}, ${row.attempt}` : row.stepName;
 }
 
-export function timelineRows(run) {
+export function timelineRows(run, copy) {
   return run.ledger.map((row, i) => {
     const tone = RESULT_TONE[row.result] ?? 'muted';
     const hasBar = row.offsetMs !== null && row.offsetMs !== undefined && row.result !== 'disabled' && row.result !== 'not_run';
-    let note = C.timelineSkipped[row.result] ?? '';
+    let note = copy.timelineSkipped[row.result] ?? '';
     if (hasBar && row.result !== 'pinned' && row.result !== 'running') {
       note = formatDuration(row.durationMs ?? 0) + (row.error?.status ? `, ${row.error.status}` : '');
     }
@@ -45,7 +43,6 @@ export default {
   id: 'studio-run',
   path: STUDIO_ROUTES.run,
   layout: STUDIO_LAYOUT_ID,
-  title: STUDIO_COPY.runs.title,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const page = createKit();
@@ -56,6 +53,8 @@ export default {
     let disposed = false;
 
     const [shell, catalog] = await Promise.all([studioApi.getShell(), studioApi.getCatalog()]);
+    const STUDIO_COPY = catalog.copy;
+    const C = STUDIO_COPY.run;
     let run = await studioApi.getRun(ctx.params.runId);
     ctx.setTitle(`${run.flowName} ${run.shortId}`);
 
@@ -209,7 +208,7 @@ export default {
         h('div', { class: 'rowf gap8' }, h('h2', { class: 'h3' }, C.timeline), run.status === 'running' && h('span', { class: 'xs sec' }, C.liveNote)),
         timelineHost);
       const timeline = viewKit.scope.mount(XWFRunTimeline, timelineHost, {
-        rows: timelineRows(run).map((r) => ({ ...r, selected: r.id === String(selectedIndex) })),
+        rows: timelineRows(run, C).map((r) => ({ ...r, selected: r.id === String(selectedIndex) })),
         totalMs: total, startLabel: formatDuration(0), endLabel: formatDuration(total),
       });
       viewKit.scope.listen(timelineHost, 'xwf-select', (e) => { selectedIndex = Number(e.detail.id); renderDetail(); highlightLedger(); });
@@ -222,7 +221,7 @@ export default {
       viewKit.scope.mount(XWUITable, tableHost, {
         columns: [
           { key: 'index', title: C.columns.index, render: (v) => h('span', { class: 'mono ter' }, String(v)) },
-          { key: 'stepName', title: C.columns.step, render: (v, r) => h('button', { class: 'run-ledger__step', type: 'button', onClick: () => { selectedIndex = r.index - 1; renderDetail(); highlightLedger(); timeline.select(String(selectedIndex), { silent: true }); } }, v) },
+          { key: 'stepName', title: C.columns.step, render: (v, r) => viewKit.ui.button(v, { className: 'run-ledger__step', variant: 'ghost', size: 'sm', onClick: () => { selectedIndex = r.index - 1; renderDetail(); highlightLedger(); timeline.select(String(selectedIndex), { silent: true }); } }) },
           { key: 'attempt', title: C.columns.attempt, render: (v, r) => (v > 0 ? ((r.maxAttempts ?? 1) > 1 ? template(C.tryOf, { n: v, max: r.maxAttempts }) : String(v)) : C.tryNone) },
           { key: 'result', title: C.columns.result, render: (v, r) => {
             const res = catalog.stepResults[v] ?? catalog.stepResults.not_run;

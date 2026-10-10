@@ -6,19 +6,16 @@ import { XWUITable, XWUIDisplayChip } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatRelative, formatDateTime, formatDuration } from '../../../core/format.js';
-import { STUDIO_COPY } from '../studio.copy.js';
 import { STUDIO_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { statusEl, kpiEl, projectTabsEl, searchEl, selectEl } from '../shared/studio-ui.js';
 import { XWFBarSpark } from '../../../components/XWFBarSpark/XWFBarSpark.js';
 
-const C = STUDIO_COPY.runs;
 const WINDOW_DAYS = 7;
 
 export default {
   id: 'studio-runs',
   path: STUDIO_ROUTES.runs,
   layout: STUDIO_LAYOUT_ID,
-  title: C.title,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const page = createKit();
@@ -29,6 +26,9 @@ export default {
 
     const [shell, catalog, first] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.listRuns(filters)]);
 
+    const STUDIO_COPY = catalog.copy;
+    const C = STUDIO_COPY.runs;
+    ctx.setTitle(C.title);
     ctx.layout?.setTopbar?.({
       crumbs: [{ label: shell.project.name, route: STUDIO_ROUTES.flows }, { label: C.title }],
       meta: [page.ui.tag(shell.project.sampleNotice, 'default', { className: 'xw-tone-plan' })],
@@ -148,7 +148,7 @@ export default {
     }
 
     el.append(h('div', { class: 'pg' },
-      h('div', { class: 'rowf gap16 wrapf' }, h('h1', { class: 'h2 studio-page-title' }, C.title), h('div', { class: 'sp' }, projectTabsEl(page.scope, ctx, shell.tabs, 'runs'))),
+      h('div', { class: 'rowf gap16 wrapf' }, h('h1', { class: 'h2 studio-page-title' }, C.title), h('div', { class: 'sp' }, projectTabsEl(page.scope, ctx, shell.tabs, 'runs', STUDIO_COPY))),
       kpiRow, filtersRow, selectionBar, tableHost, tail));
     renderWindowChip();
     render(first);

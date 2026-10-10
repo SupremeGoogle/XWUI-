@@ -2,11 +2,10 @@
  * Studio view helpers shared by several pages: status markers, KPI tiles, step chains,
  * owner chips, project tabs and the "not in this prototype" notice.
  */
-import { XWUIDisplayStatistic, XWUINavTabs, XWUISelect, XWUIInputText } from '@exonware/xwui/basic';
+import { XWUIDisplayStatistic, XWUINavTabs, XWUISelect, XWUIInputText, XWUIDisplayAvatar } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { template } from '../../../core/format.js';
 import { XWFStatus } from '../../../components/XWFStatus/XWFStatus.js';
-import { STUDIO_COPY } from '../studio.copy.js';
 
 export function statusEl(scope, label, kind, conf = {}) {
   const host = h('span', { class: 'xw-host' });
@@ -22,7 +21,7 @@ export function kpiEl(scope, { title, value, tone = 'violet', valueTone = null, 
   return tile;
 }
 
-export function chainEl(tones) {
+export function chainEl(tones, STUDIO_COPY) {
   const parts = [];
   tones.forEach((tone, i) => {
     if (i) parts.push(h('b'));
@@ -31,15 +30,17 @@ export function chainEl(tones) {
   return h('span', { class: 'chain', role: 'img', 'aria-label': template(STUDIO_COPY.chainLabel, { n: tones.length }) }, parts);
 }
 
-export function ownerEl(owner) {
-  return h('span', { class: 'studio-owner' }, h('span', { class: 'avatar', style: { background: owner.gradient }, 'aria-hidden': 'true' }), owner.name);
+export function ownerEl(scope, owner) {
+  const avatar = h('span');
+  scope.mount(XWUIDisplayAvatar, avatar, { name: owner.name }, { size: 'xs' });
+  return h('span', { class: 'studio-owner' }, avatar, owner.name);
 }
 
 /**
  * Project tabs (XWUINavTabs, button variant). Tabs without a route explain that the
  * section is outside the prototype instead of doing nothing.
  */
-export function projectTabsEl(scope, ctx, tabs, activeId) {
+export function projectTabsEl(scope, ctx, tabs, activeId, STUDIO_COPY) {
   const host = h('div', { class: 'studio-tabs' });
   const nav = scope.mount(XWUINavTabs, host, {
     tabs: tabs.map((t) => ({ id: t.id, label: t.label })),

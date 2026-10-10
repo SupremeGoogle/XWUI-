@@ -9,6 +9,8 @@ import * as db from '../data/studio.data.js';
 import { simulateRun, progressAt } from './studio.engine.js';
 import { gallery } from '../data/notations.data.js';
 import { resolveAssets } from './assets.api.js';
+import { STUDIO_COPY } from '../data/studio-copy.data.js';
+import { STUDIO_SEARCH } from '../data/studio-search.data.js';
 
 /* ------------------------------------------------------------ seeding */
 
@@ -36,7 +38,8 @@ const versions = createCollection('studio.versions', db.versions.map((v) => {
 
 const runs = createCollection('studio.runs', db.runs.map((r) => {
   const { started, ...rest } = r;
-  return { ...rest, startedAt: ago(started) };
+  const flow = db.flows.find((f) => f.id === r.flowId);
+  return { ...rest, flowName: flow?.name, graph: clone(flow?.graph), startedAt: ago(started) };
 }), { idPrefix: 'run' });
 
 const connections = createCollection('studio.connections', db.connections.map((c) => {
@@ -107,14 +110,15 @@ function summarizeFlow(flow) {
 
 function shapeRun(run) {
   const flow = flows.get(run.flowId);
-  const nodeName = (id) => flow?.graph.nodes.find((n) => n.id === id)?.name ?? id;
+  const graph = run.graph ?? versions.get(`${run.flowId}@${run.version}`)?.graph ?? flow?.graph;
+  const nodeName = (id) => graph?.nodes.find((n) => n.id === id)?.name ?? id;
   const live = materializeRun(run);
-  const stepIds = new Set((flow?.graph.nodes ?? []).map((n) => n.id));
+  const stepIds = new Set((graph?.nodes ?? []).map((n) => n.id));
   const recorded = new Set(live.ledger.filter((l) => l.attempt > 0 && l.result !== 'running').map((l) => l.nodeId));
   return {
     ...live,
-    flowName: flow?.name ?? 'Deleted flow',
-    ledger: live.ledger.map((row, index) => ({ ...row, index: index + 1, stepName: nodeName(row.nodeId), nodeType: flow?.graph.nodes.find((n) => n.id === row.nodeId)?.type })),
+    flowName: run.flowName ?? flow?.name ?? 'Deleted flow',
+    ledger: live.ledger.map((row, index) => ({ ...row, index: index + 1, stepName: nodeName(row.nodeId), nodeType: graph?.nodes.find((n) => n.id === row.nodeId)?.type })),
     stepsTotal: stepIds.size,
     stepsRecorded: recorded.size,
   };
@@ -134,7 +138,10 @@ export const studioApi = {
   }), { latency: [120, 260] }),
 
   /** Static catalog: step types, groups, lanes, labels, notations. */
+  getSearchCopy: () => respond(() => STUDIO_SEARCH),
+
   getCatalog: () => respond(async () => ({
+    copy: STUDIO_COPY,
     assetRefs: db.studioAssetRefs,
     assets: await resolveAssets(Object.values(db.studioAssetRefs)),
     nodeGroups: db.nodeGroups,
@@ -283,7 +290,7 @@ export const studioApi = {
     const run = runs.create({
       id: newId(`run_${flowId.replace(/^flow_/, '')}`),
       shortId: `r_${Math.random().toString(16).slice(2, 6)}`,
-      flowId, version: flow.publishedVersion, mode, retryOf, sequence,
+      flowId, flowName: flow.name, graph: clone(graph), version: flow.publishedVersion, mode, retryOf, sequence,
       startedAt: nowIso(), live: true, status: 'running', durationMs: null,
       plannedStatus: plan.status, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger,
       sampleData: mode === 'test',
@@ -295,15 +302,14 @@ export const studioApi = {
   retryRuns: (ids) => respond(() => ids.map((id) => {
     const source = runs.require(id);
     const flow = flows.require(source.flowId);
-    const graph = flow.graph;
+    const graph = source.graph ?? versions.get(`${source.flowId}@${source.version}`)?.graph ?? flow.graph;
     const plan = simulateRun({ graph, types: typeIndex, payload: flow.samplePayload ?? {} });
-    const healed = plan.status === 'failed' ? { ...plan, status: 'succeeded' } : plan;
     return runs.create({
       id: newId(`run_${source.flowId.replace(/^flow_/, '')}`),
       shortId: `r_${Math.random().toString(16).slice(2, 6)}`,
-      flowId: source.flowId, version: source.version, mode: 'retry', retryOf: id,
-      sequence: (source.sequence ?? 0) + 1, startedAt: nowIso(), live: true, status: 'running', durationMs: null,
-      plannedStatus: healed.status, plannedDurationMs: Math.max(healed.durationMs, 600), ledger: healed.ledger,
+      flowId: source.flowId, flowName: source.flowName ?? flow.name, graph: clone(graph), version: source.version, mode: 'retry', retryOf: id,
+      sequence: runsOfFlow(source.flowId).reduce((max, r) => Math.max(max, r.sequence ?? 0), 0) + 1, startedAt: nowIso(), live: true, status: 'running', durationMs: null,
+      plannedStatus: plan.status, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger,
     }).id;
   }), { latency: [400, 800], failRate: 0.03 }),
 
@@ -311,12 +317,17 @@ export const studioApi = {
   retryFromStep: (runId, nodeId) => respond(() => {
     const source = runs.require(runId);
     const flow = flows.require(source.flowId);
-    const plan = simulateRun({ graph: { ...flow.graph, nodes: flow.graph.nodes.map((n) => (n.id === nodeId ? { ...n, sim: { ...n.sim, failAttempts: 0 } } : n)) }, types: typeIndex, payload: flow.samplePayload ?? {} });
+    const graph = source.graph ?? versions.get(`${source.flowId}@${source.version}`)?.graph ?? flow.graph;
+    const start = source.ledger.findIndex((row) => row.nodeId === nodeId);
+    if (start < 0) throw new ApiError('not_found', 'This step is not in the receipt.');
+    const reusedRows = Object.fromEntries(source.ledger.slice(0, start).filter((row) => ['succeeded', 'pinned', 'took_yes', 'took_no'].includes(row.result)).map((row) => [row.nodeId, row]));
+    const retryGraph = { ...graph, nodes: graph.nodes.map((n) => n.id === nodeId ? { ...n, sim: { ...n.sim, failAttempts: 0 } } : n) };
+    const plan = simulateRun({ graph: retryGraph, types: typeIndex, payload: flow.samplePayload ?? {}, reusedRows });
     const run = runs.create({
       id: newId(`run_${source.flowId.replace(/^flow_/, '')}`),
       shortId: `r_${Math.random().toString(16).slice(2, 6)}`,
-      flowId: source.flowId, version: source.version, mode: 'retry', retryOf: runId, retryFromNodeId: nodeId,
-      sequence: (source.sequence ?? 0) + 1, startedAt: nowIso(), live: true, status: 'running', durationMs: null,
+      flowId: source.flowId, flowName: source.flowName ?? flow.name, graph: clone(graph), version: source.version, mode: 'retry', retryOf: runId, retryFromNodeId: nodeId,
+      sequence: runsOfFlow(source.flowId).reduce((max, r) => Math.max(max, r.sequence ?? 0), 0) + 1, startedAt: nowIso(), live: true, status: 'running', durationMs: null,
       plannedStatus: plan.status, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger,
     });
     return { id: run.id };

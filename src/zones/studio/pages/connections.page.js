@@ -2,15 +2,13 @@
  * Studio: connections. The vault banner, filters (search, status, grouping), credential
  * cards with masked secrets, and the actions the prototype shows: Reconnect, Test, Add.
  */
-import { XWUIInputText, XWUISelect } from '@exonware/xwui/basic';
+import { XWUIInputText, XWUISelect, XWUICard } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatRelative, formatDateTime, pluralize } from '../../../core/format.js';
-import { STUDIO_COPY } from '../studio.copy.js';
 import { STUDIO_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { statusEl, projectTabsEl, searchEl, selectEl } from '../shared/studio-ui.js';
 
-const C = STUDIO_COPY.connections;
 const toneVar = (tone) => `var(--xw-${tone})`;
 const CARD_STATE = { broken: 'bad', expiring: 'warnc', healthy: '' };
 
@@ -18,7 +16,6 @@ export default {
   id: 'studio-connections',
   path: STUDIO_ROUTES.connections,
   layout: STUDIO_LAYOUT_ID,
-  title: C.title,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const page = createKit();
@@ -26,6 +23,9 @@ export default {
     const filters = { q: '', status: 'all', group: 'connection' };
     const busy = new Set();
     const [shell, catalog, first] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.listConnections(filters)]);
+    const STUDIO_COPY = catalog.copy;
+    const C = STUDIO_COPY.connections;
+    ctx.setTitle(C.title);
     let items = first;
 
     ctx.layout?.setTopbar?.({
@@ -73,7 +73,7 @@ export default {
     function card(c) {
       const { ui, scope } = listKit;
       const primaryAction = c.status === 'healthy' ? 'test' : 'reconnect';
-      return h('article', { class: ['kc', CARD_STATE[c.status]], style: { '--hc': toneVar(c.status === 'broken' ? 'red' : c.tone) } },
+      const body = h('div', { class: 'stack gap16' },
         h('div', { class: 'rowf gap12' },
           h('span', { class: 'ico', style: { '--gc': toneVar(c.tone) } }, ui.icon(c.icon, { size: 'md' })),
           h('div', { class: 'grow' }, h('b', {}, c.name), h('div', { class: 'xs sec' }, template(C.kindOwner, { kind: c.kind, owner: c.ownerName }))),
@@ -85,6 +85,9 @@ export default {
             variant: c.status === 'broken' ? 'primary' : 'secondary', size: 'sm', className: 'sp', loading: busy.has(c.id),
             icon: primaryAction === 'test' ? 'plug' : 'refresh', onClick: () => act(c, primaryAction),
           })));
+      const host = ui.mount(XWUICard, { body }, { padding: 'none' }, { className: `kc studio-card ${CARD_STATE[c.status]}` });
+      host.style.setProperty('--hc', toneVar(c.status === 'broken' ? 'red' : c.tone));
+      return host;
     }
 
     function render() {
@@ -140,7 +143,7 @@ export default {
     const { ui, scope } = page;
 
     el.append(h('div', { class: 'pg' },
-      h('div', { class: 'rowf gap16 wrapf' }, h('h1', { class: 'h2 studio-page-title' }, C.title), h('div', { class: 'sp' }, projectTabsEl(scope, ctx, shell.tabs, 'connections'))),
+      h('div', { class: 'rowf gap16 wrapf' }, h('h1', { class: 'h2 studio-page-title' }, C.title), h('div', { class: 'sp' }, projectTabsEl(scope, ctx, shell.tabs, 'connections', STUDIO_COPY))),
       h('section', { class: 'glass wrapf gap24 connections__vault' },
         h('div', { class: 'connections__vault-orb', 'aria-hidden': 'true' },
           h('div', { class: 'orb', style: { '--oc': 'var(--xw-lime)', width: '96px', height: '96px', left: '0', top: '0' } }),

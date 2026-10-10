@@ -7,20 +7,17 @@ import { XWUINavTabs, XWUIDisplayChip, XWUIInputNumber } from '@exonware/xwui/ba
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatNumber } from '../../../core/format.js';
-import { STUDIO_COPY } from '../studio.copy.js';
 import { CANVAS_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { kpiEl, downloadText } from '../shared/studio-ui.js';
 import { XWFFlowDiagram } from '../../../components/XWFFlowDiagram/XWFFlowDiagram.js';
 import { retriesInRun, formatSimClock } from '../../../components/XWFFlowDiagram/XWFFlowDiagram.logic.js';
 
-const C = STUDIO_COPY.views;
 const DEFAULT_CAMERA = { tilt: 56, spin: -24, height: 1 };
 
 export default {
   id: 'studio-view',
   path: STUDIO_ROUTES.view,
   layout: CANVAS_LAYOUT_ID,
-  title: C.viewAs,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const notation = ctx.params.notation;
@@ -29,6 +26,8 @@ export default {
       studioApi.getShell(), studioApi.getCatalog(), studioApi.getFlow(ctx.params.flowId), studioApi.listConnections(),
       studioApi.getNotationGallery?.().catch(() => null) ?? null,
     ]);
+    const STUDIO_COPY = catalog.copy;
+    const C = STUDIO_COPY.views;
     const notationInfo = catalog.notations.find((n) => n.id === notation);
     if (!notationInfo || notation === 'editor') { ctx.navigate(`/studio/flows/${flow.id}`, { replace: true }); return { unmount() {} }; }
     ctx.setTitle(`${flow.name}: ${notationInfo.label}`);

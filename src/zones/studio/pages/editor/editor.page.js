@@ -9,7 +9,6 @@ import { XWUIInputText, XWUITextarea, XWUIOverlaySideSheet } from '@exonware/xwu
 import { h } from '../../../../core/dom.js';
 import { createKit } from '../../../../core/ui.js';
 import { template, formatRelative } from '../../../../core/format.js';
-import { STUDIO_COPY } from '../../studio.copy.js';
 import { CANVAS_LAYOUT_ID, STUDIO_ROUTES } from '../../studio.routes.js';
 import { XWFFlowCanvas } from '../../../../components/XWFFlowCanvas/XWFFlowCanvas.js';
 import { addNode, updateNode, removeNode, removeEdge } from '../../../../components/XWFFlowCanvas/XWFFlowCanvas.logic.js';
@@ -19,7 +18,6 @@ import { createPalette } from './editor.palette.js';
 import { createInspector } from './editor.inspector.js';
 import { createRunPanel } from './editor.runpanel.js';
 
-const C = STUDIO_COPY.editor;
 const SAVE_DEBOUNCE_MS = 600;
 const RUN_POLL_MS = 350;
 /** Screen area the floating panels cover (px), so "fit" keeps steps visible. */
@@ -29,13 +27,14 @@ export default {
   id: 'studio-editor',
   path: STUDIO_ROUTES.editor,
   layout: CANVAS_LAYOUT_ID,
-  title: C.publish,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const page = createKit();
     const [shell, catalog, flow, connections] = await Promise.all([
       studioApi.getShell(), studioApi.getCatalog(), studioApi.getFlow(ctx.params.flowId), studioApi.listConnections(),
     ]);
+    const STUDIO_COPY = catalog.copy;
+    const C = STUDIO_COPY.editor;
     ctx.setTitle(flow.name);
 
     const typeIndex = Object.fromEntries(catalog.nodeTypes.map((t) => [t.id, t]));
@@ -89,6 +88,12 @@ export default {
       portLabels: C.ports,
       labels: C.tools,
     }, { safeArea: SAFE_AREA });
+    const fitViewport = () => {
+      canvas.updateConfig({ safeArea: el.clientWidth <= 1200 ? { left: 222, right: 302, top: 144, bottom: 282 } : SAFE_AREA });
+      canvas.fit();
+    };
+    page.scope.listen(window, 'resize', fitViewport);
+    requestAnimationFrame(fitViewport);
 
     /* ---------------------------------------------------------- state sync */
     function problems() {
@@ -269,11 +274,11 @@ export default {
     }
 
     async function ask() {
-      const { scope } = createKit();
+      const { scope, ui } = createKit();
       const examples = (await studioApi.getEditorAssistant()).examples;
       const host = h('div', { class: 'stack gap12' });
       const inputHost = h('div');
-      host.append(inputHost, h('div', { class: 'wrapf gap8' }, examples.map((ex) => h('button', { class: 'pill', type: 'button', onClick: () => input.setValue?.(ex) }, ex))));
+      host.append(inputHost, h('div', { class: 'wrapf gap8' }, examples.map((ex) => ui.button(ex, { variant: 'ghost', size: 'sm', onClick: () => input.setValue?.(ex) }))));
       const input = scope.mount(XWUIInputText, inputHost, { label: C.askLabel, placeholder: C.askPlaceholder }, { fullWidth: true, leadingIcon: 'sparkles' });
       requestAnimationFrame(() => input.focus?.());
       const choice = await page.ui.dialog({ title: C.askTitle, content: host, actions: [{ id: 'cancel', label: C.cancel, variant: 'ghost' }, { id: 'ask', label: C.askConfirm, variant: 'primary' }], size: 'md' });
@@ -294,6 +299,7 @@ export default {
     const onKey = (e) => {
       const typing = e.target.closest('input, textarea, select, [contenteditable="true"]');
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); startRun(); return; }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') { e.preventDefault(); ask(); return; }
       if (typing) return;
       if (e.key === 'F2' && state.selectedId) { e.preventDefault(); rename(state.selectedId); }
       if ((e.key === 'p' || e.key === 'P') && state.graph.nodes.some((n) => n.id === state.selectedId)) {

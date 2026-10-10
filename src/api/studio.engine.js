@@ -70,7 +70,7 @@ export function orderNodes(graph, types) {
  * @param {{ graph: object, types: Record<string, object>, payload: object, mode: string, stopAtNodeId?: string }} input
  * @returns {{ ledger: object[], status: string, durationMs: number }}
  */
-export function simulateRun({ graph, types, payload, stopAtNodeId = null }) {
+export function simulateRun({ graph, types, payload, stopAtNodeId = null, reusedRows = {} }) {
   const ledger = [];
   const reached = new Set();
   const ordered = orderNodes(graph, types);
@@ -93,7 +93,12 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null }) {
       continue;
     }
 
-    if (node.pinned) {
+    if (reusedRows[node.id]) {
+      const previous = reusedRows[node.id];
+      ledger.push({ ...structuredClone(previous), attempt: 1, result: 'pinned', offsetMs: clock, durationMs: null });
+      clock += 12;
+      outgoing(graph, node.id).filter((edge) => !previous.output?.branch || edge.port === previous.output.branch).forEach((edge) => reached.add(edge.to));
+    } else if (node.pinned) {
       ledger.push({ nodeId: node.id, attempt: 1, result: 'pinned', payload: 'stored', offsetMs: clock, durationMs: null, output: payload });
       clock += 12;
       outgoing(graph, node.id).forEach((e) => reached.add(e.to));

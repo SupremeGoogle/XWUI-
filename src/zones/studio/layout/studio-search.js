@@ -5,13 +5,19 @@
 import { XWUIOverlayDialog, XWUIInputText } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
-import { STUDIO_SEARCH } from './studio-search.data.js';
 
 let openDialog = null;
 
-export function openStudioSearch(ctx) {
+export async function openStudioSearch(ctx) {
   if (openDialog) return;
+  openDialog = 'loading';
+  let STUDIO_SEARCH;
+  try { STUDIO_SEARCH = await ctx.api.studioApi.getSearchCopy(); }
+  catch (error) { openDialog = null; ctx.notify.fromError(error); return; }
   const { scope, ui } = createKit();
+  let token = 0;
+  let debounce = null;
+  let disposed = false;
   const host = h('div');
   const inputHost = h('div');
   const results = h('div', { class: 'studio-search__results', role: 'listbox', 'aria-label': STUDIO_SEARCH.resultsLabel });
@@ -19,6 +25,7 @@ export function openStudioSearch(ctx) {
   document.body.append(host);
 
   const close = () => {
+    disposed = true; token += 1; clearTimeout(debounce);
     scope.destroy();
     try { dialog.destroy(); } catch { /* already gone */ }
     host.remove();
@@ -31,7 +38,6 @@ export function openStudioSearch(ctx) {
   openDialog = dialog;
 
   const go = (route) => { close(); ctx.navigate(route); };
-  let token = 0;
   const search = async (q) => {
     const current = ++token;
     results.replaceChildren(ui.spinner());
@@ -40,21 +46,22 @@ export function openStudioSearch(ctx) {
         ctx.api.studioApi.listFlows({ q }),
         ctx.api.studioApi.listRuns({ q, days: null, pageSize: 6 }),
       ]);
-      if (current !== token) return;
+      if (disposed || current !== token) return;
       const rows = [
         ...flows.items.map((f) => ({ kind: STUDIO_SEARCH.flowKind, label: f.name, hint: f.folder, icon: 'workflow', route: `/studio/flows/${f.id}` })),
         ...runs.items.map((r) => ({ kind: STUDIO_SEARCH.runKind, label: `${r.flowName}`, hint: r.shortId, icon: 'history', route: `/studio/runs/${r.id}` })),
       ];
-      results.replaceChildren(...(rows.length ? rows.map((r) => h('button', {
-        class: 'studio-search__row', type: 'button', role: 'option', onClick: () => go(r.route),
-      }, ui.icon(r.icon), h('span', { class: 'grow' }, r.label), h('span', { class: 'xs ter mono' }, r.hint), ui.tag(r.kind))) : [ui.empty({ title: STUDIO_SEARCH.emptyTitle, description: STUDIO_SEARCH.emptyBody, icon: 'search' }, { size: 'sm' })]));
+      results.replaceChildren(...(rows.length ? rows.map((r) => {
+        const row = ui.button(r.label, { variant: 'ghost', icon: r.icon, fullWidth: true, className: 'studio-search__row', onClick: () => go(r.route) });
+        row.querySelector('button').append(h('span', { class: 'xs ter mono sp' }, r.hint), ui.tag(r.kind));
+        return row;
+      }) : [ui.empty({ title: STUDIO_SEARCH.emptyTitle, description: STUDIO_SEARCH.emptyBody, icon: 'search' }, { size: 'sm' })]));
     } catch (error) {
       ctx.notify.fromError(error);
     }
   };
 
   const input = scope.mount(XWUIInputText, inputHost, { placeholder: STUDIO_SEARCH.placeholder }, { leadingIcon: 'search', fullWidth: true, clearable: true, ariaLabel: STUDIO_SEARCH.placeholder });
-  let debounce = null;
   input.onChange?.((value) => {
     clearTimeout(debounce);
     debounce = setTimeout(() => search(value), STUDIO_SEARCH.debounceMs);

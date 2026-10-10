@@ -6,20 +6,17 @@ import { XWUITable } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatRelative } from '../../../core/format.js';
-import { STUDIO_COPY } from '../studio.copy.js';
 import { STUDIO_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import {
   statusEl, kpiEl, chainEl, ownerEl, projectTabsEl, searchEl, selectEl,
 } from '../shared/studio-ui.js';
 
-const C = STUDIO_COPY.flows;
 const DEMO_FLOW_ID = 'flow_order_alert';
 
 export default {
   id: 'studio-flows',
   path: STUDIO_ROUTES.flows,
   layout: STUDIO_LAYOUT_ID,
-  title: C.title,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const page = createKit();
@@ -29,6 +26,9 @@ export default {
     const [shell, catalog, initial] = await Promise.all([
       studioApi.getShell(), studioApi.getCatalog(), studioApi.listFlows(filters),
     ]);
+    const STUDIO_COPY = catalog.copy;
+    const C = STUDIO_COPY.flows;
+    ctx.setTitle(C.title);
     const { project, tabs } = shell;
 
     ctx.layout?.setTopbar?.({
@@ -130,11 +130,11 @@ export default {
         tableKit.scope.mount(XWUITable, host, {
           columns: [
             { key: 'name', title: C.columns.name, render: (_v, r) => h('div', {}, h('a', { class: 'studio-flow-link', href: `#/studio/flows/${r.id}` }, r.name), h('div', { class: 'xs sec' }, r.folder)) },
-            { key: 'chain', title: C.columns.steps, render: (v) => chainEl(v) },
+            { key: 'chain', title: C.columns.steps, render: (v) => chainEl(v, STUDIO_COPY) },
             { key: 'statusKey', title: C.columns.status, render: (_v, r) => statusEl(tableKit.scope, r.status.label, r.status.st) },
             { key: 'lastRun', title: C.columns.lastRun, render: (_v, r) => lastRunCell(r) },
             { key: 'nextRun', title: C.columns.nextRun, render: (v) => h('span', { class: 'sec' }, v ?? C.draftNextRun) },
-            { key: 'owner', title: C.columns.owner, render: (v) => ownerEl(v) },
+            { key: 'owner', title: C.columns.owner, render: (v) => ownerEl(tableKit.scope, v) },
             { key: 'updatedAt', title: C.columns.updated, render: (v) => h('span', { class: 'sec' }, formatRelative(v)) },
           ],
           data: result.items,
@@ -154,7 +154,7 @@ export default {
 
     el.append(h('div', { class: 'pg' },
       hero, kpis,
-      projectTabsEl(page.scope, ctx, tabs, 'flows'),
+      projectTabsEl(page.scope, ctx, tabs, 'flows', STUDIO_COPY),
       filtersRow, tableHost, footnote));
     render(initial);
 

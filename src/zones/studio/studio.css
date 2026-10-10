@@ -157,7 +157,7 @@ html body .run-code, html body .run-detail__code pre { background: #07070f; bord
 /* ---------- flow editor (floating panels over a full-screen canvas) ---------- */
 .studio-canvas-shell { position: relative; min-height: 100vh; }
 .studio-canvas-outlet { position: relative; }
-.editor { position: relative; height: 100vh; min-height: 720px; min-width: 1200px; overflow: hidden; }
+.editor { position: relative; height: 100vh; min-height: 720px; min-width: 0; overflow: hidden; }
 .editor-canvas { position: absolute; inset: 0; }
 .fl {
   position: absolute; border-radius: 22px; background: rgba(12, 12, 24, .78);
@@ -263,3 +263,17 @@ html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt 
 .mask { font-family: var(--xw-font-mono); letter-spacing: .25em; color: var(--xw-tx3); }
 .studio-help { display: grid; grid-template-columns: auto 1fr; gap: 16px 24px; align-items: center; }
 .studio-help dt, .studio-help dd { margin: 0; }
+.studio-card .xwui-card { background: transparent; border: 0; border-radius: inherit; box-shadow: none; }
+.studio-search__row button { width: 100%; display: flex; gap: 12px; justify-content: flex-start; }
+.editor-palette__item { display: block; width: 100%; }
+.editor-palette__item button { justify-content: flex-start; cursor: grab; }
+.run-ledger__step button { padding: 0; text-align: start; }
+@media (max-width: 1200px) {
+  .editor-header { height: auto; min-height: 62px; flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
+  .editor-header__tabs { order: 2; width: 100%; margin-left: 0; }
+  .editor-header__kbd { display: none; }
+  .editor-palette { width: 190px; top: 144px; max-height: calc(100vh - 160px); }
+  .editor-inspector { width: 270px; top: 144px; }
+  .editor-runpanel { left: 222px; right: 302px; }
+  .view-header { flex-wrap: wrap; height: auto; border-radius: 24px; }
+}

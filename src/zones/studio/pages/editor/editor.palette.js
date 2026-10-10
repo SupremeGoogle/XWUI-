@@ -9,6 +9,7 @@ import { XWF_FLOW_DND_TYPE } from '../../../../components/XWFFlowCanvas/XWFFlowC
 
 export function createPalette({ catalog, copy, onAdd }) {
   const { scope, ui } = createKit();
+  let listKit = createKit();
   const list = h('div', { class: 'editor-palette__list' });
   const searchHost = h('div', { class: 'editor-palette__search' });
   const el = h('aside', { class: 'fl stack editor-palette', 'aria-label': copy.paletteLabel }, searchHost, list,
@@ -25,6 +26,7 @@ export function createPalette({ catalog, copy, onAdd }) {
   const paletteTypes = catalog.nodeTypes.filter((t) => t.palette);
 
   function render(query = '') {
+    listKit.scope.destroy(); listKit = createKit();
     const q = query.trim().toLowerCase();
     const groups = catalog.nodeGroups.map((g) => ({
       ...g,
@@ -32,14 +34,15 @@ export function createPalette({ catalog, copy, onAdd }) {
     })).filter((g) => g.items.length);
     list.replaceChildren(...(groups.length ? groups.flatMap((g) => [
       h('div', { class: 'gl' }, g.label),
-      ...g.items.map((t) => h('button', {
-        class: 'pi editor-palette__item',
-        type: 'button',
-        draggable: 'true',
-        title: t.description,
-        onClick: () => onAdd(t.id),
-        onDragstart: (e) => { e.dataTransfer.setData(XWF_FLOW_DND_TYPE, t.id); e.dataTransfer.effectAllowed = 'copy'; },
-      }, h('span', { class: 'ico s', style: { '--gc': `var(--xw-${t.tone})` } }, ui.icon(t.icon, { size: 'sm' })), t.label)),
+      ...g.items.map((t) => {
+        const host = listKit.ui.button(t.label, { variant: 'ghost', size: 'sm', icon: t.icon, title: t.description, fullWidth: true, className: 'editor-palette__item', onClick: () => onAdd(t.id) });
+        const button = host.querySelector('button');
+        button.draggable = true;
+        button.classList.add('pi');
+        button.style.setProperty('--gc', `var(--xw-${t.tone})`);
+        listKit.scope.listen(button, 'dragstart', (event) => { event.dataTransfer.setData(XWF_FLOW_DND_TYPE, t.id); event.dataTransfer.effectAllowed = 'copy'; });
+        return host;
+      }),
     ]) : [h('p', { class: 'small ter' }, copy.paletteEmpty)]));
   }
 
@@ -49,6 +52,6 @@ export function createPalette({ catalog, copy, onAdd }) {
   return {
     el,
     focusSearch: () => input.focus?.(),
-    destroy: () => scope.destroy(),
+    destroy: () => { listKit.scope.destroy(); scope.destroy(); },
   };
 }

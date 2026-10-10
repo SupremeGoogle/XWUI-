@@ -5,13 +5,12 @@
  *
  * Query: ?chat=<id> reopens a saved chat, ?soon=<id> explains a section outside the prototype.
  */
-import { XWUITextarea } from '@exonware/xwui/basic';
+import { XWUITextarea, XWUICard } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template } from '../../../core/format.js';
 import { STUDIO_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { XWFFlowCanvas } from '../../../components/XWFFlowCanvas/XWFFlowCanvas.js';
-import { STUDIO_COPY } from '../studio.copy.js';
 
 const PREVIEW_HEIGHT = 150;
 const toneVar = (tone) => `var(--xw-${tone})`;
@@ -20,13 +19,14 @@ export default {
   id: 'studio-assistant',
   path: STUDIO_ROUTES.assistant,
   layout: STUDIO_LAYOUT_ID,
-  title: STUDIO_COPY.assistantTitle,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const page = createKit();
     let previewKit = createKit();
     let recoKit = createKit();
     const [shell, catalog, assistant] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.getAssistant()]);
+    const STUDIO_COPY = catalog.copy;
+    ctx.setTitle(STUDIO_COPY.assistantTitle);
     const A = assistant.copy;
     const typeIndex = Object.fromEntries(catalog.nodeTypes.map((t) => [t.id, t]));
     const state = { text: '', draft: null, drafting: false, activeSuggestion: null, recommendedHidden: assistant.recommendedHidden };
@@ -63,10 +63,10 @@ export default {
     /* ------------------------------ suggestions */
     const pills = h('div', { class: 'wrapf gap8 assistant-pills' });
     const renderPills = () => pills.replaceChildren(
-      ...A.suggestions.map((s) => h('button', {
-        class: ['pill', { on: state.activeSuggestion === s.id }], type: 'button',
+      ...A.suggestions.map((s) => ui.button(s.label, {
+        variant: state.activeSuggestion === s.id ? 'primary' : 'secondary', size: 'sm',
         onClick: () => { state.activeSuggestion = s.id; renderPills(); textarea.setValue?.(s.label); state.text = s.label; renderSend(); draft({ text: s.label, templateId: s.templateId }); },
-      }, s.label)),
+      })),
       ui.button(A.seeAll, { variant: 'ghost', size: 'sm', onClick: () => document.getElementById('assistant-recommended')?.scrollIntoView({ behavior: 'smooth' }) }));
     renderPills();
 
@@ -125,10 +125,9 @@ export default {
     }
 
     /* ------------------------------ start directly */
-    const kinds = h('div', { class: 'assistant-kinds' }, A.startKinds.map((k) => h('button', {
-      class: 'mk assistant-kind', type: 'button', style: { '--gc': toneVar(k.tone) },
-      onClick: () => (k.route ? ctx.navigate(k.route) : notReady(k.label)),
-    }, h('span', { class: 'ico s', style: { '--gc': toneVar(k.tone) } }, ui.icon(k.icon, { size: 'sm' })), h('b', {}, k.label), h('span', { class: 'xs sec' }, k.hint))));
+    const kinds = h('div', { class: 'assistant-kinds' }, A.startKinds.map((k) => ui.mount(XWUICard, {
+      body: h('div', { class: 'stack gap12' }, h('span', { class: 'ico s', style: { '--gc': toneVar(k.tone) } }, ui.icon(k.icon, { size: 'sm' })), h('b', {}, k.label), h('span', { class: 'xs sec' }, k.hint)),
+    }, { padding: 'none', clickable: true, ariaLabel: `${k.label} ${k.hint}`, onClick: () => k.route ? ctx.navigate(k.route) : notReady(k.label) }, { className: 'mk assistant-kind studio-card' })));
 
     /* ------------------------------ recommended */
     const recoBody = h('div');
@@ -147,16 +146,16 @@ export default {
       });
       toggle.querySelector('button')?.setAttribute('aria-expanded', String(!state.recommendedHidden));
       recoHead.append(toggle);
-      recoBody.replaceChildren(state.recommendedHidden ? '' : h('div', { class: 'g3 assistant-reco' }, assistant.recommended.map((t) => h('button', {
-        class: ['mk', 'assistant-reco__card', { gb: t.top }], type: 'button', style: { '--gc': toneVar(t.tone) },
-        onClick: () => { textarea.setValue?.(t.name); state.text = t.name; renderSend(); draft({ text: t.name, templateId: t.id }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
-      },
+      recoBody.replaceChildren(state.recommendedHidden ? '' : h('div', { class: 'g3 assistant-reco' }, assistant.recommended.map((t) => recoKit.ui.mount(XWUICard, { body: h('div', { class: 'stack gap12' },
       t.top && recoKit.ui.tag(A.topRecommendation, 'default', { className: 'xw-tone-violet' }),
       h('b', {}, t.name),
       !t.top && h('span', { class: 'small sec' }, t.steps.map((s) => s.name).join(', ')),
       h('div', { class: 'rowf gap4' },
         t.steps.map((s) => h('span', { class: 'ico s assistant-reco__dot', style: { '--gc': toneVar(typeIndex[s.type]?.tone) } })),
-        h('span', { class: 'xs sec sp' }, template(t.connectionsNeeded ? A.stepsToConnect : A.stepsCount, { n: t.steps.length, c: t.connectionsNeeded })))))));
+        h('span', { class: 'xs sec sp' }, template(t.connectionsNeeded ? A.stepsToConnect : A.stepsCount, { n: t.steps.length, c: t.connectionsNeeded })))) }, {
+          padding: 'none', clickable: true, ariaLabel: t.name,
+          onClick: () => { textarea.setValue?.(t.name); state.text = t.name; renderSend(); draft({ text: t.name, templateId: t.id }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+        }, { className: `mk assistant-reco__card studio-card${t.top ? ' gb' : ''}` }))));
     }
     renderReco();
 
