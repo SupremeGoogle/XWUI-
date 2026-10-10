@@ -627,3 +627,27 @@ export const notations = [
   { id: 'sim', label: 'Simulation', short: 'Simulation', route: '/studio/flows/:flowId/view/sim' },
   { id: '3d', label: '3D space', short: '3D', route: '/studio/flows/:flowId/view/3d' },
 ];
+
+/* ------------------------------------------------------- editor assistant */
+
+/** "Ask AI" in the editor: which words map to which step type. */
+export const editorAssistant = {
+  examples: ['Add a wait for approval', 'Email finance when it fails', 'Explain this flow'],
+  explainWords: ['explain', 'what does', 'describe', 'summary'],
+  keywordsByType: {
+    send_email: ['email', 'mail'],
+    post_message: ['message', 'chat', 'notify', 'slack', 'post'],
+    wait: ['wait', 'pause', 'approval', 'delay'],
+    condition: ['condition', 'if ', 'check', 'branch'],
+    ai_condition: ['ai', 'model', 'classify', 'qualify'],
+    http_request: ['http', 'api', 'request', 'call', 'fetch'],
+    code: ['code', 'script', 'javascript'],
+    set_fields: ['field', 'set ', 'map', 'rename'],
+    append_row: ['row', 'table', 'log', 'record', 'sheet'],
+    merge: ['merge', 'join'],
+  },
+  explainIntro: '{name} starts with {trigger}.',
+  explainStep: 'Then {step} ({type}).',
+  explainBranch: '{step} sends items down the {port} branch to {target}.',
+  explainDisabled: '{step} is disabled, so runs skip it.',
+};

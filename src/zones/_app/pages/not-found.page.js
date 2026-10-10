@@ -13,7 +13,7 @@ export default {
       ui.empty({
         title: UI_CONFIG.messages.notFoundTitle,
         description: UI_CONFIG.messages.notFoundBody,
-        icon: 'explore',
+        icon: 'compass',
         action: { label: UI_CONFIG.messages.notFoundAction, onClick: () => ctx.navigate('/') },
       })));
     return { unmount: () => scope.destroy() };

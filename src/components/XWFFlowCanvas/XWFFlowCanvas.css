@@ -1,0 +1,66 @@
+/* XWFFlowCanvas - node graph in the prototype's .cv/.nd look. Tokens only. */
+.xwf-flow-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background-color: #06060d;
+  background-image: radial-gradient(rgba(255, 255, 255, .08) 1px, transparent 1px);
+  touch-action: none;
+  cursor: grab;
+  outline: none;
+}
+.xwf-flow-canvas:active { cursor: grabbing; }
+.xwf-flow-canvas:focus-visible { box-shadow: inset 0 0 0 2px var(--xw-focus); }
+.xwf-flow-canvas__layer, .xwf-flow-canvas__overlay { position: absolute; inset: 0; pointer-events: none; }
+.xwf-flow-canvas__layer > *, .xwf-flow-canvas__overlay > * { pointer-events: auto; }
+.xwf-flow-canvas__world { position: absolute; left: 0; top: 0; width: 1px; height: 1px; transform-origin: 0 0; }
+.xwf-flow-canvas__empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--xw-tx3); font-weight: 700; pointer-events: none; }
+
+/* wires */
+.xwf-flow-canvas__wires { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.xwf-edge { fill: none; stroke-width: 3; }
+.xwf-edge.is-muted { stroke-dasharray: 6 6; stroke-width: 2; opacity: .7; }
+.xwf-edge.is-selected { stroke-width: 5; filter: drop-shadow(0 0 8px var(--xw-lime)); }
+.xwf-edge--draft { stroke: var(--xw-lime); stroke-dasharray: 6 6; stroke-width: 2.5; }
+.xwf-edge__flow { fill: none; stroke: #fff; stroke-width: 1.5; opacity: .85; }
+.xwf-edge__flow.is-hidden { display: none; }
+.xwf-edge__hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; cursor: pointer; }
+.xwf-edge__label { position: absolute; pointer-events: none; }
+.xwf-edge__label--yes { color: #ffb07f; }
+.xwf-edge__label--no { color: var(--xw-tx3); }
+
+/* nodes (extend the prototype's .nd) */
+.xwf-node { cursor: pointer; user-select: none; touch-action: none; }
+.xwf-node.is-readonly { cursor: default; }
+.xwf-node .ico.s { color: var(--xw-ink); }
+.xwf-node .ico.s svg { width: 16px; height: 16px; }
+.xwf-node__titles { min-width: 0; }
+.xwf-node .nm { overflow: hidden; text-overflow: ellipsis; }
+.xwf-node__warn { color: var(--xw-amber) !important; }
+.xwf-node .pin { pointer-events: none; }
+.xwf-node .xwf-node__out { pointer-events: auto; cursor: crosshair; z-index: 2; }
+.xwf-node .xwf-node__out:hover { transform: scale(1.35); }
+.xwf-node.fail { box-shadow: 0 0 0 1px rgba(0, 0, 0, .4), 0 18px 50px -18px rgba(255, 92, 108, .8); }
+
+/* frames and stickies */
+.xwf-frame { position: absolute; border-radius: 20px; border: 1.5px dashed color-mix(in srgb, var(--fc) 40%, transparent); background: color-mix(in srgb, var(--fc) 3.5%, transparent); pointer-events: none; }
+.xwf-frame__label { position: absolute; pointer-events: none; }
+.xwf-sticky {
+  position: absolute; width: 230px; padding: 12px 14px; border-radius: 14px;
+  background: rgba(255, 197, 61, .12); border: 1px solid rgba(255, 197, 61, .4);
+  color: #ffe3a3; font-size: .8rem; line-height: 1.45; pointer-events: none;
+}
+
+/* tools and minimap (screen space) */
+.xwf-flow-canvas__tools { position: absolute; z-index: 3; padding: 0; }
+.xwf-flow-canvas__tools .xwui-button { border-radius: 0 !important; min-height: 38px !important; width: 38px; padding: 0 !important; }
+.xwf-minimap { position: absolute; z-index: 3; border-radius: 14px; overflow: hidden; cursor: pointer; }
+.xwf-minimap__node { position: absolute; border-radius: 3px; }
+.xwf-minimap__node.is-selected { outline: 2px solid #fff; }
+.xwf-minimap__node.is-off { opacity: .6; }
+.xwf-minimap__view { position: absolute; border: 1px solid rgba(255, 255, 255, .5); border-radius: 4px; background: rgba(255, 255, 255, .05); pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) { .xwf-edge__flow { animation: none; } }

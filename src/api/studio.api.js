@@ -377,6 +377,36 @@ export const studioApi = {
     recommendedHidden: ui.get().recommendedHidden,
   })),
 
+  /**
+   * Editor "Ask AI": either proposes a step to add (keyword match stands in for the model)
+   * or explains the flow in plain sentences.
+   * @returns {Promise<{ kind: 'add', type: string, name: string } | { kind: 'explain', sentences: string[] }>}
+   */
+  askAssistant: ({ flowId, text = '' }) => respond(() => {
+    const flow = flows.require(flowId);
+    const words = ` ${text.toLowerCase()} `;
+    const A = db.editorAssistant;
+    if (!A.explainWords.some((w) => words.includes(w))) {
+      const match = Object.entries(A.keywordsByType).find(([, keys]) => keys.some((k) => words.includes(k)));
+      if (match) return { kind: 'add', type: match[0], name: text.trim().replace(/^(add|insert|create)\s+(a|an)?\s*/i, '') || typeIndex[match[0]].label };
+    }
+    const fill = (tpl, values) => tpl.replace(/\{(\w+)\}/g, (_, k) => values[k] ?? '');
+    const nodes = flow.graph.nodes;
+    const label = (n) => typeIndex[n.type]?.label ?? n.type;
+    const trigger = nodes.find((n) => typeIndex[n.type]?.group === 'trigger');
+    const sentences = [fill(A.explainIntro, { name: flow.name, trigger: trigger ? `${trigger.name} (${label(trigger)})` : '-' })];
+    nodes.filter((n) => n !== trigger).forEach((n) => {
+      sentences.push(fill(A.explainStep, { step: n.name, type: label(n) }));
+      flow.graph.edges.filter((e) => e.from === n.id && e.port !== 'out').forEach((e) => {
+        sentences.push(fill(A.explainBranch, { step: n.name, port: e.port, target: nodes.find((x) => x.id === e.to)?.name }));
+      });
+      if (n.disabled) sentences.push(fill(A.explainDisabled, { step: n.name }));
+    });
+    return { kind: 'explain', sentences };
+  }, { latency: [600, 1100] }),
+
+  getEditorAssistant: () => respond(() => ({ examples: db.editorAssistant.examples }), { latency: [60, 120] }),
+
   setRecommendedHidden: (hidden) => respond(() => ui.patch({ recommendedHidden: hidden }), { latency: [80, 160] }),
 
   /**

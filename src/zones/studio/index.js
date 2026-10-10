@@ -1,12 +1,14 @@
 /** Studio zone manifest. */
 import { StudioLayout } from './layout/StudioLayout.js';
-import { STUDIO_LAYOUT_ID } from './studio.routes.js';
+import { CanvasLayout } from './layout/CanvasLayout.js';
+import { STUDIO_LAYOUT_ID, CANVAS_LAYOUT_ID } from './studio.routes.js';
 import flows from './pages/flows.page.js';
 import runs from './pages/runs.page.js';
 import run from './pages/run.page.js';
+import editor from './pages/editor/editor.page.js';
 
 export default {
   id: 'studio',
-  layouts: { [STUDIO_LAYOUT_ID]: StudioLayout },
-  pages: [flows, runs, run],
+  layouts: { [STUDIO_LAYOUT_ID]: StudioLayout, [CANVAS_LAYOUT_ID]: CanvasLayout },
+  pages: [flows, runs, run, editor],
 };
