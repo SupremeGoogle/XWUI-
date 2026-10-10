@@ -1,0 +1,124 @@
+/* Studio zone: shell, rail (XWUINavSidebar tuned to the prototype's .rail/.ni), shared page pieces. */
+
+.studio-shell { min-height: 100vh; flex-wrap: nowrap; }
+.studio-main { min-height: 100vh; position: relative; }
+.studio-outlet { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; position: relative; }
+.studio-topbar { position: sticky; top: 0; z-index: 20; }
+.studio-topbar__crumbs { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.studio-topbar__actions, .studio-topbar__end { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- rail ---------- */
+.studio-rail { flex: none; position: sticky; top: 0; height: 100vh; z-index: 30; }
+html body .studio-rail .xwui-sidebar {
+  height: 100vh;
+  background: rgba(8, 8, 16, .7);
+  border-right: 1px solid var(--xw-line);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+}
+html body .studio-rail .xwui-sidebar-header { padding: 14px 14px 6px; border-bottom: 0; }
+html body .studio-rail .xwui-sidebar-footer { padding: 10px 14px 14px; border-top: 0; }
+html body .studio-rail .xwui-sidebar-toggle { display: none; }
+html body .studio-rail .xwui-sidebar-menu { flex: 1 1 auto; overflow-y: auto; padding: 0 14px; }
+html body .studio-rail .xwui-sidebar-menu > div,
+html body .studio-rail .xwui-menu,
+html body .studio-rail .xwui-menu-list { height: 100%; display: flex; flex-direction: column; gap: 3px; background: transparent; }
+html body .studio-rail .xwui-menu-item { margin: 0; }
+html body .studio-rail .xwui-menu-link {
+  position: relative;
+  display: flex; align-items: center; gap: 11px;
+  min-height: 38px; padding: 0 12px; border-radius: 12px;
+  color: var(--xw-tx2); font-size: .875rem; font-weight: 700;
+  background: transparent; text-decoration: none;
+}
+html body .studio-rail .xwui-menu-link:hover { background: var(--xw-panel2); color: #fff; }
+html body .studio-rail .xwui-menu-item-selected > .xwui-menu-link {
+  color: #fff;
+  background: linear-gradient(90deg, rgba(200, 255, 61, .16), rgba(200, 255, 61, .02));
+  box-shadow: inset 0 0 0 1px rgba(200, 255, 61, .22);
+}
+html body .studio-rail .xwui-menu-item-selected > .xwui-menu-link::before {
+  content: ""; position: absolute; left: -14px; top: 9px; bottom: 9px; width: 3px;
+  border-radius: 0 3px 3px 0; background: var(--xw-lime); box-shadow: 0 0 12px var(--xw-lime);
+}
+html body .studio-rail .xwui-menu-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto; }
+html body .studio-rail .xwui-menu-badge {
+  margin-left: auto; padding: 2px 10px; border-radius: 999px; font-size: .72rem; font-weight: 800; line-height: 1.7;
+  color: #ffd77a; background: rgba(255, 197, 61, .12); border: 1px solid rgba(255, 197, 61, .35);
+}
+html body .studio-rail .xwui-menu-item[data-id="assistant"] .xwui-menu-badge {
+  color: var(--xw-lime); background: rgba(200, 255, 61, .1); border-color: rgba(200, 255, 61, .3);
+}
+/* group captions and the spacer are plain items with reserved ids */
+html body .studio-rail .xwui-menu-item[data-id^="grp_"] > .xwui-menu-link {
+  min-height: 0; padding: 16px 12px 6px; background: none; box-shadow: none; cursor: default;
+  font-size: .68rem; font-weight: 800; color: var(--xw-tx3); text-transform: uppercase; letter-spacing: .14em;
+}
+html body .studio-rail .xwui-menu-item[data-id="spacer"] { flex: 1 1 auto; min-height: 24px; pointer-events: none; }
+html body .studio-rail .xwui-menu-item[data-id="spacer"] > .xwui-menu-link { display: none; }
+html body .studio-rail .xwui-menu-item[data-id="project"] .xwui-icon {
+  width: 18px !important; height: 18px !important; border-radius: 6px; color: transparent !important;
+  background: linear-gradient(135deg, var(--xw-violet), var(--xw-cyan));
+}
+
+.studio-rail__brandrow .brand { font-size: 1.05rem; }
+.studio-rail__header .xwui-input { min-height: 40px; }
+html body .studio-usage .xwui-progress-bar-fill, html body .studio-usage [class*="fill"] { background: var(--xw-grad); box-shadow: 0 0 12px rgba(155, 107, 255, .8); }
+
+.studio-shell.is-rail-collapsed .studio-rail__search,
+.studio-shell.is-rail-collapsed .studio-rail__meter,
+.studio-shell.is-rail-collapsed .studio-rail__brandrow .brand { display: none; }
+
+/* ---------- breadcrumbs ---------- */
+html body .studio-crumbs { font-size: .875rem; color: var(--xw-tx2); }
+html body .studio-crumbs a { color: var(--xw-tx2); }
+html body .studio-crumbs [aria-current], html body .studio-crumbs li:last-child { color: #fff; font-weight: 800; }
+
+/* ---------- search dialog ---------- */
+.studio-search__results { display: flex; flex-direction: column; gap: 4px; max-height: 360px; overflow-y: auto; }
+.studio-search__row {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; border-radius: 12px; border: 0; background: transparent;
+  color: var(--xw-tx); font: inherit; font-weight: 700; text-align: start; cursor: pointer;
+}
+.studio-search__row:hover, .studio-search__row:focus-visible { background: var(--xw-panel2); outline: none; }
+
+/* ---------- shared page pieces ---------- */
+.studio-kpis { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); }
+.studio-filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.studio-filters > * { flex: 0 0 auto; }
+.studio-filters .studio-filters__search { flex: 1 1 260px; max-width: 360px; }
+.studio-filters .studio-filters__select { width: 170px; }
+
+.chain { display: inline-flex; align-items: center; gap: 0; }
+.chain i { width: 12px; height: 12px; border-radius: 4px; background: var(--c); box-shadow: 0 0 8px var(--c); }
+.chain b { width: 10px; height: 2px; background: rgba(255, 255, 255, .25); }
+
+.studio-owner { display: inline-flex; align-items: center; gap: 8px; }
+.studio-owner .avatar { width: 24px; height: 24px; }
+.xw a.studio-flow-link { font-weight: 800; color: var(--xw-tx); }
+.xw a.studio-flow-link:hover { color: var(--xw-lime); }
+
+/* ---------- flows page ---------- */
+.studio-hero { border-radius: 28px; padding: 28px; overflow: hidden; }
+.studio-hero__row { align-items: center; position: relative; }
+.studio-hero__mark { width: 72px; height: 72px; border-radius: 22px; flex: none; background: conic-gradient(from 200deg, #2ee6ff, #9b6bff, #ff4fa3, #ff8a3d, #2ee6ff); box-shadow: 0 20px 50px -10px rgba(155, 107, 255, .8); }
+.studio-hero__text { min-width: 0; flex: 1 1 360px; }
+.studio-hero__title { font-size: 2rem; }
+
+/* XWUIDisplayStatistic inside the prototype's .kpi tile */
+html body .studio-kpi .xwui-statistic-title { font-size: .75rem; color: var(--xw-tx2); font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+html body .studio-kpi .xwui-statistic-value { font-family: var(--xw-font-display); font-size: 1.9rem; font-weight: 700; line-height: 1.15; letter-spacing: -.02em; color: var(--xw-tx); }
+html body .studio-kpi--err .xwui-statistic-value { color: #ff8e9a; }
+html body .studio-kpi--run .xwui-statistic-value { color: var(--xw-cyan); }
+
+/* XWUINavTabs (button variant) as the prototype's pill tabs */
+html body .studio-tabs .xwui-tabs-list { display: flex; gap: 4px; flex-wrap: wrap; padding: 5px; border-radius: 999px; background: rgba(255, 255, 255, .04); border: 1px solid var(--xw-line); }
+html body .studio-tabs .xwui-tabs-strip { border: 0; }
+html body .studio-tabs .xwui-tab { padding: 8px 16px; border-radius: 999px; font-weight: 800; font-size: .84rem; color: var(--xw-tx2); background: transparent; border: 0; }
+html body .studio-tabs .xwui-tab:hover { color: #fff; }
+html body .studio-tabs .xwui-tab.xwui-tab-active { color: var(--xw-ink); background: #fff; }
+html body .studio-tabs .xwui-tabs-content { display: none; }
+.studio-tabs { align-self: flex-start; }
+.studio-cell-link { display: inline-flex; }

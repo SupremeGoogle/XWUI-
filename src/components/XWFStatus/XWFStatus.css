@@ -1,0 +1,20 @@
+/* XWFStatus - the prototype's .st markers, on tokens. */
+.xwf-status { display: inline-flex; align-items: center; gap: 8px; font-size: .8125rem; font-weight: 800; white-space: nowrap; line-height: 1.3; }
+.xwf-status--sm { font-size: .75rem; gap: 6px; }
+.xwf-status--lg { font-size: 1rem; }
+.xwf-status__mark { display: inline-block; width: 10px; height: 10px; flex: none; }
+.xwf-status--ok { color: var(--xw-green); }
+.xwf-status--ok .xwf-status__mark { border-radius: 50%; background: var(--xw-green); box-shadow: 0 0 10px var(--xw-green); }
+.xwf-status--err { color: #ff8e9a; }
+.xwf-status--err .xwf-status__mark { background: var(--xw-red); transform: rotate(45deg) scale(.85); box-shadow: 0 0 10px var(--xw-red); }
+.xwf-status--run { color: var(--xw-cyan); }
+.xwf-status--run .xwf-status__mark { border-radius: 50%; border: 2px solid var(--xw-cyan); border-right-color: transparent; animation: spin 1s linear infinite; }
+.xwf-status--idle { color: var(--xw-tx2); }
+.xwf-status--idle .xwf-status__mark { border-radius: 50%; border: 2px solid var(--xw-tx3); }
+.xwf-status--warn { color: var(--xw-amber); }
+.xwf-status--warn .xwf-status__mark { background: var(--xw-amber); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.xwf-status--pin { color: #c4adff; }
+.xwf-status--pin .xwf-status__mark { background: var(--xw-violet); border-radius: 2px; box-shadow: 0 0 10px var(--xw-violet); }
+.xwf-status--dis { color: var(--xw-tx2); }
+.xwf-status--dis .xwf-status__mark { border-radius: 2px; border: 2px solid var(--xw-tx3); background: repeating-linear-gradient(45deg, transparent 0 2px, var(--xw-tx3) 2px 3px); }
+@media (prefers-reduced-motion: reduce) { .xwf-status--run .xwf-status__mark { animation: none; } }
