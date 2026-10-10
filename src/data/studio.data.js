@@ -192,11 +192,21 @@ export const lanes = [
 /* ------------------------------------------------------------- connections */
 
 export const connections = [
-  { id: 'conn_customer_api', name: 'Customer API', kind: 'HTTP header auth', icon: 'key', tone: 'cyan', status: 'connected', usedBy: 2, lastUsed: { minutes: 2 } },
-  { id: 'conn_sales_chat', name: 'Sales chat', kind: 'Chat workspace', icon: 'message', tone: 'pink', status: 'expired', usedBy: 1, lastUsed: { days: 12 } },
-  { id: 'conn_finance_mail', name: 'Finance mailbox', kind: 'SMTP', icon: 'mail', tone: 'orange', status: 'connected', usedBy: 1, lastUsed: { days: 1 } },
-  { id: 'conn_crm', name: 'CRM', kind: 'OAuth 2', icon: 'users', tone: 'violet', status: 'connected', usedBy: 1, lastUsed: { minutes: 1 } },
+  { id: 'conn_finance_mail', name: 'Finance mailbox', kind: 'OAuth', ownerId: 'u_you', icon: 'mail', tone: 'pink', status: 'broken', expired: { days: 3 }, usedByFlowIds: ['flow_weekly_digest'], scopes: 'send email', team: 'Finance', lastUsed: { days: 1 } },
+  { id: 'conn_sales_chat', name: 'Sales chat workspace', kind: 'OAuth', ownerId: 'u_sam', icon: 'message', tone: 'amber', status: 'expiring', expiresIn: { days: 6 }, usedByFlowIds: ['flow_order_alert'], scopes: 'post messages', team: 'Only you', lastUsed: { days: 1 } },
+  { id: 'conn_customer_api', name: 'Customer API', kind: 'API key', ownerId: 'u_you', icon: 'key', tone: 'cyan', status: 'healthy', usedByFlowIds: ['flow_order_alert', 'flow_lead_intake', 'flow_sync_customers'], scopes: 'read', team: 'Sales', lastUsed: { minutes: 2 } },
+  { id: 'conn_orders_db', name: 'Orders database', kind: 'Username and password', ownerId: 'u_sam', icon: 'database', tone: 'violet', status: 'healthy', usedByFlowIds: ['flow_order_alert', 'flow_sync_customers'], scopes: 'read, write', team: 'Operations', lastUsed: { hours: 1 } },
+  { id: 'conn_crm', name: 'CRM', kind: 'OAuth', ownerId: 'u_sam', icon: 'users', tone: 'lime', status: 'healthy', usedByFlowIds: ['flow_lead_intake'], scopes: 'read, write', team: 'Sales', lastUsed: { minutes: 1 } },
 ];
+
+/** "Add connection" form options. */
+export const connectionForm = {
+  kinds: ['OAuth', 'API key', 'Username and password', 'HTTP header auth'],
+  teams: ['Only you', 'Sales', 'Finance', 'Operations'],
+  scopes: ['read', 'read, write', 'send email', 'post messages'],
+  icons: { OAuth: 'shield', 'API key': 'key', 'Username and password': 'lock', 'HTTP header auth': 'globe' },
+  tones: ['cyan', 'violet', 'lime', 'orange', 'pink'],
+};
 
 /* ------------------------------------------------------------------- flows */
 
@@ -213,7 +223,7 @@ const orderAlertGraph = {
       params: { expression: 'order.total > 500' } },
     { id: 'n_notify', system: 'sales', type: 'post_message', name: 'Notify sales', x: 906, y: 250, pinned: false, disabled: true,
       call: 'post message: order over 500', reply: 'ok',
-      params: { channel: '#sales', connectionId: '' } },
+      params: { channel: '#sales', connectionId: 'conn_sales_chat' } },
     { id: 'n_log', system: 'orders', type: 'append_row', name: 'Log order', x: 906, y: 470, pinned: false, disabled: false,
       call: 'append row', reply: 'row stored',
       params: { table: 'Orders' } },
@@ -486,9 +496,9 @@ export const flowStatuses = {
 };
 
 export const connectionStatuses = {
-  connected: { label: 'Connected', st: 'ok' },
-  expired: { label: 'Expired', st: 'warn' },
-  failing: { label: 'Failing', st: 'err' },
+  healthy: { label: 'Healthy', st: 'ok', filterLabel: 'Healthy' },
+  expiring: { label: 'Expires in {days} days', st: 'warn', filterLabel: 'Expiring' },
+  broken: { label: 'Broken', st: 'err', filterLabel: 'Broken' },
 };
 
 /* ------------------------------------------------------------- assistant */

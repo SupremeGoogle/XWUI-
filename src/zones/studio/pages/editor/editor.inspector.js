@@ -54,7 +54,7 @@ export function createInspector({ catalog, copy, handlers }) {
       s.onChange?.((v) => set((Array.isArray(v) ? v[0] : v) ?? ''));
       const conn = ctx.connections.find((c) => c.id === value);
       const status = conn ? catalog.connectionStatuses[conn.status] : null;
-      const hint = h('p', { class: 'hint rowf gap8' }, status ? statusEl(kit.scope, status.label, status.st, { size: 'sm' }) : h('span', { class: 'ter' }, copy.noConnection), copy.credentialNote);
+      const hint = h('p', { class: 'hint rowf gap8' }, status ? statusEl(kit.scope, template(status.label, { days: conn.daysLeft }), status.st, { size: 'sm' }) : h('span', { class: 'ter' }, copy.noConnection), copy.credentialNote);
       return h('div', { class: 'editor-field' }, h('label', { class: 'lbl' }, f.label), host, hint);
     }
     if (f.kind === 'expression') {

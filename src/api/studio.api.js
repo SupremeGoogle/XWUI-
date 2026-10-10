@@ -38,9 +38,20 @@ const runs = createCollection('studio.runs', db.runs.map((r) => {
 }), { idPrefix: 'run' });
 
 const connections = createCollection('studio.connections', db.connections.map((c) => {
-  const { lastUsed, ...rest } = c;
-  return { ...rest, lastUsedAt: ago(lastUsed) };
+  const { lastUsed, expired, expiresIn, ...rest } = c;
+  return { ...rest, lastUsedAt: ago(lastUsed), expiredAt: ago(expired), expiresAt: expiresIn ? ago(Object.fromEntries(Object.entries(expiresIn).map(([k, v]) => [k, -v]))) : null };
 }), { idPrefix: 'conn' });
+
+function shapeConnection(c) {
+  const owner = userById(c.ownerId);
+  const days = c.expiresAt ? Math.max(0, Math.ceil((new Date(c.expiresAt).getTime() - Date.now()) / MS.days)) : null;
+  return {
+    ...c,
+    ownerName: owner.name,
+    daysLeft: days,
+    usedBy: c.usedByFlowIds.map((id) => flows.get(id)).filter(Boolean).map((f) => ({ id: f.id, name: f.name })),
+  };
+}
 
 const ui = createDocument('studio.ui', { recommendedHidden: false });
 
@@ -348,24 +359,38 @@ export const studioApi = {
 
   /* ------------------------------ connections */
 
-  listConnections: () => respond(() => connections.list()),
+  /**
+   * @param {{ q?: string, status?: 'all'|'healthy'|'expiring'|'broken' }} filters
+   */
+  listConnections: ({ q = '', status = 'all' } = {}) => respond(() => connections.list()
+    .map(shapeConnection)
+    .filter((c) => matches(c, q, ['name', 'kind', 'team']) && (status === 'all' || c.status === status))),
 
+  getConnectionForm: () => respond(() => db.connectionForm, { latency: [60, 140] }),
+
+  /** Checks the credential still works. A broken one fails with the reason. */
   testConnection: (id) => respond(() => {
     const conn = connections.require(id);
-    const ok = conn.status !== 'expired';
-    connections.update(id, { lastTestedAt: nowIso(), lastTestOk: ok });
-    if (!ok) throw new ApiError('auth_expired', `${conn.name}: the token expired. Reconnect to continue.`);
-    return { id, ok, latencyMs: 120 + Math.round(Math.random() * 200) };
+    connections.update(id, { lastTestedAt: nowIso() });
+    if (conn.status === 'broken') throw new ApiError('auth_expired', `${conn.name}: the sign-in expired. Reconnect to continue.`);
+    connections.update(id, { lastUsedAt: nowIso() });
+    return { id, ok: true, latencyMs: 120 + Math.round(Math.random() * 200) };
   }, { latency: [600, 1200] }),
 
-  reconnectConnection: (id) => respond(() => {
-    const conn = connections.update(id, { status: 'connected', lastUsedAt: nowIso() });
-    return conn;
-  }, { latency: [700, 1300] }),
+  /** Re-authorises: the connection becomes healthy with a fresh 90-day token. */
+  reconnectConnection: (id) => respond(() => shapeConnection(connections.update(id, {
+    status: 'healthy', expiredAt: null, expiresAt: null, lastUsedAt: nowIso(),
+  })), { latency: [700, 1300], failRate: 0.03 }),
 
-  createConnection: ({ name, kind, icon = 'key', tone = 'cyan' }) => respond(() => {
+  createConnection: ({ name, kind, team, scopes, secret }) => respond(() => {
     if (!name?.trim()) throw new ApiError('invalid', 'Give the connection a name.');
-    return connections.create({ id: newId('conn'), name: name.trim(), kind, icon, tone, status: 'connected', usedBy: 0, lastUsedAt: null });
+    if (!secret?.trim()) throw new ApiError('invalid', 'Paste the secret. It is stored in the vault and never shown again.');
+    const form = db.connectionForm;
+    return shapeConnection(connections.create({
+      id: newId('conn'), name: name.trim(), kind, ownerId: db.currentUserId, team, scopes,
+      icon: form.icons[kind] ?? 'key', tone: form.tones[connections.list().length % form.tones.length],
+      status: 'healthy', usedByFlowIds: [], lastUsedAt: null, expiredAt: null, expiresAt: null,
+    }));
   }, { latency: [500, 900] }),
 
   /* ------------------------------ assistant */
