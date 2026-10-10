@@ -19,11 +19,10 @@ export function formatCurrency(value, currency = 'USD') {
   return formatNumber(value, { style: 'currency', currency, maximumFractionDigits: 0 });
 }
 
-/** 840 -> "840 ms", 1400 -> "1.4 s", 95000 -> "1 min 35 s" */
+/** 840 -> "840 ms", 1055 -> "1,055 ms", 95000 -> "1 min 35 s" (receipts count milliseconds) */
 export function formatDuration(ms) {
   if (ms === null || ms === undefined) return '';
-  if (ms < 1000) return `${Math.round(ms)} ms`;
-  if (ms < 60000) return `${(ms / 1000).toFixed(ms < 10000 ? 1 : 0)} s`;
+  if (ms < 60000) return `${formatNumber(Math.round(ms))} ms`;
   const min = Math.floor(ms / 60000);
   const sec = Math.round((ms % 60000) / 1000);
   if (min < 60) return sec ? `${min} min ${sec} s` : `${min} min`;

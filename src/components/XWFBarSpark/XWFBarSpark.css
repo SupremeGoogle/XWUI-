@@ -1,0 +1,6 @@
+/* XWFBarSpark - the prototype's .spark bars. */
+.xwf-bar-spark { display: flex; align-items: flex-end; width: 100%; }
+.xwf-bar-spark__bar { flex: 1; border-radius: 4px 4px 1px 1px; background: linear-gradient(180deg, var(--xw-cyan), rgba(155, 107, 255, .35)); transition: height .4s ease; }
+.xwf-bar-spark__bar.is-flagged { background: linear-gradient(180deg, var(--xw-red), rgba(255, 92, 108, .25)); }
+.xwf-bar-spark__bar.is-partial { opacity: .5; }
+@media (prefers-reduced-motion: reduce) { .xwf-bar-spark__bar { transition: none; } }

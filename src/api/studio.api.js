@@ -240,6 +240,7 @@ export const studioApi = {
       ...paginate(filtered.map(({ ledger, ...r }) => r), { page, pageSize }),
       kpis: {
         runningNow: all.filter((r) => r.status === 'running').length,
+        liveNow: all.filter((r) => r.live).length,
         succeeded7d: week.filter((r) => r.status.startsWith('succeeded')).length,
         failed7d: week.filter((r) => r.status === 'failed').length,
         asOf: nowIso(),
