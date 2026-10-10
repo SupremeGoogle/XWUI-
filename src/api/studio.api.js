@@ -7,6 +7,7 @@ import {
 } from '../core/mock.js';
 import * as db from '../data/studio.data.js';
 import { simulateRun, progressAt } from './studio.engine.js';
+import { gallery } from '../data/notations.data.js';
 
 /* ------------------------------------------------------------ seeding */
 
@@ -429,6 +430,9 @@ export const studioApi = {
     });
     return { kind: 'explain', sentences };
   }, { latency: [600, 1100] }),
+
+  /** Notations gallery: copy, render modes, families and the 24 notation cards. */
+  getNotationGallery: () => respond(() => gallery, { latency: [120, 260] }),
 
   getEditorAssistant: () => respond(() => ({ examples: db.editorAssistant.examples }), { latency: [60, 120] }),
 

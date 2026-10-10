@@ -227,3 +227,50 @@ export function formatSimClock(minutes) {
   const m = Math.floor(minutes % 60);
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`;
 }
+
+/* ------------------------------------------------------------ text forms */
+
+/** Mermaid-compatible flowchart text for a flow ("flow as code"). */
+export function flowToMermaid(graph, types) {
+  const { steps } = layoutColumns(graph, types);
+  const letter = new Map(steps.map((s, i) => [s.node.id, String.fromCharCode(65 + (i % 26)) + (i >= 26 ? Math.floor(i / 26) : '')]));
+  const shape = (s) => (s.type.ports?.includes('yes') ? `{${s.node.name}}` : `[${s.node.name}]`);
+  const declared = new Set();
+  const ref = (s) => {
+    const id = letter.get(s.node.id);
+    if (declared.has(id)) return id;
+    declared.add(id);
+    return `${id}${shape(s)}`;
+  };
+  const byId = new Map(steps.map((s) => [s.node.id, s]));
+  const lines = ['flowchart LR'];
+  graph.edges.forEach((e) => {
+    const a = byId.get(e.from); const b = byId.get(e.to);
+    if (!a || !b) return;
+    const label = e.port === 'yes' || e.port === 'no' ? `|${e.port}|` : '';
+    lines.push(`  ${ref(a)} -->${label} ${ref(b)}`);
+  });
+  steps.forEach((s) => { if (!declared.has(letter.get(s.node.id))) lines.push(`  ${ref(s)}`); });
+  return lines.join('
+');
+}
+
+/**
+ * Ordered list form ("list mode"): numbered steps; a branch's targets indent under it and
+ * a target that comes back on the main line points to its step number.
+ */
+export function flowToList(graph, types) {
+  const { steps } = layoutColumns(graph, types);
+  const main = steps.filter((s) => s.row === 0);
+  const number = new Map(main.map((s, i) => [s.node.id, i + 1]));
+  const rows = [];
+  main.forEach((s) => {
+    const retry = s.node.params?.retry && s.type.retry ? `, retries ${s.type.retry.tries}` : '';
+    rows.push({ n: number.get(s.node.id), name: s.node.name, detail: `${s.type.label ?? s.node.type}${retry}`, indent: 0 });
+    graph.edges.filter((e) => e.from === s.node.id && (e.port === 'yes' || e.port === 'no')).forEach((e) => {
+      const target = steps.find((x) => x.node.id === e.to);
+      rows.push({ port: e.port, name: target?.node.name ?? e.to, goTo: number.get(e.to) ?? null, indent: 1 });
+    });
+  });
+  return rows;
+}
