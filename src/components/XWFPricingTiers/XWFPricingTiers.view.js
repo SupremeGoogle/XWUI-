@@ -46,12 +46,13 @@ export function projectXWFPricingTiersView({ tiers }, handlers, ui) {
               },
               { size: 'lg', fullWidth: true },
             ),
-            ui.list(
-              tier.features.map((label, index) => ({
-                id: String(index),
-                label,
-                icon: 'check',
-              })),
+            // Static feature text, so a plain list: XWUIList items are interactive.
+            h(
+              'ul',
+              { class: 'xwf-pricing-tiers__features' },
+              tier.features.map((label) =>
+                h('li', { class: 'xwf-pricing-tiers__feature' }, label),
+              ),
             ),
             tier.note &&
               ui.tag(tier.note, 'default', { className: 'xw-tone-plan' }),

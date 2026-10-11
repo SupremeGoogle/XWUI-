@@ -25,6 +25,17 @@ export function nodeStatesFromRun(graph, run, catalog, copy) {
   return states;
 }
 
+/**
+ * Step to open in the inspector when no ?node is given: the first step of the run that
+ * needed attention (failed or retried), else nothing.
+ */
+export function stepNeedingAttention(graph, run) {
+  if (!run) return '';
+  const ids = new Set(graph.nodes.map((n) => n.id));
+  const row = run.ledger.find((r) => ids.has(r.nodeId) && (r.result === 'failed' || (r.attempt ?? 1) > 1));
+  return row?.nodeId ?? '';
+}
+
 /** Things that stop a flow from running as intended. */
 export function findProblems(graph, typeIndex, copy) {
   const problems = [];

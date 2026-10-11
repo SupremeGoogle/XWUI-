@@ -11,7 +11,7 @@
     radial-gradient(1100px 620px at 8% -8%,rgba(155,107,255,.28),transparent 60%),
     radial-gradient(900px 560px at 95% 2%,rgba(46,230,255,.18),transparent 60%),
     radial-gradient(800px 600px at 50% 110%,rgba(255,79,163,.12),transparent 60%),
-    var(--xw-bg);overflow:hidden}
+    var(--xw-bg);overflow:clip}
 .xw h1,.xw h2,.xw h3,.xw h4,.xw p{margin:0}
 .xw a{color:var(--xw-cyan);text-decoration:none}
 .xw a:hover{color:#fff}

@@ -111,7 +111,24 @@ export default {
             { class: 'scroll-x' },
             ui.mount(
               XWUITable,
-              { columns: data.compare.columns, data: data.compare.rows },
+              {
+                columns: data.compare.columns.map((column) => ({
+                  ...column,
+                  render:
+                    column.key === 'capability'
+                      ? undefined
+                      : (value) => {
+                          const look = data.compare.cellLooks[value];
+                          if (look === 'gated') return ui.tag(value);
+                          return h(
+                            'span',
+                            { class: look ? `xwf-compare__${look}` : null },
+                            value,
+                          );
+                        },
+                })),
+                data: data.compare.rows,
+              },
               { size: 'md', hoverable: true },
             ),
           ),

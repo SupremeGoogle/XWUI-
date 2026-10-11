@@ -780,6 +780,11 @@ export const websiteData = {
         core: i < 6 ? 'Included' : i === 6 ? 'One' : 'Requires Commercial',
         commercial: i === 6 ? 'Many, with switching' : 'Included',
       })),
+      /** How a cell value is shown; any other value is plain text. */
+      cellLooks: {
+        Included: 'included',
+        'Requires Commercial': 'gated',
+      },
     },
     contact: {
       heading: 'Tell us what',

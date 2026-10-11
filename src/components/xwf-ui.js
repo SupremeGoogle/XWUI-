@@ -51,11 +51,15 @@ export function createXwfKit(owner) {
     return el;
   };
   ui.select = (data, onChange, conf = {}) => {
-    const el = ui.mount(XWUIInputSelect, data, {
-      fullWidth: true,
-      placeholder: data.options?.find((item) => item.value === '')?.label,
-      ...conf,
-    });
+    // XWUIInputSelect reads its placeholder from data; the "any" option names it.
+    const placeholder =
+      data.placeholder ??
+      data.options?.find((item) => item.value === '')?.label;
+    const el = ui.mount(
+      XWUIInputSelect,
+      { ...data, placeholder },
+      { fullWidth: true, ...conf },
+    );
     if (onChange) el.xw.onChange(onChange);
     return el;
   };

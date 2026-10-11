@@ -6,6 +6,10 @@
 .xwf-admin__rail {
   flex: 0 0 232px;
   min-width: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 20;
   background: var(--xw-bg2);
   border-inline-end: 1px solid var(--xw-line);
 }
@@ -29,10 +33,64 @@
   min-height: 38px;
   border-radius: 12px;
 }
-.xwf-admin-sidebar .xwui-menu-item-selected {
-  background: color-mix(in srgb, var(--xw-lime) 14%, transparent);
+/* Rail items as the prototype's .ni: quiet ink, lime-tinted selection with a glowing edge. */
+html body .xwf-admin-sidebar .xwui-menu-item,
+html body .xwf-admin-sidebar .xwui-menu-item-selected {
+  background: transparent;
+  box-shadow: none;
+}
+html body .xwf-admin-sidebar .xwui-menu-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  color: var(--xw-tx2);
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: transparent;
+  text-decoration: none;
+}
+html body .xwf-admin-sidebar .xwui-menu-link:hover {
+  background: var(--xw-panel2);
+  color: #fff;
+}
+html body .xwf-admin-sidebar .xwui-menu-item-selected > .xwui-menu-link {
+  color: #fff;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--xw-lime) 16%, transparent),
+    color-mix(in srgb, var(--xw-lime) 2%, transparent)
+  );
   box-shadow: inset 0 0 0 1px
     color-mix(in srgb, var(--xw-lime) 22%, transparent);
+}
+html body .xwf-admin-sidebar .xwui-menu-item-selected > .xwui-menu-link::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -12px;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--xw-lime);
+  box-shadow: 0 0 12px var(--xw-lime);
+}
+/* Group captions are disabled items with a group- id. */
+html body .xwf-admin-sidebar .xwui-menu-item[data-id^='group-'] {
+  opacity: 1;
+}
+html body .xwf-admin-sidebar .xwui-menu-item[data-id^='group-'] > .xwui-menu-link {
+  min-height: 0;
+  padding: 16px 12px 6px;
+  cursor: default;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--xw-tx3);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
 }
 .xwf-admin__brand {
   font-size: 1.05rem;
@@ -149,6 +207,68 @@
   flex: 999 1 600px;
   min-width: 0;
 }
+/* Audit events: XWUITimeline restyled as the prototype's event cards on a glowing rail. */
+html body .xwf-audit-timeline {
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+html body .xwf-audit-timeline .xwui-timeline__item {
+  min-height: 0;
+  padding-bottom: 12px;
+}
+html body .xwf-audit-timeline .xwui-timeline__dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 0;
+  color: var(--xw-ink);
+  box-shadow: 0 8px 24px -8px currentColor, inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  margin-top: 14px;
+}
+html body .xwf-audit-timeline .xwui-timeline__connector {
+  width: 2px;
+  background: linear-gradient(180deg, var(--xw-line2), var(--xw-line));
+}
+html body .xwf-audit-timeline .xwui-timeline__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 2px;
+  margin-inline-start: 12px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: 1px solid var(--xw-line);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
+}
+html body .xwf-audit-timeline .xwui-timeline__title {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  font-weight: 800;
+  color: var(--xw-tx);
+}
+html body .xwf-audit-timeline .xwui-timeline__description {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--xw-tx2);
+}
+html body .xwf-audit-timeline .xwui-timeline__date {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  margin: 0;
+}
+.xwf-audit-event__meta {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.xwf-audit-event__meta time {
+  min-width: 72px;
+  text-align: end;
+}
 .xwf-audit-stream {
   flex: 1 1 300px;
   min-width: 0;
@@ -203,6 +323,33 @@
   grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
   gap: 12px;
 }
+.xwf-denied__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.xwf-denied__step {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.xwf-denied__n {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--xw-ink);
+  background: var(--nc);
+  box-shadow: 0 0 16px var(--nc);
+  font-family: var(--xw-font-display);
+  font-size: 0.8rem;
+}
+.xwf-denied__actions {
+  justify-content: center;
+}
 .xwf-admin .xwui-table-wrapper {
   overflow: auto;
 }
@@ -243,6 +390,8 @@
     display: block;
   }
   .xwf-admin__rail {
+    position: static;
+    height: auto;
     width: 100%;
     border-inline-end: 0;
   }

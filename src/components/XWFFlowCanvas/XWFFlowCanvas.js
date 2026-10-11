@@ -328,6 +328,13 @@ export class XWFFlowCanvas extends XWUIComponent {
 
   setSelected(id) { this.logic.updateData({ selectedId: id }); }
 
+  /** Area covered by floating panels; tools, minimap and fit() keep clear of it. */
+  setSafeArea(safeArea) {
+    const current = this.config.safeArea;
+    if (['left', 'right', 'top', 'bottom'].every((side) => current[side] === safeArea[side])) return;
+    this.logic.updateConfig({ safeArea: { ...safeArea } });
+  }
+
   getGraph() { return this.data.graph; }
 
   getTransform() { return { ...this.transform }; }

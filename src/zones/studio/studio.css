@@ -254,7 +254,6 @@ html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt 
 .connections__vault-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .connections__vault-text { flex: 1 1 360px; }
 .connections { display: flex; flex-direction: column; gap: 20px; }
-.connections__grid { grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); }
 .kc { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 16px; padding: 22px; border-radius: 24px; border: 1px solid var(--xw-line); background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .01)); }
 .kc::before { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, color-mix(in srgb, var(--hc) 22%, transparent) 50%, transparent 70%); pointer-events: none; }
 .kc.bad { border-color: rgba(255, 92, 108, .45); box-shadow: 0 20px 60px -30px rgba(255, 92, 108, .8); }
@@ -267,6 +266,12 @@ html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt 
 .studio-search__row button { width: 100%; display: flex; gap: 12px; justify-content: flex-start; }
 .editor-palette__item { display: block; width: 100%; }
 .editor-palette__item button { justify-content: flex-start; cursor: grab; }
+/* Step icon on a tone tile, as the prototype's .ico.s */
+.editor-palette__item button .xwui-icon {
+  width: 30px !important; height: 30px !important; border-radius: 9px; color: #0a0a0a;
+  background: var(--gc, var(--xw-lime)); box-shadow: 0 10px 30px -8px var(--gc, var(--xw-lime)), inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+.editor-palette__item button .xwui-icon svg { width: 14px; height: 14px; }
 .run-ledger__step button { padding: 0; text-align: start; }
 @media (max-width: 1200px) {
   .editor-header { height: auto; min-height: 62px; flex-wrap: wrap; padding: 8px 12px; gap: 8px; }

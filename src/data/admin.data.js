@@ -331,14 +331,14 @@ export const adminData = {
       { value: 'all', label: 'All sample activity' },
     ],
     dateLabel: 'Date range',
-    columns: [
-      { key: 'action', title: 'Event' },
-      { key: 'object', title: 'Object' },
-      { key: 'actor', title: 'Actor' },
-      { key: 'actorClass', title: 'Class' },
-      { key: 'timeLabel', title: 'When' },
-    ],
     empty: 'No audit events match your filters',
+    eventsLabel: 'Audit events, newest first',
+    /** Tag look per actor class: XWUIDisplayTag variant plus an optional tone class. */
+    actorClassTags: {
+      Person: { variant: 'default' },
+      Assistant: { variant: 'default', className: 'xw-tone-pink' },
+      System: { variant: 'warning' },
+    },
     streaming: {
       title: 'Stream to your SIEM',
       tag: 'Requires Commercial',
@@ -359,6 +359,7 @@ export const adminData = {
   auditSeed: [
     {
       id: 'audit_1',
+      icon: 'circle-check',
       action: 'Flow published',
       object: 'Order alert, flow in Personal',
       actor: 'You',
@@ -369,6 +370,7 @@ export const adminData = {
     },
     {
       id: 'audit_2',
+      icon: 'sparkles',
       action: 'Draft edited by the assistant',
       object: 'Order alert, flow in Personal',
       actor: 'Assistant',
@@ -379,6 +381,7 @@ export const adminData = {
     },
     {
       id: 'audit_3',
+      icon: 'key',
       action: 'Connection replaced',
       object: 'Finance mailbox, connection in Personal',
       actor: 'Sam Rivers',
@@ -389,6 +392,7 @@ export const adminData = {
     },
     {
       id: 'audit_4',
+      icon: 'player-pause',
       action: 'Schedule paused',
       object: 'Weekly invoice digest, after 3 failed runs',
       actor: 'System',
@@ -399,6 +403,7 @@ export const adminData = {
     },
     {
       id: 'audit_5',
+      icon: 'trash',
       action: 'Payload erased',
       object: '12 runs matching one subject',
       actor: 'You',
@@ -583,7 +588,7 @@ export const adminData = {
     description:
       'Your account does not have the role this page needs. The check ran on the server, so nothing on this page was loaded.',
     roles: [
-      { title: 'MISSING ROLE', value: 'Operator' },
+      { title: 'MISSING ROLE', value: 'Operator', tone: 'orange' },
       { title: 'YOUR ROLE', value: 'Builder' },
       { title: 'WHO GRANTS IT', value: 'Tenant admins' },
     ],
@@ -591,6 +596,7 @@ export const adminData = {
       'Ask a tenant administrator to add the Operator role to your account.',
       'No answer? Send the request from the identity admin, where it is tracked.',
     ],
+    stepTones: ['lime', 'cyan'],
     request: 'Request access',
     sent: 'Request sent',
     sentMessage: 'Your access request is recorded for tenant admins.',

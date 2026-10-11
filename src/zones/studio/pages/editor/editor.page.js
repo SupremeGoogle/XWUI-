@@ -12,7 +12,7 @@ import { template, formatRelative } from '../../../../core/format.js';
 import { CANVAS_LAYOUT_ID, STUDIO_ROUTES } from '../../studio.routes.js';
 import { XWFFlowCanvas } from '../../../../components/XWFFlowCanvas/XWFFlowCanvas.js';
 import { addNode, updateNode, removeNode, removeEdge } from '../../../../components/XWFFlowCanvas/XWFFlowCanvas.logic.js';
-import { nodeStatesFromRun, findProblems } from './editor.logic.js';
+import { nodeStatesFromRun, findProblems, stepNeedingAttention } from './editor.logic.js';
 import { createHeader } from './editor.header.js';
 import { createPalette } from './editor.palette.js';
 import { createInspector } from './editor.inspector.js';
@@ -22,6 +22,9 @@ const SAVE_DEBOUNCE_MS = 600;
 const RUN_POLL_MS = 350;
 /** Screen area the floating panels cover (px), so "fit" keeps steps visible. */
 const SAFE_AREA = { left: 282, right: 372, top: 94, bottom: 282 };
+/** Narrower panels below the compact breakpoint (matches studio.css). */
+const COMPACT_SAFE_AREA = { left: 222, right: 302, top: 144, bottom: 282 };
+const COMPACT_MAX_WIDTH = 1200;
 
 export default {
   id: 'studio-editor',
@@ -52,6 +55,7 @@ export default {
     if (ctx.query.run) {
       try { state.run = await studioApi.getRun(ctx.query.run); } catch { /* keep the latest run */ }
     }
+    if (!ctx.query.node) state.selectedId = stepNeedingAttention(state.graph, state.run);
 
     /* ---------------------------------------------------------- pieces */
     const canvasHost = h('div', { class: 'editor-canvas' });
@@ -89,7 +93,7 @@ export default {
       labels: C.tools,
     }, { safeArea: SAFE_AREA });
     const fitViewport = () => {
-      canvas.updateConfig({ safeArea: el.clientWidth <= 1200 ? { left: 222, right: 302, top: 144, bottom: 282 } : SAFE_AREA });
+      canvas.setSafeArea(el.clientWidth <= COMPACT_MAX_WIDTH ? COMPACT_SAFE_AREA : SAFE_AREA);
       canvas.fit();
     };
     page.scope.listen(window, 'resize', fitViewport);
@@ -311,7 +315,8 @@ export default {
     page.scope.listen(window, 'keydown', onKey);
 
     refreshPanels();
-    if (state.selectedId) requestAnimationFrame(() => canvas.focusNode(state.selectedId));
+    // A deep-linked step is centred; the default selection keeps the whole flow in view.
+    if (ctx.query.node && state.selectedId) requestAnimationFrame(() => canvas.focusNode(state.selectedId));
     if (ctx.query.demo) setTimeout(() => startRun(), 400);
     // deep link from the integrations directory: ?nodeType=http-request adds that step
     const linkedType = ctx.query.nodeType?.replace(/-/g, '_');

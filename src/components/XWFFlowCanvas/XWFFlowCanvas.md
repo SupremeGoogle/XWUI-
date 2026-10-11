@@ -33,7 +33,7 @@ basics: `XWUIButton` (tools), `XWUIIcon` (step glyphs), `XWUIDisplayTag` (frame 
 
 ## Methods
 
-`setGraph`, `setNodeStates`, `setSelected`, `getGraph`, `fit`, `zoomBy`, `focusNode`, `tidy`,
+`setGraph`, `setNodeStates`, `setSelected`, `setSafeArea`, `getGraph`, `fit`, `zoomBy`, `focusNode`, `tidy`,
 `deleteSelection`, `getTransform`, `destroy`.
 
 ## Keyboard

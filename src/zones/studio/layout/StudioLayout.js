@@ -67,6 +67,7 @@ export class StudioLayout {
     this.railHost.replaceChildren();
 
     const createBtn = ui.button(nav.createLabel, { variant: 'primary', icon: 'plus', fullWidth: true, className: 'xw-host--fill' });
+    const createHost = h('div', { class: 'studio-rail__create' }, createBtn);
     const header = h('div', { class: 'studio-rail__header stack gap8' },
       h('div', { class: 'rowf gap8 studio-rail__brandrow' },
         h('a', { class: 'brand', href: '#/' }, h('span', { class: 'mark' }), nav.brand),
@@ -74,17 +75,19 @@ export class StudioLayout {
       h('div', { class: 'studio-rail__search', ref: (el) => {
         const search = scope.mount(XWUIInputText, el, { placeholder: nav.searchPlaceholder }, {
           trigger: true, leadingIcon: 'search', shortcut: 'Control+K', fullWidth: true, ariaLabel: nav.searchLabel, size: 'sm',
+          suffix: ui.mount(XWUIDisplayKbd, { keys: nav.searchShortcut.split(' ') }, { size: 'sm' }),
         });
         search.onActivate?.(() => this.openSearch());
       } }),
-      createBtn);
+      createHost);
 
-    const menu = scope.mount(XWUINavMenuDropdown, h('div'), {
+    // The dropdown wraps its trigger inside the container it is mounted into, so the
+    // container must be the in-rail host that already holds the button.
+    const menu = scope.mount(XWUINavMenuDropdown, createHost, {
       triggerElement: createBtn.querySelector('button'),
       items: nav.createMenu.map((m) => ({ id: m.id, label: m.label, icon: m.icon })),
     }, { placement: 'bottom', align: 'start' });
     menu.onItemClick?.((item) => this.onCreate(nav.createMenu.find((m) => m.id === (item?.id ?? item))));
-    header.append(menu.getElement?.() ?? h('span'));
 
     const usageBar = h('div');
     const usageText = template(usage.label, { used: formatNumber(usage.usedRuns), included: formatNumber(usage.includedRuns) });

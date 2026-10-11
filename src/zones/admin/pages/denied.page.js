@@ -74,17 +74,36 @@ export default {
                       'div',
                       { class: 'stack gap4' },
                       h('span', { class: 'xs ter b' }, role.title),
-                      h('b', {}, role.value),
+                      h(
+                        'b',
+                        {
+                          style: role.tone
+                            ? { color: `var(--xw-${role.tone})` }
+                            : null,
+                        },
+                        role.value,
+                      ),
                     ),
                     { padding: 'small' },
                   ),
                 ),
               ),
-              ui.list(
-                data.steps.map((label, index) => ({
-                  id: String(index),
-                  label: `${index + 1}. ${label}`,
-                })),
+              h(
+                'ol',
+                { class: 'stack gap12 xwf-denied__steps' },
+                data.steps.map((label, index) =>
+                  h(
+                    'li',
+                    {
+                      class: 'xwf-denied__step',
+                      style: {
+                        '--nc': `var(--xw-${data.stepTones[index % data.stepTones.length]})`,
+                      },
+                    },
+                    h('b', { class: 'xwf-denied__n', 'aria-hidden': 'true' }, String(index + 1)),
+                    h('span', { class: 'small' }, label),
+                  ),
+                ),
               ),
               h(
                 'div',

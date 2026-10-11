@@ -1,4 +1,4 @@
-import { XWUITable } from '@exonware/xwui/basic';
+import { XWUITimeline, XWUIDisplayAvatar } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import {
   pageSession,
@@ -165,33 +165,52 @@ export default {
         tableKit.scope.destroy();
         tableKit = createXwfKit();
         const kit = tableKit;
-        const table = kit.ui.mount(
-          XWUITable,
-          {
-            columns: data.columns.map((column) => ({
-              ...column,
-              render:
-                column.key === 'actorClass'
-                  ? (value, row) =>
-                      kit.ui.tag(value, 'default', {
-                        className: `xw-tone-${row.tone}`,
-                      })
-                  : column.key === 'timeLabel'
-                    ? (value, row) =>
-                        h(
-                          'time',
-                          { datetime: row.timestamp, title: row.timestamp },
-                          value,
-                        )
-                    : undefined,
-            })),
-            data: result.items,
-            empty: { title: data.empty },
-          },
-          { size: 'sm', hoverable: true },
-        );
+        const meta = (row) => {
+          const tag = data.actorClassTags[row.actorClass] ?? {};
+          return h(
+            'span',
+            { class: 'rowf gap8 xwf-audit-event__meta' },
+            kit.ui.mount(
+              XWUIDisplayAvatar,
+              { name: row.actor, alt: row.actor },
+              { size: 'xs' },
+              { tag: 'span', className: 'xw-host' },
+            ),
+            h('b', { class: 'small' }, row.actor),
+            kit.ui.tag(row.actorClass, tag.variant, {
+              className: tag.className,
+            }),
+            h(
+              'time',
+              { class: 'xs ter', datetime: row.timestamp, title: row.timestamp },
+              row.timeLabel,
+            ),
+          );
+        };
+        const list = result.items.length
+          ? kit.ui.mount(
+              XWUITimeline,
+              {
+                items: result.items.map((row) => ({
+                  id: row.id,
+                  title: row.action,
+                  description: row.object,
+                  date: meta(row),
+                  media: row.icon,
+                  color: `var(--xw-${row.tone})`,
+                  className: 'xwf-audit-event',
+                })),
+              },
+              {
+                position: 'left',
+                dotSize: 'lg',
+                ariaLabel: data.eventsLabel,
+                className: 'xwf-audit-timeline',
+              },
+            )
+          : kit.ui.empty({ title: data.empty });
         results.replaceChildren(
-          table,
+          list,
           kit.ui.pager(result, (page) => {
             filters.page = page;
             refresh();
