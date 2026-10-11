@@ -20,7 +20,7 @@ export async function openStudioSearch(ctx) {
   let disposed = false;
   const host = h('div');
   const inputHost = h('div');
-  const results = h('div', { class: 'studio-search__results', role: 'listbox', 'aria-label': STUDIO_SEARCH.resultsLabel });
+  const results = h('div', { class: 'studio-search__results', role: 'list', 'aria-label': STUDIO_SEARCH.resultsLabel });
   const content = h('div', { class: 'studio-search stack gap12' }, inputHost, results);
   document.body.append(host);
 
@@ -53,6 +53,7 @@ export async function openStudioSearch(ctx) {
       ];
       results.replaceChildren(...(rows.length ? rows.map((r) => {
         const row = ui.button(r.label, { variant: 'ghost', icon: r.icon, fullWidth: true, className: 'studio-search__row', onClick: () => go(r.route) });
+        row.setAttribute('role', 'listitem');
         row.querySelector('button').append(h('span', { class: 'xs ter mono sp' }, r.hint), ui.tag(r.kind));
         return row;
       }) : [ui.empty({ title: STUDIO_SEARCH.emptyTitle, description: STUDIO_SEARCH.emptyBody, icon: 'search' }, { size: 'sm' })]));

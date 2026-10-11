@@ -59,6 +59,7 @@ export default {
     });
 
     function preview(host, notation, kit, thumbnail = true) {
+      host.inert = thumbnail;
       if (notation === 'editor') {
         kit.scope.mount(
           XWFFlowCanvas,

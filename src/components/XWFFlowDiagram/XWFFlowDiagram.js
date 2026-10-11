@@ -45,7 +45,7 @@ export class XWFFlowDiagram extends XWUIComponent {
     const { notation, thumbnail, animate, tilt, spin, height } = this.config;
     const systemsModel = deriveSystems(flow, nodeTypes, connections ?? [], lanes ?? []);
     const view = projectXWFFlowDiagramView(notation, {
-      flow, types: nodeTypes, run, labels, uid: this.uidKey, thumbnail, animate, systemsModel, simState,
+      flow, types: nodeTypes, run, labels, uid: this.uidKey, thumbnail, animate: animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches, systemsModel, simState,
       ui: this.kit.ui, tilt, spin, height,
       onLedger: (index) => this.container.dispatchEvent(new CustomEvent(EV.LEDGER, { bubbles: true, detail: { index } })),
     });

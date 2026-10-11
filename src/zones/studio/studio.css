@@ -267,6 +267,7 @@ html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt 
 .studio-search__row button { width: 100%; display: flex; gap: 12px; justify-content: flex-start; }
 .editor-palette__item { display: block; width: 100%; }
 .editor-palette__item button { justify-content: flex-start; cursor: grab; }
+.editor-palette__item .xwui-icon { width: 28px !important; height: 28px !important; padding: 6px; border-radius: 8px; background: var(--gc); color: var(--xw-ink); box-shadow: 0 0 16px -6px var(--gc); }
 .run-ledger__step button { padding: 0; text-align: start; }
 @media (max-width: 1200px) {
   .editor-header { height: auto; min-height: 62px; flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
