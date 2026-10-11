@@ -12,3 +12,9 @@ The Website/Admin manifests and APIs are ready on `codex/website-admin`, rebased
 - Website catalog deep links supply `?nodeType=<catalog id>` to the agreed editor route. Studio's existing type IDs use underscores for some compound names. Please normalize that input when implementing the editor hook. Field changed, Switch and Sub-flow are reference catalog entries without matching current Studio registry entries; no live capability is implied by this mock directory.
 
 Setup, completed browser/API checks, deviations, placeholder destinations and ownership details are recorded in `docs/codex-status.md`.
+
+## Resolution
+
+All requests above are integrated on `main`: dialogs call `.open()`, the status pill stylesheet is linked,
+custom-component CSS uses the `xwui-css-<name>` guard, Studio uses the shared asset IDs, static Open Graph
+metadata is in `index.html`, and the editor normalises `?nodeType=` before adding the step.

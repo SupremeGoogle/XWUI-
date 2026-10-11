@@ -6,6 +6,8 @@ import { bus } from './core/bus.js';
 import { notify } from './core/notify.js';
 import { UI_CONFIG } from './core/ui.config.js';
 import { loadApi, api } from './api/index.js';
+import { MOCK_CONFIG } from './core/mock.config.js';
+import { resetAllStorage } from './core/mock.js';
 import { appZone } from './zones/_app/index.js';
 import { renderPageError } from './zones/_app/pages/error.view.js';
 
@@ -17,6 +19,8 @@ const ZONES = [
 
 async function boot() {
   const root = document.getElementById('app');
+  // Before the API modules load, since their collections read storage when created.
+  if (MOCK_CONFIG.reset) resetAllStorage();
   await loadApi();
 
   const services = { api, bus, notify, navigate, href, appName: UI_CONFIG.appName };
