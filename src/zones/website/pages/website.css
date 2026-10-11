@@ -59,7 +59,6 @@ html body .xwf-website__nav a.xwui-button.xwui-button-ghost[aria-current='page']
   background: linear-gradient(180deg, var(--xw-panel2), var(--xw-panel));
   border-color: var(--xw-line);
   border-radius: var(--xw-radius);
-  backdrop-filter: blur(18px);
 }
 .xwf-public-hero {
   position: relative;

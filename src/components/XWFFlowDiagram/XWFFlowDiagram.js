@@ -7,7 +7,7 @@ import { XWUIComponent, createXWUIElement } from '@exonware/xwui/basic';
 import { h, ensureStylesheet } from '../../core/dom.js';
 import { createKit } from '../../core/ui.js';
 import { XWF_FLOW_DIAGRAM_EVENTS as EV } from './XWFFlowDiagram.model.js';
-import { createXWFFlowDiagramLogic, deriveSystems, createSimState, stepSim } from './XWFFlowDiagram.logic.js';
+import { createXWFFlowDiagramLogic, deriveSystems, createSimState, stepSim, simModel, simSummary } from './XWFFlowDiagram.logic.js';
 import { projectXWFFlowDiagramView } from './XWFFlowDiagram.view.js';
 
 ensureStylesheet('xwf-css-xwfflowdiagram', new URL('./XWFFlowDiagram.css', import.meta.url));
@@ -41,8 +41,9 @@ export class XWFFlowDiagram extends XWUIComponent {
   renderView() {
     this.kit?.scope.destroy();
     this.kit = createKit(this);
-    const { flow, nodeTypes, run, connections, labels, simState, lanes } = this.data;
+    const { nodeTypes, run, connections, labels, simState, lanes } = this.data;
     const { notation, thumbnail, animate, tilt, spin, height } = this.config;
+    const flow = notation === 'sim' ? this.simFlow() : this.data.flow;
     const systemsModel = deriveSystems(flow, nodeTypes, connections ?? [], lanes ?? []);
     const view = projectXWFFlowDiagramView(notation, {
       flow, types: nodeTypes, run, labels, uid: this.uidKey, thumbnail, animate, systemsModel, simState,
@@ -51,7 +52,10 @@ export class XWFFlowDiagram extends XWUIComponent {
     });
     this.systemsModel = systemsModel;
     this.lastView = view;
-    this.container.replaceChildren(h('div', { class: ['xwf-diagram', `xwf-diagram--${notation}`, { 'is-thumbnail': thumbnail }, this.config.className] }, view));
+    this.container.replaceChildren(h('div', {
+      class: ['xwf-diagram', `xwf-diagram--${notation}`, { 'is-thumbnail': thumbnail, 'is-zoomed': this.config.zoom !== 1 }, this.config.className],
+      style: { '--xwf-zoom': String(this.config.zoom) },
+    }, view));
   }
 
   /* ------------------------------ facts for page chrome */
@@ -71,14 +75,43 @@ export class XWFFlowDiagram extends XWUIComponent {
     return `<?xml version="1.0" encoding="UTF-8"?>\n${resolved}`;
   }
 
+  /** Draw the notation from another receipt (sequence, swimlane retries, 3D heights). */
+  setRun(run) { this.logic.updateData({ run }); }
+
+  /* ------------------------------ zoom (2D notations) */
+
+  getZoom() { return this.config.zoom; }
+
+  /** Multiply the zoom, clamped to minZoom..maxZoom; 0 or no factor resets to fit. */
+  zoomBy(factor) {
+    const { zoom, minZoom, maxZoom } = this.config;
+    const next = factor ? Math.min(maxZoom, Math.max(minZoom, Math.round(zoom * factor * 100) / 100)) : 1;
+    if (next !== zoom) this.logic.updateConfig({ zoom: next });
+    return next;
+  }
+
+  resetZoom() { return this.zoomBy(0); }
+
   /* ------------------------------ simulation */
+
+  /** The flow as the simulation sees it: the model with the current scenario applied. */
+  simFlow() { return simModel(this.data.flow, this.data.scenario ?? {}); }
+
+  /** Change the what-if (arrivals, service time, workers) and start the model over. */
+  setScenario(patch) {
+    this.logic.updateData({ scenario: { ...(this.data.scenario ?? {}), ...patch } });
+    this.resetSim();
+  }
+
+  getSimSummary() { return simSummary(this.data.simState, this.simFlow(), this.data.nodeTypes); }
 
   resetSim() {
     this.logic.updateData({ simState: createSimState(this.data.flow, this.data.nodeTypes) });
+    this.container.dispatchEvent(new CustomEvent(EV.STEP, { bubbles: true, detail: { state: this.data.simState } }));
   }
 
   stepSimOnce(minutes = SIM_MINUTES_PER_TICK * this.simSpeed) {
-    const next = stepSim(this.data.simState ?? createSimState(this.data.flow, this.data.nodeTypes), this.data.flow, this.data.nodeTypes, minutes);
+    const next = stepSim(this.data.simState ?? createSimState(this.data.flow, this.data.nodeTypes), this.simFlow(), this.data.nodeTypes, minutes);
     this.logic.updateData({ simState: next });
     this.container.dispatchEvent(new CustomEvent(EV.STEP, { bubbles: true, detail: { state: next } }));
     if (!next.running) this.pauseSim();

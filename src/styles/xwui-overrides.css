@@ -121,3 +121,8 @@ html body .xwui-input, html body .xwui-input-text input, html body .xwui-select-
 .xw-dialog-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 .xw-toaster { position: fixed; z-index: 1000; }
 html body .xwui-button .xwui-button-text { font-weight: 800; }
+
+/* XWUIInputSlider: prototype thumb (white knob, lime glow) on the dark rail. */
+html body .xwui-slider__rail { background: rgba(255, 255, 255, .1); }
+html body .xwui-slider__fill { background: var(--xw-lime); box-shadow: 0 0 10px rgba(200, 255, 61, .5); }
+html body .xwui-slider__thumb { width: 16px; height: 16px; background: #fff; border: 0; box-shadow: 0 0 0 4px rgba(200, 255, 61, .25), 0 2px 8px rgba(0, 0, 0, .5); }

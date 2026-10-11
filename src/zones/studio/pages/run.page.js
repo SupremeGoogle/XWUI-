@@ -48,7 +48,9 @@ export default {
     const page = createKit();
     let viewKit = createKit();
     let detailKit = createKit();
-    let selectedIndex = null;
+    // ?row=<n> opens that ledger row (1-based), e.g. from a sequence diagram dot.
+    const linkedRow = Number.parseInt(ctx.query.row, 10);
+    let selectedIndex = Number.isInteger(linkedRow) && linkedRow > 0 ? linkedRow - 1 : null;
     let poll = null;
     let disposed = false;
 

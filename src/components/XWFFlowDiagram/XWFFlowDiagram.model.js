@@ -18,6 +18,8 @@ export const XWF_FLOW_DIAGRAM_DEFINITION = Object.freeze({
         connections: { type: 'array', default: [] },
         labels: { type: 'object', default: {} },
         simState: { type: 'object', default: null },
+        /** What-if for the simulation: { arrivalFactor, serviceFactor, workers }. */
+        scenario: { type: 'object', default: null },
         uid: { type: 'string' },
       },
     },
@@ -30,6 +32,9 @@ export const XWF_FLOW_DIAGRAM_DEFINITION = Object.freeze({
         tilt: { type: 'number', default: 56 },
         spin: { type: 'number', default: -24 },
         height: { type: 'number', default: 1 },
+        zoom: { type: 'number', default: 1 },
+        minZoom: { type: 'number', default: 0.5 },
+        maxZoom: { type: 'number', default: 3 },
         className: { type: 'string' },
       },
     },

@@ -6,6 +6,8 @@ import { renderSequence } from './renderers/sequence.js';
 import { renderSim } from './renderers/sim.js';
 import { render3d } from './renderers/threeD.js';
 
+export { legendSymbol as projectXWFDiagramSymbol } from './renderers/legend.js';
+
 const RENDERERS = {
   flowchart: renderFlowchart,
   swimlane: renderSwimlane,

@@ -154,6 +154,7 @@ export const studioApi = {
     flowStatuses: db.flowStatuses,
     connectionStatuses: db.connectionStatuses,
     notations: db.notations,
+    simScenarios: db.simScenarios,
   }), { latency: [80, 200] }),
 
   /**

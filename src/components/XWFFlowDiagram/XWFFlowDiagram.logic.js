@@ -172,7 +172,10 @@ export function createSimState(flow, types) {
     clockMin: 0,
     totalMin: (flow.sim?.hours ?? 8) * 60,
     arrived: 0,
-    stations: Object.fromEntries(steps.map((s) => [s.node.id, { in: 0, out: 0, queue: 0 }])),
+    // per station: items in/out, waiting now, worker-capacity offered, item-minutes spent waiting
+    stations: Object.fromEntries(steps.map((s) => [s.node.id, { in: 0, out: 0, queue: 0, capacity: 0, waitMin: 0 }])),
+    /** Queue length per station after each step: { [nodeId]: [{ t, q }] } */
+    trace: Object.fromEntries(steps.map((s) => [s.node.id, []])),
     done: 0,
     running: true,
   };
@@ -186,15 +189,17 @@ export function createSimState(flow, types) {
 export function stepSim(state, flow, types, minutes, rng = Math.random) {
   if (state.clockMin >= state.totalMin) return { ...state, running: false };
   const cfg = flow.sim ?? {};
-  const next = { ...state, stations: structuredClone(state.stations) };
+  const next = { ...state, stations: structuredClone(state.stations), trace: structuredClone(state.trace ?? {}) };
   next.clockMin = Math.min(state.totalMin, state.clockMin + minutes);
   const graph = flow.graph;
   const trigger = graph.nodes.find((n) => types[n.type]?.group === 'trigger') ?? graph.nodes[0];
   if (!trigger) return next;
-  const arrivals = Math.round(((cfg.arrivalsPerHour ?? 60) / 60) * minutes * (0.7 + rng() * 0.6));
+  // Bursty arrivals and uneven service times (±40% / ±25% around the means) are what make
+  // queues form below full utilisation, as they do in real traffic.
+  const arrivals = Math.round(((cfg.arrivalsPerHour ?? 60) / 60) * minutes * (0.6 + rng() * 0.8));
   next.arrived += arrivals;
   next.stations[trigger.id].out += arrivals;
-  const capacity = Math.max(1, Math.round(((cfg.workers ?? 2) * minutes) / (cfg.serviceMinutes ?? 1)));
+  const capacity = Math.max(1, Math.round((((cfg.workers ?? 2) * minutes) / (cfg.serviceMinutes ?? 1)) * (0.75 + rng() * 0.5)));
   const flowInto = (nodeId, count) => {
     if (!count) return;
     const outs = graph.edges.filter((e) => e.from === nodeId);
@@ -218,8 +223,72 @@ export function stepSim(state, flow, types, minutes, rng = Math.random) {
     flowInto(nodeId, served);
   };
   flowInto(trigger.id, arrivals);
+  graph.nodes.forEach((node) => {
+    const st = next.stations[node.id];
+    if (!st) return;
+    if (node.id !== trigger.id && !node.disabled) {
+      st.capacity += capacity;
+      st.waitMin += st.queue * minutes;
+    }
+    (next.trace[node.id] ??= []).push({ t: next.clockMin, q: st.queue });
+  });
   next.running = next.clockMin < next.totalMin;
   return next;
+}
+
+/**
+ * The model with a scenario applied: arrivals and service time scaled, workers set.
+ * @param {{ arrivalFactor?: number, serviceFactor?: number, workers?: number }} scenario
+ */
+export function simModel(flow, { arrivalFactor = 1, serviceFactor = 1, workers } = {}) {
+  const sim = flow.sim ?? {};
+  return {
+    ...flow,
+    sim: {
+      ...sim,
+      arrivalsPerHour: (sim.arrivalsPerHour ?? 60) * arrivalFactor,
+      serviceMinutes: (sim.serviceMinutes ?? 1) * serviceFactor,
+      workers: workers ?? sim.workers ?? 2,
+    },
+  };
+}
+
+/**
+ * Figures for the simulation panel. The focus station is the flow's declared one
+ * (`sim.focusNodeId`) or the one where items waited longest; `sim.countNodeId` names the
+ * step whose arrivals are counted (for example alerts sent).
+ */
+export function simSummary(state, flow, types) {
+  if (!state) return null;
+  const graph = flow.graph;
+  const trigger = graph.nodes.find((n) => types[n.type]?.group === 'trigger');
+  const served = graph.nodes.filter((n) => n !== trigger && !n.disabled && state.stations[n.id]);
+  const focus = graph.nodes.find((n) => n.id === flow.sim?.focusNodeId)
+    ?? [...served].sort((a, b) => state.stations[b.id].waitMin - state.stations[a.id].waitMin)[0]
+    ?? null;
+  const st = focus ? state.stations[focus.id] : null;
+  const counted = graph.nodes.find((n) => n.id === flow.sim?.countNodeId) ?? null;
+  return {
+    done: state.done,
+    arrived: state.arrived,
+    waitingNow: Object.values(state.stations).reduce((a, x) => a + x.queue, 0),
+    focus,
+    avgWaitMin: st && st.out ? st.waitMin / st.out : 0,
+    utilization: st && st.capacity ? Math.min(1, st.out / st.capacity) : 0,
+    counted,
+    countedValue: counted ? state.stations[counted.id]?.in ?? 0 : null,
+    queueTrace: focus ? state.trace?.[focus.id] ?? [] : [],
+  };
+}
+
+/** Bucket a queue trace into `count` bars over the first `windowMin` simulated minutes. */
+export function queueBuckets(trace, { windowMin = 60, count = 18 } = {}) {
+  const size = windowMin / count;
+  return Array.from({ length: count }, (_, i) => {
+    const from = i * size;
+    const points = trace.filter((p) => p.t > from && p.t <= from + size);
+    return { value: points.length ? Math.max(...points.map((p) => p.q)) : 0, partial: !points.length };
+  });
 }
 
 export function formatSimClock(minutes) {
@@ -272,4 +341,119 @@ export function flowToList(graph, types) {
     });
   });
   return rows;
+}
+
+/* ------------------------------------------------------------ sequence as text */
+
+/** Short, stable participant aliases for text diagrams (P1, P2...). */
+function participantAliases(systems) {
+  return new Map(systems.map((s, i) => [s.id, `P${i + 1}`]));
+}
+
+const quote = (text) => String(text ?? '').replace(/"/g, "'").replace(/[\r\n]+/g, ' ');
+/** Why a message did not happen, in the words the sequence view uses. */
+const skipNote = (m, labels) => (m.skipped ? ` (${m.reason === 'disabled' ? labels.skipped : labels.notRun})` : '');
+
+/** PlantUML sequence diagram of one run (the same messages the sequence view draws). */
+export function sequenceToPlantUml(flow, types, run, systemsModel, labels) {
+  const { messages, fragments } = deriveSequence(flow, types, run, systemsModel, labels);
+  const alias = participantAliases(systemsModel.systems);
+  const lines = ['@startuml', `title ${quote(flow.name)}${run ? ` (${run.shortId ?? run.id})` : ''}`];
+  systemsModel.systems.forEach((s) => lines.push(`participant "${quote(s.label)}" as ${alias.get(s.id)}`));
+  messages.forEach((m, i) => {
+    fragments.filter((f) => f.from === i).forEach((f) => lines.push(`alt ${quote(f.guard)}`));
+    fragments.filter((f) => f.elseAt === i).forEach(() => lines.push('else'));
+    const arrow = m.kind === 'reply' || m.kind === 'error' ? '-->' : '->';
+    lines.push(`${alias.get(m.from)} ${arrow} ${alias.get(m.to)}: ${quote(m.label)}${skipNote(m, labels)}`);
+    fragments.filter((f) => f.to === i).forEach(() => lines.push('end'));
+  });
+  lines.push('@enduml');
+  return lines.join('\n');
+}
+
+/** Mermaid sequenceDiagram of one run. */
+export function sequenceToMermaid(flow, types, run, systemsModel, labels) {
+  const { messages, fragments } = deriveSequence(flow, types, run, systemsModel, labels);
+  const alias = participantAliases(systemsModel.systems);
+  const lines = ['sequenceDiagram'];
+  systemsModel.systems.forEach((s) => lines.push(`  participant ${alias.get(s.id)} as ${quote(s.label)}`));
+  messages.forEach((m, i) => {
+    fragments.filter((f) => f.from === i).forEach((f) => lines.push(`  alt ${quote(f.guard)}`));
+    fragments.filter((f) => f.elseAt === i).forEach(() => lines.push('  else'));
+    const arrow = m.kind === 'reply' || m.kind === 'error' ? '-->>' : '->>';
+    lines.push(`  ${alias.get(m.from)}${arrow}${alias.get(m.to)}: ${quote(m.label).replace(/[;#]/g, ' ')}${skipNote(m, labels)}`);
+    fragments.filter((f) => f.to === i).forEach(() => lines.push('  end'));
+  });
+  return lines.join('\n');
+}
+
+/* ------------------------------------------------------------ BPMN interchange */
+
+const BPMN_ELEMENT = {
+  'start-message': 'startEvent', 'start-timer': 'startEvent', 'gateway-xor': 'exclusiveGateway', 'gateway-and': 'parallelGateway',
+  'intermediate-timer': 'intermediateCatchEvent', 'task-service': 'serviceTask', 'task-send': 'sendTask', 'task-script': 'scriptTask',
+  'task-data': 'serviceTask', task: 'task',
+};
+
+const xml = (text) => String(text ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const xmlId = (id) => String(id).replace(/[^\w.-]/g, '_');
+
+/**
+ * Structural checks a BPMN modeler would report: one start event, every step reachable
+ * from it, and exclusive gateways with both branches wired.
+ * @returns {{ code: string, nodeId?: string }[]}
+ */
+export function validateBpmn(flow, types) {
+  const graph = flow.graph;
+  const problems = [];
+  const starts = graph.nodes.filter((n) => BPMN_ELEMENT[types[n.type]?.notation?.bpmn] === 'startEvent');
+  if (starts.length !== 1) problems.push({ code: starts.length ? 'many-starts' : 'no-start' });
+  const reachable = new Set();
+  const queue = starts.map((n) => n.id);
+  while (queue.length) {
+    const id = queue.shift();
+    if (reachable.has(id)) continue;
+    reachable.add(id);
+    graph.edges.filter((e) => e.from === id).forEach((e) => queue.push(e.to));
+  }
+  graph.nodes.forEach((n) => {
+    if (starts.length && !reachable.has(n.id)) problems.push({ code: 'unreachable', nodeId: n.id });
+    if (types[n.type]?.notation?.bpmn === 'gateway-xor' && graph.edges.filter((e) => e.from === n.id).length < 2) problems.push({ code: 'open-gateway', nodeId: n.id });
+  });
+  return problems;
+}
+
+/**
+ * BPMN 2.0 XML (process, lanes, sequence flows and an end event per leaf) for import into
+ * a modeler. `version` is recorded as the exporter version of the chosen notation.
+ */
+export function flowToBpmnXml(flow, types, systemsModel, { version = '2.0.2', exporter = 'xwflow' } = {}) {
+  const graph = flow.graph;
+  const processId = `Process_${xmlId(flow.id ?? flow.name)}`;
+  const { systems, systemOf } = systemsModel;
+  const leaves = graph.nodes.filter((n) => !graph.edges.some((e) => e.from === n.id));
+  const lanes = systems.map((s) => ({ ...s, nodes: graph.nodes.filter((n) => systemOf(n) === s.id) })).filter((l) => l.nodes.length);
+  const el = (n) => {
+    const kind = types[n.type]?.notation?.bpmn ?? 'task';
+    const tag = BPMN_ELEMENT[kind] ?? 'task';
+    const definition = kind === 'start-message' ? '<bpmn:messageEventDefinition />'
+      : kind === 'start-timer' || kind === 'intermediate-timer' ? '<bpmn:timerEventDefinition />' : '';
+    const attrs = `id="${xmlId(n.id)}" name="${xml(n.name)}"`;
+    return definition ? `    <bpmn:${tag} ${attrs}>${definition}</bpmn:${tag}>` : `    <bpmn:${tag} ${attrs} />`;
+  };
+  const lines = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    `<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="Definitions_${xmlId(flow.id ?? 'flow')}" targetNamespace="urn:xwflow" exporter="${xml(exporter)}" exporterVersion="${xml(version)}">`,
+    `  <bpmn:process id="${processId}" name="${xml(flow.name)}" isExecutable="true">`,
+    '    <bpmn:laneSet id="LaneSet_1">',
+    ...lanes.map((l) => [`      <bpmn:lane id="Lane_${xmlId(l.id)}" name="${xml(l.label)}">`, ...l.nodes.map((n) => `        <bpmn:flowNodeRef>${xmlId(n.id)}</bpmn:flowNodeRef>`), '      </bpmn:lane>']).flat(),
+    '    </bpmn:laneSet>',
+    ...graph.nodes.map(el),
+    ...leaves.map((n) => `    <bpmn:endEvent id="End_${xmlId(n.id)}" />`),
+    ...graph.edges.map((e, i) => `    <bpmn:sequenceFlow id="Flow_${i + 1}" sourceRef="${xmlId(e.from)}" targetRef="${xmlId(e.to)}"${e.port === 'yes' || e.port === 'no' ? ` name="${e.port}"` : ''} />`),
+    ...leaves.map((n) => `    <bpmn:sequenceFlow id="Flow_end_${xmlId(n.id)}" sourceRef="${xmlId(n.id)}" targetRef="End_${xmlId(n.id)}" />`),
+    '  </bpmn:process>',
+    '</bpmn:definitions>',
+  ];
+  return lines.join('\n');
 }

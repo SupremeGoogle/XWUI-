@@ -91,7 +91,11 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 .st.dis{color:var(--xw-tx2)}.st.dis i{border-radius:2px;border:2px solid var(--xw-tx3);background:repeating-linear-gradient(45deg,transparent 0 2px,var(--xw-tx3) 2px 3px)}
 
 /* surfaces */
-.glass{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.02));border:1px solid var(--xw-line);border-radius:var(--xw-radius);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 30px 80px -40px rgba(0,0,0,.8)}
+.glass{position:relative;isolation:isolate;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.02));border:1px solid var(--xw-line);border-radius:var(--xw-radius);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 30px 80px -40px rgba(0,0,0,.8)}
+/* The blur sits on a pseudo layer: backdrop-filter on the panel itself would make it the
+   containing block of position:fixed descendants, and XWUI dropdowns inside would open
+   off-screen. */
+.glass::before,.fl::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;-webkit-backdrop-filter:blur(var(--xw-panel-blur,18px));backdrop-filter:blur(var(--xw-panel-blur,18px))}
 .glass.pad{padding:24px}.glass.pad-s{padding:16px}.glass.pad-l{padding:36px}
 .gb{border:1px solid transparent!important;background:linear-gradient(var(--xw-bg2),var(--xw-bg2)) padding-box,var(--xw-grad) border-box!important}
 .glow-l{box-shadow:0 0 0 1px rgba(200,255,61,.35),0 20px 80px -20px rgba(200,255,61,.45)}

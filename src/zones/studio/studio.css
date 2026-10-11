@@ -160,8 +160,8 @@ html body .run-code, html body .run-detail__code pre { background: #07070f; bord
 .editor { position: relative; height: 100vh; min-height: 720px; min-width: 0; overflow: hidden; }
 .editor-canvas { position: absolute; inset: 0; }
 .fl {
-  position: absolute; border-radius: 22px; background: rgba(12, 12, 24, .78);
-  border: 1px solid var(--xw-line2); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  position: absolute; isolation: isolate; border-radius: 22px; background: rgba(12, 12, 24, .78);
+  border: 1px solid var(--xw-line2); --xw-panel-blur: 22px; /* blur layer: .fl::before in base.css */
   box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .07);
 }
 .editor-header { left: 16px; right: 16px; top: 16px; height: 62px; padding: 0 12px 0 10px; border-radius: 999px; flex-wrap: nowrap; z-index: 5; }
@@ -212,15 +212,26 @@ html body .editor-runpanel tbody tr.is-selected td:first-child { box-shadow: ins
 .view-footer { margin: 0 16px; align-items: stretch; }
 .view-footer > .kpi { flex: 1 1 200px; }
 .view-legend { flex: 1 1 100%; }
+.view-legend__items { align-items: center; }
+.view-legend__note { margin: 0; text-align: end; }
+.view-zoom { bottom: 16px; right: 16px; flex-direction: column; z-index: 3; }
+.view-zoom .xwui-button { border-radius: 0; }
+.view-stage:has(.xwf-diagram.is-zoomed) .view-diagram { overflow: auto; }
+.view-bpmn__bar { align-items: center; }
+.view-seq__run .studio-filters__select { width: 200px; }
+.view-note > .small.sec { flex: 1 1 280px; }
+.view-bpmn__version .studio-filters__select { width: 170px; }
 .view-laneby { flex: 2 1 380px; }
 .view-note { flex: 1 1 100%; padding: 12px 20px; border-radius: 20px; border: 1px solid var(--xw-line); background: rgba(255, 255, 255, .03); align-items: center; }
 .view-sim__tags { position: absolute; left: 20px; top: 16px; flex-wrap: wrap; z-index: 2; }
 .view-sim__clockwrap { position: absolute; right: 20px; top: 18px; z-index: 2; }
 .view-sim__clock { color: var(--xw-cyan); }
 .view-sim__controls { flex: 1 1 340px; }
-.view-sim__statsbox { flex: 2 1 480px; }
-.view-sim__stat { min-width: 120px; }
-.view-sim__value { font-size: 1.6rem; font-weight: 700; }
+.view-sim__results { flex: 2 1 520px; min-width: 0; }
+.view-sim__kpis { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.view-sim__slider { flex: 1 1 auto; }
+.view-sim__workers-value { min-width: 2ch; text-align: end; }
+html body .view-sim__queue .xwf-bar-spark__bar { background: linear-gradient(180deg, var(--xw-amber), color-mix(in srgb, var(--xw-amber) 30%, transparent)); }
 .view-3d__controls { flex: 1 1 100%; align-items: flex-end; }
 .view-3d__hint { flex: 1 1 100%; }
 .view-3d__field { width: 160px; }

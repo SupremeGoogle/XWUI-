@@ -1,6 +1,9 @@
 /* XWFFlowDiagram - notation renderings. Tokens only. */
 .xwf-diagram { position: relative; width: 100%; }
 .xwf-diagram__svg { display: block; position: relative; }
+/* Zoom scales the drawing's width; the host scrolls when it grows past the stage. */
+.xwf-diagram.is-zoomed .xwf-diagram__svg { width: calc(100% * var(--xwf-zoom, 1)); max-width: none; }
+.xwf-diagram__symbol { display: block; flex: none; }
 .xwf-diagram.is-thumbnail { pointer-events: none; }
 .xwf-seq-dot { cursor: pointer; }
 .xwf-seq-dot:hover circle, .xwf-seq-dot:focus-visible circle { stroke: #fff; stroke-width: 2; }

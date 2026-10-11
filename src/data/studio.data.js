@@ -251,7 +251,7 @@ export const flows = [
       { id: 'sales', label: 'Sales', hint: 'chat channel', tone: 'pink', kind: 'people' },
       { id: 'orders', label: 'Orders table', hint: 'data store', tone: 'lime', kind: 'store' },
     ],
-    sim: { arrivalsPerHour: 128, workers: 4, branchShare: { yes: 0.32 }, hours: 8, serviceMinutes: 1.6 },
+    sim: { arrivalsPerHour: 128, workers: 4, branchShare: { yes: 0.32 }, hours: 8, serviceMinutes: 1.6, focusNodeId: 'n_lookup', countNodeId: 'n_notify', countLabel: 'Alerts sent' },
     graph: orderAlertGraph,
   },
   {
@@ -467,6 +467,21 @@ export const runStatuses = {
   failed: { label: 'Failed', st: 'err' },
   cancelled: { label: 'Cancelled', st: 'idle' },
   queued: { label: 'Queued', st: 'idle' },
+};
+
+/** What-if presets for the simulation view: arrivals and service time scale the model. */
+export const simScenarios = {
+  arrivals: [
+    { value: 'history', label: 'from the last 7 days of runs', factor: 1 },
+    { value: 'peak', label: 'peak hour of the last 30 days', factor: 1.5 },
+    { value: 'campaign', label: 'campaign week, twice the volume', factor: 2 },
+  ],
+  service: [
+    { value: 'receipts', label: 'from the last 100 receipts', factor: 1 },
+    { value: 'slow', label: 'slow API, 95th percentile', factor: 2 },
+    { value: 'cached', label: 'with a response cache', factor: 0.5 },
+  ],
+  workers: { min: 1, max: 10, step: 1 },
 };
 
 export const runModes = {
