@@ -50,14 +50,18 @@ export default {
                 h(
                   'div',
                   { class: 'stack gap8' },
-                  ui.mount(
-                    XWUICodeBlock,
-                    { code: step.code },
-                    {
-                      language: 'bash',
-                      upgradeToEditor: false,
-                      copyable: false,
-                    },
+                  h(
+                    'div',
+                    { class: 'xwf-terminal' },
+                    ui.mount(
+                      XWUICodeBlock,
+                      { code: step.code },
+                      {
+                        language: 'bash',
+                        upgradeToEditor: false,
+                        copyable: false,
+                      },
+                    ),
                   ),
                   ui.button(data.labels.copy, {
                     size: 'sm',

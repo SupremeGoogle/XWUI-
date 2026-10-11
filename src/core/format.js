@@ -1,7 +1,9 @@
 /** Display formatting shared by every zone. */
 import { UI_CONFIG } from './ui.config.js';
 
-const locale = () => document.documentElement.lang === 'ar' ? 'ar' : UI_CONFIG.locale;
+// Arabic mode mirrors the layout and translates navigation only; page copy stays English,
+// so dates and numbers keep the English locale instead of mixing scripts mid-sentence.
+const locale = () => UI_CONFIG.locale;
 
 export function formatNumber(value, options = {}) {
   return new Intl.NumberFormat(locale(), options).format(value);

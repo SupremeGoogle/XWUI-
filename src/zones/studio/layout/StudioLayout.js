@@ -14,6 +14,8 @@ import { STUDIO_LAYOUT_ID, studioRouteToNavId } from '../studio.routes.js';
 ensureStylesheet('xwf-css-studio', new URL('../studio.css', import.meta.url));
 
 const RAIL_STATE_KEY = 'xwflow:studio-rail-collapsed';
+/** Below this width the rail shows icons only, whatever was saved. */
+const COMPACT_RAIL_QUERY = '(max-width: 900px)';
 
 export class StudioLayout {
   constructor(root, ctx) {
@@ -44,6 +46,9 @@ export class StudioLayout {
       }
     };
     window.addEventListener('keydown', this.onKeydown);
+    this.compactQuery = window.matchMedia?.(COMPACT_RAIL_QUERY) ?? null;
+    this.onCompactChange = () => this.applyRailState();
+    this.compactQuery?.addEventListener?.('change', this.onCompactChange);
     this.offHelp = ctx.bus.on('studio:help', () => this.openHelp());
     this.ready = this.load();
   }
@@ -109,8 +114,15 @@ export class StudioLayout {
     ];
 
     this.sidebar = scope.mount(XWUINavSidebar, this.railHost, { header, footer, items, selected: '' }, {
-      width: '256px', collapsedWidth: '72px', collapsible: true, collapsed: this.readCollapsed(),
+      width: '256px', collapsedWidth: '72px', collapsible: true, collapsed: this.wantCollapsed(),
     });
+    this.root.classList.toggle('is-rail-collapsed', this.wantCollapsed());
+    // The collapsed sidebar swaps its header for a monogram, taking the collapse button with
+    // it; this button brings the full rail back.
+    this.railHost.append(ui.button('', {
+      variant: 'ghost', icon: 'layout-sidebar-left-expand', title: nav.expandLabel, ariaLabel: nav.expandLabel,
+      className: 'studio-rail__expand', onClick: () => this.toggleRail(),
+    }));
   }
 
   renderTopEnd() {
@@ -127,9 +139,23 @@ export class StudioLayout {
     try { return localStorage.getItem(RAIL_STATE_KEY) === '1'; } catch { return false; }
   }
 
+  wantCollapsed() {
+    return Boolean(this.compactQuery?.matches) || this.readCollapsed();
+  }
+
+  /** Follow the viewport: compact screens get the icon rail, wide ones the saved choice. */
+  applyRailState() {
+    const want = this.wantCollapsed();
+    if (!this.sidebar || want === this.root.classList.contains('is-rail-collapsed')) return;
+    this.sidebar.toggle();
+    this.root.classList.toggle('is-rail-collapsed', want);
+  }
+
   toggleRail() {
     this.sidebar?.toggle();
     this.root.classList.toggle('is-rail-collapsed');
+    // On a compact screen opening the rail is momentary; only wide-screen choices are kept.
+    if (this.compactQuery?.matches) return;
     try { localStorage.setItem(RAIL_STATE_KEY, this.root.classList.contains('is-rail-collapsed') ? '1' : '0'); } catch { /* ignore */ }
   }
 
@@ -192,6 +218,7 @@ export class StudioLayout {
     this.disposed = true;
     this.offHelp?.();
     window.removeEventListener('keydown', this.onKeydown);
+    this.compactQuery?.removeEventListener?.('change', this.onCompactChange);
     this.kit.scope.destroy();
     this.topKit.scope.destroy();
     this.root.remove();

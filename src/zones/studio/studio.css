@@ -69,6 +69,22 @@ html body .studio-usage .xwui-progress-bar-fill, html body .studio-usage [class*
 .studio-shell.is-rail-collapsed .studio-rail__search,
 .studio-shell.is-rail-collapsed .studio-rail__meter,
 .studio-shell.is-rail-collapsed .studio-rail__brandrow .brand { display: none; }
+/* Icon rail: no captions or badges, the header monogram becomes the brand mark. */
+html body .studio-shell.is-rail-collapsed .studio-rail .xwui-menu-item[data-id^="grp_"],
+html body .studio-shell.is-rail-collapsed .studio-rail .xwui-menu-badge { display: none; }
+html body .studio-shell.is-rail-collapsed .studio-rail .xwui-menu-link { justify-content: center; padding: 0; }
+html body .studio-shell.is-rail-collapsed .studio-rail .xwui-sidebar-header { display: flex; justify-content: center; padding: 14px 0 6px; }
+html body .studio-shell.is-rail-collapsed .studio-rail .xwui-sidebar-header .xwui-avatar { visibility: hidden; }
+/* The expand button takes the monogram's place at the top of the icon rail. */
+.studio-rail > .studio-rail__expand { display: none; position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 2; }
+.studio-shell.is-rail-collapsed .studio-rail > .studio-rail__expand { display: inline-flex; }
+html body .studio-rail__expand .xwui-button { width: 36px; height: 36px; min-height: 36px; padding: 0; border-radius: 10px; color: var(--xw-ink) !important; background: var(--xw-grad) !important; }
+/* Compact screens: the icon rail is fixed and an opened rail floats over the page. */
+@media (max-width: 900px) {
+  .studio-rail { position: fixed; left: 0; top: 0; z-index: 40; }
+  .studio-main { margin-inline-start: 72px; }
+  .studio-shell:not(.is-rail-collapsed) .studio-rail { box-shadow: 30px 0 80px rgba(0, 0, 0, .7); }
+}
 
 /* ---------- breadcrumbs ---------- */
 html body .studio-crumbs { font-size: .875rem; color: var(--xw-tx2); }
@@ -114,11 +130,8 @@ html body .studio-kpi--err .xwui-statistic-value { color: #ff8e9a; }
 html body .studio-kpi--run .xwui-statistic-value { color: var(--xw-cyan); }
 
 /* XWUINavTabs (button variant) as the prototype's pill tabs */
-html body .studio-tabs .xwui-tabs-list { display: flex; gap: 4px; flex-wrap: wrap; padding: 5px; border-radius: 999px; background: rgba(255, 255, 255, .04); border: 1px solid var(--xw-line); }
-html body .studio-tabs .xwui-tabs-strip { border: 0; }
-html body .studio-tabs .xwui-tab { padding: 8px 16px; border-radius: 999px; font-weight: 800; font-size: .84rem; color: var(--xw-tx2); background: transparent; border: 0; }
-html body .studio-tabs .xwui-tab:hover { color: #fff; }
-html body .studio-tabs .xwui-tab.xwui-tab-active { color: var(--xw-ink); background: #fff; }
+/* Pill look comes from the shared button-tabs rule in xwui-overrides.css; Studio is denser. */
+html body .studio-tabs .xwui-tab { padding: 8px 16px; font-size: .84rem; }
 html body .studio-tabs .xwui-tabs-content { display: none; }
 .studio-tabs { align-self: flex-start; }
 .studio-cell-link { display: inline-flex; }
@@ -299,4 +312,21 @@ html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt 
   .editor-inspector { width: 270px; top: 144px; }
   .editor-runpanel { left: 222px; right: 302px; }
   .view-header { flex-wrap: wrap; height: auto; border-radius: 24px; }
+}
+
+/* ---------- phones: floating panels become a column under the canvas ---------- */
+@media (max-width: 760px) {
+  .editor { display: flex; flex-direction: column; height: auto; min-height: 100vh; overflow: visible; gap: 12px; padding-bottom: 16px; }
+  .editor .fl { position: relative; inset: auto; width: auto; max-height: none; margin: 0 12px; }
+  .editor-header { order: -2; margin-top: 12px; }
+  .editor-canvas { position: relative; order: -1; height: 440px; margin: 0 12px; border-radius: 22px; overflow: hidden; }
+  .editor-inspector { order: 0; }
+  .editor-runpanel { order: 1; }
+  .editor-palette { order: 2; }
+  .editor-canvas .xwf-minimap { display: none; }
+  .view-stage--sim { padding-top: 92px; }
+  .view-sim__clockwrap { left: 20px; right: auto; top: 56px; }
+  .view-stage--3d { height: auto; }
+  .view-3d__panel { position: relative; inset: auto; width: auto; margin: 12px; }
+  .view-3d__legend { position: relative; inset: auto; margin: 0 12px 12px; border-radius: 20px; }
 }

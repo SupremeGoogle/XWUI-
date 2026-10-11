@@ -1,10 +1,9 @@
 .xwf-website {
-  /* clip, not hidden: hidden would make this the sticky header's scroll container */
   overflow: clip;
 }
+/* The prototype's header scrolls with the page (.nav-wrap is position: relative). */
 .xwf-website__header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 30;
 }
 .xwf-website__navbar {
@@ -243,4 +242,29 @@ html body .xwf-website__nav a.xwui-button.xwui-button-ghost[aria-current='page']
 .xwf-compare__included {
   color: var(--xw-green);
   font-weight: 800;
+}
+
+/* Terminal window chrome around self-host commands (prototype's three dots). */
+.xwf-terminal {
+  border: 1px solid var(--xw-line);
+  border-radius: 14px;
+  background: #07070f;
+  overflow: hidden;
+}
+.xwf-terminal::before {
+  content: '';
+  display: block;
+  height: 28px;
+  border-bottom: 1px solid var(--xw-line);
+  background:
+    radial-gradient(circle at 18px 14px, var(--xw-red) 4.5px, transparent 5px),
+    radial-gradient(circle at 34px 14px, var(--xw-amber) 4.5px, transparent 5px),
+    radial-gradient(circle at 50px 14px, var(--xw-green) 4.5px, transparent 5px);
+}
+.xwf-terminal .xwui-code-block,
+.xwf-terminal pre {
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  background: transparent;
 }

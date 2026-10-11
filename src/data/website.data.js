@@ -521,6 +521,7 @@ export const websiteData = {
       'N steps and connectors, read from the same catalog the studio palette uses. If it is listed here, you can drag it onto a canvas.',
     search: 'Search by name or what it does',
     searchLabel: 'Search integrations',
+    searchKey: '/',
     groupsLabel: 'Groups',
     notice:
       'Design mock. The live directory renders every card from the node-type catalog, so nothing appears here that is not registered.',

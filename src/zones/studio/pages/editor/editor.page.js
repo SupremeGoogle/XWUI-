@@ -25,6 +25,9 @@ const SAFE_AREA = { left: 282, right: 372, top: 94, bottom: 282 };
 /** Narrower panels below the compact breakpoint (matches studio.css). */
 const COMPACT_SAFE_AREA = { left: 222, right: 302, top: 144, bottom: 282 };
 const COMPACT_MAX_WIDTH = 1200;
+/** Phones stack the panels under the canvas (studio.css), so nothing covers it. */
+const PHONE_SAFE_AREA = { left: 0, right: 0, top: 0, bottom: 0 };
+const PHONE_MAX_WIDTH = 760;
 
 export default {
   id: 'studio-editor',
@@ -93,7 +96,8 @@ export default {
       labels: C.tools,
     }, { safeArea: SAFE_AREA });
     const fitViewport = () => {
-      canvas.setSafeArea(el.clientWidth <= COMPACT_MAX_WIDTH ? COMPACT_SAFE_AREA : SAFE_AREA);
+      const width = el.clientWidth;
+      canvas.setSafeArea(width <= PHONE_MAX_WIDTH ? PHONE_SAFE_AREA : width <= COMPACT_MAX_WIDTH ? COMPACT_SAFE_AREA : SAFE_AREA);
       canvas.fit();
     };
     page.scope.listen(window, 'resize', fitViewport);
@@ -311,6 +315,12 @@ export default {
         commit(updateNode(state.graph, node.id, { pinned: !node.pinned }));
       }
       if (e.key === 'Tab' && document.activeElement === document.body) { e.preventDefault(); palette.focusSearch(); }
+      // The canvas handles Delete itself when it has focus; elsewhere (after clicking a
+      // palette step, say) Delete still acts on the selected step.
+      if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedId && !e.target.closest('.xwf-flow-canvas')) {
+        e.preventDefault();
+        deleteSelection();
+      }
     };
     page.scope.listen(window, 'keydown', onKey);
 

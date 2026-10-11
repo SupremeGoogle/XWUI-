@@ -52,7 +52,7 @@ export default {
         h('div', { class: 'stack gap4 studio-hero__text' },
           h('div', { class: 'rowf gap12' }, h('h1', { class: 'h2 studio-hero__title' }, project.name), page.ui.tag(project.visibility)),
           h('p', { class: 'sec' }, project.description)),
-        h('div', { class: 'rowf gap8' },
+        h('div', { class: 'rowf wrapf gap8' },
           page.ui.button(C.liveDemo, { variant: 'outline', icon: 'play', onClick: () => ctx.navigate(`/studio/flows/${DEMO_FLOW_ID}?demo=1`) }),
           page.ui.button(C.createFlow, { variant: 'primary', icon: 'plus', onClick: createFlow }))));
 

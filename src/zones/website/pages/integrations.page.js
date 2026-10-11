@@ -1,3 +1,4 @@
+import { XWUIDisplayKbd } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import {
   pageSession,
@@ -24,14 +25,20 @@ export default {
     let timer;
     const results = h('div', { class: 'stack gap24' });
     const search = ui.text(
-      { placeholder: data.search, value: '', label: data.searchLabel },
+      { placeholder: data.search, value: '' },
       (value) => {
         filter.q = value;
         filter.page = 1;
         clearTimeout(timer);
         timer = setTimeout(refresh, data.searchDelay);
       },
-      { type: 'search', clearable: true, leadingIcon: 'search', shortcut: '/' },
+      {
+        type: 'search',
+        clearable: true,
+        leadingIcon: 'search',
+        ariaLabel: data.searchLabel,
+        suffix: ui.mount(XWUIDisplayKbd, { keys: [data.searchKey] }, { size: 'sm' }),
+      },
     );
     search.classList.add('xwf-search');
     scope.onDispose(() => {
@@ -40,7 +47,7 @@ export default {
     });
     scope.listen(window, 'keydown', (event) => {
       if (
-        event.key === '/' &&
+        event.key === data.searchKey &&
         !event.ctrlKey &&
         !event.metaKey &&
         !event.altKey &&

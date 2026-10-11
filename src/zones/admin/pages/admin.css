@@ -465,3 +465,12 @@ html body .xwf-audit-timeline .xwui-timeline__date {
   width: 160px;
   max-width: 100%;
 }
+
+/* Flow names in admin tables read as names (prototype), links only on hover. */
+html body .xwf-admin .xwui-table .xwui-button-link {
+  color: var(--xw-tx) !important;
+  font-weight: 800;
+}
+html body .xwf-admin .xwui-table .xwui-button-link:hover {
+  color: var(--xw-lime) !important;
+}

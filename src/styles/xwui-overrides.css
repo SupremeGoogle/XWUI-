@@ -126,3 +126,13 @@ html body .xwui-button .xwui-button-text { font-weight: 800; }
 html body .xwui-slider__rail { background: rgba(255, 255, 255, .1); }
 html body .xwui-slider__fill { background: var(--xw-lime); box-shadow: 0 0 10px rgba(200, 255, 61, .5); }
 html body .xwui-slider__thumb { width: 16px; height: 16px; background: #fff; border: 0; box-shadow: 0 0 0 4px rgba(200, 255, 61, .25), 0 2px 8px rgba(0, 0, 0, .5); }
+
+/* XWUINavTabs, button variant: the prototype's segmented pill (.tabs) - white active pill. */
+html body .xwui-tabs-button .xwui-tabs-list { display: flex; gap: 4px; flex-wrap: wrap; padding: 5px; border-radius: 999px; background: rgba(255, 255, 255, .04); border: 1px solid var(--xw-line); }
+html body .xwui-tabs-button .xwui-tabs-strip { border: 0; }
+html body .xwui-tabs-button .xwui-tab { border-radius: 999px; font-weight: 800; color: var(--xw-tx2); background: transparent; border: 0; }
+html body .xwui-tabs-button .xwui-tab:hover { color: #fff; }
+html body .xwui-tabs-button .xwui-tab.xwui-tab-active { color: var(--xw-ink); background: #fff; }
+
+/* XWUIFeedbackEmpty: image illustrations never outgrow their slot. */
+html body .xwui-empty-illustration img { max-width: 100%; height: auto; }

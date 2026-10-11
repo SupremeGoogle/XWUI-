@@ -607,6 +607,16 @@ export const templates = [
       { type: 'append_row', name: 'Upsert rows' },
     ],
   },
+  {
+    id: 't_approval', name: 'Approve before paying out', tone: 'orange',
+    keywords: ['refund', 'approve', 'approval', 'finance', 'payout', 'sign off'],
+    steps: [
+      { type: 'webhook', name: 'Refund requested' },
+      { type: 'condition', name: 'Over the limit?' },
+      { type: 'wait', name: 'Wait for finance to approve' },
+      { type: 'http_request', name: 'Issue the refund', needsConnection: true },
+    ],
+  },
 ];
 
 /** Assistant chats shown in the rail. */
@@ -625,6 +635,7 @@ export const studioAssetRefs = {
 export const studioNav = {
   brand: 'xwflow',
   collapseLabel: 'Collapse the rail',
+  expandLabel: 'Expand the rail',
   expandLabel: 'Expand the rail',
   searchPlaceholder: 'Search',
   searchLabel: 'Search everything',
