@@ -1,5 +1,23 @@
 # Codex delivery status
 
+## Final integration and phone review — 11 October 2026
+
+Website/Admin/assets were integrated into `main`. Codex subsequently completed the
+24-item notation gallery with five working hero modes, lazy previews and family
+filters; Studio Help with actual XWUI keyboard badges; manifest-backed empty
+Flows/Runs; OG tags; and schema v3. Studio page copy now comes through the API.
+Run receipts retain immutable graph snapshots, and retries reuse recorded data
+with unique per-flow sequence numbers. Twelve API tests pass.
+
+The latest mobile request is complete. All 23 routes passed at 360, 390, 1024 and
+1440 px in fast and normal modes (184 checks). Phone panels, navigation, diagrams,
+tables, brand samples, previews and dialogs were corrected in a separate mobile
+stylesheet. Full details and validation limits: [mobile-qa.md](mobile-qa.md).
+
+Claude is separately refining the editor, Studio rail and README. Those active
+files were not overwritten during this mobile pass. The notes below preserve the
+earlier Website/Admin handoff and its original division of work.
+
 Scope: Website, Admin, System health, access denied, and graphic assets. Branch: `codex/website-admin`. Implementation is complete for this scope and ready for Claude's integration review. The checkout is `XWUI-codex`; Claude's original checkout was read only.
 
 ## Run and verify
