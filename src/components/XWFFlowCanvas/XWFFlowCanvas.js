@@ -61,6 +61,8 @@ export class XWFFlowCanvas extends XWUIComponent {
 
   get width() { return this.config.nodeWidth; }
 
+  updateConfig(patch) { this.logic.updateConfig(patch); }
+
   renderView() {
     this.kit?.scope.destroy();
     this.kit = createKit(this);
@@ -80,7 +82,8 @@ export class XWFFlowCanvas extends XWUIComponent {
   }
 
   renderOverlay() {
-    const { showTools, showMinimap, safeArea } = this.config;
+    const { showTools, showMinimap } = this.config;
+    const safeArea = this.getSafeArea();
     const labels = this.data.labels ?? {};
     const parts = [];
     if (showTools) {
@@ -136,8 +139,17 @@ export class XWFFlowCanvas extends XWUIComponent {
   /* ------------------------------------------------------------ viewport */
 
   viewportRect() {
-    const s = this.config.safeArea;
+    const s = this.getSafeArea();
     return { x: s.left, y: s.top, w: Math.max(200, this.root.clientWidth - s.left - s.right), h: Math.max(160, this.root.clientHeight - s.top - s.bottom) };
+  }
+
+  /** A surrounding layout can override occlusion without changing the graph. */
+  getSafeArea() {
+    const styles = getComputedStyle(this.root);
+    return Object.fromEntries(Object.entries(this.config.safeArea).map(([side, fallback]) => {
+      const override = styles.getPropertyValue(`--xwf-canvas-safe-${side}`).trim();
+      return [side, override ? Math.max(0, parseFloat(override) || 0) : fallback];
+    }));
   }
 
   setTransform(next) {

@@ -1,0 +1,96 @@
+/* Phone layouts. Keep all controls reachable; scroll wide data inside its own surface. */
+@media (max-width: 700px) {
+  html body .wrap { padding-inline: 16px; }
+  html body .pg { padding: 16px; }
+  html body .xw h1, html body .xw h2, html body .xw h3 { overflow-wrap: anywhere; }
+  html body .xw .lead { font-size: 1.05rem; }
+  html body .xw .rowf { min-width: 0; }
+  html body .xwui-table-wrapper { max-width: 100%; overflow-x: auto; }
+  html body .xwui-button, html body .xwui-tab { min-height: 44px; }
+  html body .xwui-dialog-overlay { padding: 0; }
+  html body .xwui-dialog { width: calc(100% - 32px) !important; max-width: calc(100% - 32px); max-height: calc(100dvh - 32px); margin: 16px !important; flex-shrink: 0; }
+  html body .xwui-dialog-header, html body .xwui-dialog-body, html body .xwui-dialog-footer { padding: 16px; }
+  html body .xwui-dialog-title { overflow-wrap: anywhere; }
+  html body .xwui-dialog-close { width: 44px; height: 44px; flex: none; }
+  html body input, html body textarea, html body select { font-size: 16px; }
+  html body .studio-table, html body .run-ledger, html body .run-detail { width: 100%; min-width: 0; }
+  html body .studio-shell { display: block; }
+  html body .studio-rail { position: relative; height: auto; width: 100%; }
+  html body .studio-shell .studio-rail .xwui-sidebar { width: 100% !important; height: 260px; min-height: 0; }
+  html body .studio-rail .xwui-sidebar-menu { min-height: 0; }
+  html body .studio-rail .xwui-sidebar-footer { display: none; }
+  html body .studio-main { width: 100%; min-width: 0; }
+  html body .studio-topbar { position: relative; padding: 12px 16px; }
+  html body .studio-topbar__crumbs { flex-wrap: wrap; }
+  html body .studio-topbar > .sp { margin-inline-start: 0; }
+  html body .studio-hero, html body .run-hero, html body .connections__vault { padding: 20px; }
+  html body .studio-hero__row, html body .run-hero, html body .connections__vault { flex-wrap: wrap; }
+  html body .studio-hero__title, html body .run-hero__title { font-size: 1.5rem; }
+  html body .studio-hero__text, html body .run-hero__text { flex-basis: 100%; }
+  html body .studio-filters > *, html body .studio-filters .studio-filters__search { max-width: 100%; }
+  html body .assistant { padding-top: 24px; }
+  html body .assistant-prompt__bar { gap: 8px; }
+  html body .assistant-preview__head, html body .assistant-preview__foot { flex-wrap: wrap; }
+  html body .studio-tabs, html body .notations-tabs { max-width: 100%; }
+  html body .studio-tabs .xwui-tabs-list, html body .notations-tabs [role='tablist'] { border-radius: 18px; }
+  html body .studio-help { grid-template-columns: 1fr; gap: 6px; }
+  html body .studio-help dd { margin-bottom: 12px; }
+  html body .xwf-run-timeline__grid { grid-template-columns: minmax(85px, 35%) minmax(0, 1fr) !important; }
+  html body .xwf-run-timeline__axis { padding-inline-start: 40% !important; }
+  html body .xwf-run-timeline__note { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Panels follow the canvas instead of covering it on touch screens. */
+  html body .editor { display: flex; flex-direction: column; height: auto; min-height: 100vh; overflow: visible; padding: 12px; gap: 16px; }
+  html body .editor > .fl, html body .editor-canvas { position: relative; inset: auto; width: 100%; max-height: none; margin: 0; }
+  html body .editor-header { order: 0; border-radius: 22px; padding: 12px; }
+  html body .editor-header__crumbs { flex: 1 1 calc(100% - 90px); }
+  html body .editor-header > .rowf { flex-wrap: wrap; }
+  html body .editor-header > .sp { margin-inline-start: 0; }
+  html body .editor-header__tabs { width: 100%; }
+  html body .editor-canvas { order: 1; height: 440px; border-radius: 22px; overflow: hidden; border: 1px solid var(--xw-line); }
+  html body .editor-canvas .xwf-flow-canvas {
+    --xwf-canvas-safe-left: 12px;
+    --xwf-canvas-safe-right: 12px;
+    --xwf-canvas-safe-top: 12px;
+    --xwf-canvas-safe-bottom: 110px;
+  }
+  html body .editor-inspector { order: 2; }
+  html body .editor-palette { order: 3; }
+  html body .editor-palette__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  html body .editor-palette__list .gl { grid-column: 1 / -1; }
+  html body .editor-palette__item button { padding-inline: 8px; }
+  html body .editor-runpanel { order: 4; height: 400px; }
+  html body .editor-runpanel__head { padding: 10px; gap: 8px; }
+  html body .editor-runpanel__head .sp { margin-inline-start: 0; }
+
+  html body .view-header { margin: 12px; border-radius: 22px; }
+  html body .view-header .crumb { flex-wrap: wrap; }
+  html body .view-header > .sp { margin-inline-start: 0; flex-wrap: wrap; }
+  html body .view-stage { margin: 12px; overflow: auto; }
+  html body .view-stage:not(.view-stage--3d) .xwf-diagram__svg { min-width: 850px; }
+  html body .view-stage--sim { padding-top: 115px; }
+  html body .view-sim__tags { left: 12px; right: 12px; }
+  html body .view-sim__clockwrap { top: 82px; right: 12px; }
+  html body .view-footer { margin-inline: 12px; }
+  html body .view-stage--3d { height: 500px; }
+  html body .view-stage--3d .xwf-3d__stage { min-height: 500px; }
+  html body .view-stage--3d .xwf-3d__plane { scale: .24; top: 100px; transform-origin: 50% 0; }
+  html body .view-3d__field { width: min(160px, 45%); }
+
+  html body .xwf-website__header { position: relative; }
+  html[dir='rtl'] body .xwf-website__outlet { direction: ltr; }
+  html body .xwf-website__navbar { border-radius: 24px; }
+  html body .xwf-landing__fan { min-width: 0; width: 100%; margin-right: 0; transform: none; height: auto; display: grid; gap: 16px; flex-basis: 100%; }
+  html body .xwf-landing__brand-card { position: relative; inset: auto; width: 100%; transform: none !important; }
+  html body .xwf-landing__brand-preview { overflow: hidden; }
+  html body .notations-hero { padding-top: 36px; }
+  html body .notations-hero__visual, html body .layers { height: 440px; }
+  html body .lay { width: 300px; height: 240px; margin-left: -150px; top: 115px; }
+  html body .notations-hero__stage { width: calc(100% - 32px); margin-block: 24px; }
+  html body .xwf-brand-preview__device { height: 320px; }
+  html body .xwf-brand-preview__window { width: 290px; height: 290px; margin-left: -145px; top: 16px; transform: rotateX(8deg) rotateY(-5deg); }
+  html body .xwf-brand-preview__body { padding: 12px; }
+  html body .xwf-brand-preview__graph { padding: 12px; }
+  html body .xwf-brand-preview__node + .xwf-brand-preview__node { margin-left: 14px; }
+  html body .xwf-brand-preview__node + .xwf-brand-preview__node::before { width: 14px; left: -14px; }
+}

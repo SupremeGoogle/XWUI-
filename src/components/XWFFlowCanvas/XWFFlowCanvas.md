@@ -21,6 +21,10 @@ basics: `XWUIButton` (tools), `XWUIIcon` (step glyphs), `XWUIDisplayTag` (frame 
 `readOnly`, `nodeWidth` (150), `showMinimap`, `showTools`, `minZoom`, `maxZoom`, `zoomStep`,
 `gridSize`, `tidyGap`, `safeArea` (`{ left, right, top, bottom }` covered by floating panels).
 
+Responsive layouts can override each safe-area side through `--xwf-canvas-safe-left`,
+`--xwf-canvas-safe-right`, `--xwf-canvas-safe-top`, and `--xwf-canvas-safe-bottom` (px).
+The same resolved area positions the tools, minimap and fitted graph.
+
 ## Events (bubble from the canvas root)
 
 | Event | detail |
