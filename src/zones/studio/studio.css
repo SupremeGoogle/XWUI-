@@ -211,6 +211,8 @@ html body .editor-runpanel tbody tr.is-selected td:first-child { box-shadow: ins
 .view-diagram { position: relative; height: 100%; }
 .view-footer { margin: 0 16px; align-items: stretch; }
 .view-footer > .kpi { flex: 1 1 200px; }
+.view-lane-kpis { display: flex; gap: 16px; flex: 3 1 600px; flex-wrap: wrap; }
+.view-lane-kpis > .kpi { flex: 1 1 180px; }
 .view-legend { flex: 1 1 100%; }
 .view-legend__items { align-items: center; }
 .view-legend__note { margin: 0; text-align: end; }
@@ -232,9 +234,14 @@ html body .editor-runpanel tbody tr.is-selected td:first-child { box-shadow: ins
 .view-sim__slider { flex: 1 1 auto; }
 .view-sim__workers-value { min-width: 2ch; text-align: end; }
 html body .view-sim__queue .xwf-bar-spark__bar { background: linear-gradient(180deg, var(--xw-amber), color-mix(in srgb, var(--xw-amber) 30%, transparent)); }
-.view-3d__controls { flex: 1 1 100%; align-items: flex-end; }
-.view-3d__hint { flex: 1 1 100%; }
-.view-3d__field { width: 160px; }
+.view-3d__panel { position: absolute; top: 16px; right: 16px; z-index: 3; width: 290px; padding: 18px; border-radius: 22px; }
+.view-3d__panel .sep { margin: 4px 0; }
+.view-3d__slider { flex: 1 1 auto; min-width: 0; }
+.view-3d__tilt-value { min-width: 4ch; text-align: end; }
+.view-3d__legend { position: absolute; left: 20px; bottom: 20px; z-index: 3; padding: 10px 16px; border-radius: 999px; align-items: center; }
+.xwf-3d__node.is-dimmed { opacity: .22; filter: saturate(.2); }
+.xwf-3d__node.sel { outline: 2px solid var(--xw-cyan); outline-offset: 3px; box-shadow: 0 0 30px color-mix(in srgb, var(--xw-cyan) 60%, transparent); }
+.xwf-3d__lane--plain b { display: none; }
 
 /* ---------- assistant ---------- */
 .assistant { align-items: center; padding-top: 36px; position: relative; }

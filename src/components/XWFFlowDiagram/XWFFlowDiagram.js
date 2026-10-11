@@ -41,13 +41,13 @@ export class XWFFlowDiagram extends XWUIComponent {
   renderView() {
     this.kit?.scope.destroy();
     this.kit = createKit(this);
-    const { nodeTypes, run, connections, labels, simState, lanes } = this.data;
-    const { notation, thumbnail, animate, tilt, spin, height } = this.config;
+    const { nodeTypes, run, connections, labels, simState, lanes, selectedId } = this.data;
+    const { notation, thumbnail, animate, tilt, spin, height, zoom, laneBy, floors, heightByDuration, failedOnly } = this.config;
     const flow = notation === 'sim' ? this.simFlow() : this.data.flow;
-    const systemsModel = deriveSystems(flow, nodeTypes, connections ?? [], lanes ?? []);
+    const systemsModel = deriveSystems(flow, nodeTypes, connections ?? [], lanes ?? [], laneBy);
     const view = projectXWFFlowDiagramView(notation, {
       flow, types: nodeTypes, run, labels, uid: this.uidKey, thumbnail, animate, systemsModel, simState,
-      ui: this.kit.ui, tilt, spin, height,
+      ui: this.kit.ui, tilt, spin, height, zoom, floors, heightByDuration, failedOnly, selectedId,
       onLedger: (index) => this.container.dispatchEvent(new CustomEvent(EV.LEDGER, { bubbles: true, detail: { index } })),
     });
     this.systemsModel = systemsModel;
@@ -146,7 +146,7 @@ export class XWFFlowDiagram extends XWUIComponent {
       const spin = drag.spin + (e.clientX - drag.x) * 0.25;
       const tilt = Math.max(10, Math.min(80, drag.tilt - (e.clientY - drag.y) * 0.2));
       const plane = this.container.querySelector('.xwf-3d__plane');
-      if (plane) plane.style.transform = `rotateX(${tilt}deg) rotateZ(${spin}deg)`;
+      if (plane) plane.style.transform = `scale(${this.config.zoom}) rotateX(${tilt}deg) rotateZ(${spin}deg)`;
       drag.next = { tilt, spin };
     };
     this.onOrbitUp = () => {
@@ -158,12 +158,58 @@ export class XWFFlowDiagram extends XWUIComponent {
     window.addEventListener('pointerup', this.onOrbitUp);
   }
 
-  setView({ tilt, spin, height }) {
-    this.logic.updateConfig({ ...(tilt !== undefined && { tilt }), ...(spin !== undefined && { spin }), ...(height !== undefined && { height }) });
+  setView({ tilt, spin, height, zoom }) {
+    this.logic.updateConfig({
+      ...(tilt !== undefined && { tilt }), ...(spin !== undefined && { spin }),
+      ...(height !== undefined && { height }), ...(zoom !== undefined && { zoom }),
+    });
   }
+
+  getView() {
+    const { tilt, spin, height, zoom } = this.config;
+    return { tilt, spin, height, zoom };
+  }
+
+  /** 3D layout switches and lane grouping: { floors, heightByDuration, failedOnly, laneBy }. */
+  setLayout(patch) {
+    const allowed = ['floors', 'heightByDuration', 'failedOnly', 'laneBy'];
+    this.logic.updateConfig(Object.fromEntries(Object.entries(patch).filter(([k]) => allowed.includes(k))));
+  }
+
+  /**
+   * Walk the run's recorded attempts in order, highlighting each step in turn, then clear.
+   * Emits xwf-replay with { nodeId } per step and { done: true } at the end.
+   */
+  replay() {
+    this.stopReplay();
+    const rows = (this.data.run?.ledger ?? []).filter((r) => r.attempt > 0 || r.result === 'pinned');
+    const emit = (detail) => this.container.dispatchEvent(new CustomEvent(EV.REPLAY, { bubbles: true, detail }));
+    let i = 0;
+    const next = () => {
+      if (i >= rows.length) {
+        this.replayTimer = null;
+        this.logic.updateData({ selectedId: '' });
+        emit({ done: true });
+        return;
+      }
+      const { nodeId } = rows[i++];
+      this.logic.updateData({ selectedId: nodeId });
+      emit({ nodeId });
+      this.replayTimer = setTimeout(next, this.config.replayStepMs);
+    };
+    next();
+  }
+
+  stopReplay() {
+    clearTimeout(this.replayTimer);
+    this.replayTimer = null;
+  }
+
+  isReplaying() { return Boolean(this.replayTimer); }
 
   destroy() {
     this.pauseSim();
+    this.stopReplay();
     this.unsubscribe?.();
     this.kit?.scope.destroy();
     if (this.onOrbitDown) {

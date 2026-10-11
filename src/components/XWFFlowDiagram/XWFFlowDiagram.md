@@ -16,15 +16,38 @@ and messages are derived in `XWFFlowDiagram.logic.js`.
 ## data
 
 `flow` (`{ name, graph, systems?, sim?, samplePayload? }`), `nodeTypes`, `run`, `connections`,
-`lanes` (catalog lanes for flows without `systems`), `labels`, `simState`.
+`lanes` (catalog lanes for flows without `systems`), `labels`, `simState`,
+`scenario` (simulation what-if: `{ arrivalFactor, serviceFactor, workers }`), `selectedId` (3D highlight).
+
+`flow.sim` may name `focusNodeId` (the station the panel reports on), `countNodeId` and
+`countLabel` (a step whose arrivals are counted, e.g. alerts sent).
 
 ## conf_comp
 
-`notation`, `thumbnail` (no interaction, compact), `animate`, `tilt`, `spin`, `height` (3D).
+| Key | Default | Notes |
+|---|---|---|
+| `notation` | `'flowchart'` | see the table above |
+| `thumbnail` / `animate` | `false` / `true` | thumbnails take no input |
+| `laneBy` | `'system'` | `system`, `connection` or `team` lanes (swimlane, BPMN, 3D) |
+| `zoom`, `minZoom`, `maxZoom` | `1`, `0.5`, `3` | 2D: scales the drawing; 3D: scales the plane |
+| `tilt`, `spin`, `height` | `56`, `-24`, `1` | 3D camera and height scale |
+| `floors`, `heightByDuration`, `failedOnly` | `true`, `true`, `false` | 3D layout switches |
+| `replayStepMs` | `700` | 3D replay pace |
 
 ## Methods and events
 
-`playSim()`, `pauseSim()`, `stepSimOnce()`, `resetSim()`, `setSimSpeed(n)`, `setView({ tilt, spin, height })`,
-`getSystems()`, `getHandoffs()`, `toSvgString()`.
+- Simulation: `playSim()`, `pauseSim()`, `stepSimOnce()`, `resetSim()`, `setSimSpeed(n)`,
+  `setScenario(patch)`, `getSimSummary()`, `isSimPlaying()`.
+- View: `zoomBy(factor)`, `resetZoom()`, `getZoom()`, `setView({ tilt, spin, height, zoom })`, `getView()`,
+  `setLayout({ floors, heightByDuration, failedOnly, laneBy })`, `setRun(run)`.
+- 3D replay: `replay()`, `stopReplay()`, `isReplaying()`.
+- Facts and export: `getSystems()`, `getHandoffs()`, `toSvgString()`.
+
 Events: `xwf-step` (`{ state }` after each simulation step), `xwf-ledger` (`{ index }` when a receipt
-dot is chosen in the sequence view).
+dot is chosen in the sequence view), `xwf-replay` (`{ nodeId }` per replayed step, `{ done: true }` at the end).
+
+## Pure helpers (logic)
+
+`flowToMermaid`, `flowToList`, `sequenceToPlantUml`, `sequenceToMermaid`, `flowToBpmnXml`,
+`validateBpmn`, `simModel`, `simSummary`, `queueBuckets`. `renderers/legend.js` draws legend symbols
+at swatch size (`projectXWFDiagramSymbol` in the view module).

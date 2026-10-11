@@ -12,21 +12,28 @@ const NODE_W = 180;
 
 const toneVar = (tone) => `var(--xw-${tone})`;
 
-export function render3d({ flow, types, run, labels, systemsModel, ui, tilt, spin, height: heightScale }) {
+export function render3d({
+  flow, types, run, labels, systemsModel, ui, tilt, spin, height: heightScale, zoom = 1,
+  floors = true, heightByDuration = true, failedOnly = false, selectedId = '',
+}) {
   const { systems, systemOf } = systemsModel;
-  const { steps } = layoutColumns(flow.graph, types);
+  const { steps, minRow, maxRow } = layoutColumns(flow.graph, types);
   const laneIndex = new Map(systems.map((s, i) => [s.id, i]));
+  // Without floors the steps sit on one plain plane, rows following the branches.
+  const rows = floors ? systems.length : maxRow - minRow + 1;
   const planeW = Math.max(900, 120 + steps.length * COL_W);
-  const planeH = systems.length * LANE_H;
+  const planeH = rows * LANE_H;
   const durationOf = (id) => run?.ledger.filter((r) => r.nodeId === id && r.durationMs).reduce((a, r) => a + r.durationMs, 0) ?? 0;
   const maxDur = Math.max(1, ...steps.map((s) => durationOf(s.node.id)));
 
   const pos = new Map();
   steps.forEach((s, i) => {
     const lane = laneIndex.get(systemOf(s.node)) ?? 0;
-    const z = Math.round((28 + (durationOf(s.node.id) / maxDur) * 110) * heightScale);
-    pos.set(s.node.id, { x: 60 + i * COL_W, y: lane * LANE_H + 34, z, lane, step: s });
+    const row = floors ? lane : s.row - minRow;
+    const rise = heightByDuration ? 28 + (durationOf(s.node.id) / maxDur) * 110 : 40;
+    pos.set(s.node.id, { x: 60 + i * COL_W, y: row * LANE_H + 34, z: Math.round(rise * heightScale), lane, step: s });
   });
+  const failedIds = new Set((run?.ledger ?? []).filter((r) => r.result === 'failed').map((r) => r.nodeId));
 
   const wires = flow.graph.edges.map((e) => {
     const a = pos.get(e.from); const b = pos.get(e.to);
@@ -40,12 +47,15 @@ export function render3d({ flow, types, run, labels, systemsModel, ui, tilt, spi
       !off && h('path', { d, class: 'flow', stroke: '#fff', 'stroke-width': '2', fill: 'none' }));
   });
 
-  const floors = systems.map((s, i) => h('div', { class: 'xwf-3d__lane', style: { '--lc': toneVar(s.tone), top: `${i * LANE_H}px`, width: `${planeW}px` } }, h('b', {}, s.label.toUpperCase())));
+  const floorEls = floors
+    ? systems.map((s, i) => h('div', { class: 'xwf-3d__lane', style: { '--lc': toneVar(s.tone), top: `${i * LANE_H}px`, width: `${planeW}px` } }, h('b', {}, s.label.toUpperCase())))
+    : [h('div', { class: 'xwf-3d__lane xwf-3d__lane--plain', style: { '--lc': 'var(--xw-line2)', top: '0px', width: `${planeW}px`, height: `${planeH}px` } })];
   const shadows = [...pos.values()].map((p) => h('div', { class: 'xwf-3d__shadow', style: { '--sc': toneVar(p.step.type.tone), left: `${p.x}px`, top: `${p.y}px` } }));
   const nodes = [...pos.values()].map((p, i) => {
-    const failed = run?.ledger.some((r) => r.nodeId === p.step.node.id && r.result === 'failed');
+    const failed = failedIds.has(p.step.node.id);
     return h('div', {
-      class: ['nd', 'nd3', 'xwf-3d__node', { off: p.step.node.disabled, fail: failed }],
+      class: ['nd', 'nd3', 'xwf-3d__node', { off: p.step.node.disabled, fail: failed, sel: p.step.node.id === selectedId, 'is-dimmed': failedOnly && !failed }],
+      'data-node-id': p.step.node.id,
       style: { '--z': `${p.z}px`, left: `${p.x}px`, top: `${p.y}px`, width: `${NODE_W}px`, '--gc': toneVar(p.step.type.tone), animationDelay: `${-i * 0.7}s` },
     }, h('div', { class: 'hd' },
       h('span', { class: 'ico s', style: { '--gc': toneVar(p.step.type.tone) } }, ui.icon(p.step.type.icon ?? 'box', { size: 'sm' })),
@@ -55,8 +65,8 @@ export function render3d({ flow, types, run, labels, systemsModel, ui, tilt, spi
   return h('div', { class: 'xwf-3d__stage', 'aria-label': `${labels.threeDAria} ${flow.name}`, role: 'img' },
     h('div', { class: 'orb', style: { '--oc': 'var(--xw-violet)', width: '70px', height: '70px', left: '6%', top: '60px' }, 'aria-hidden': 'true' }),
     h('div', { class: 'cube', style: { '--s': '46px', '--cc': 'var(--xw-lime)', left: '14%', bottom: '80px' }, 'aria-hidden': 'true' }, Array.from({ length: 6 }, () => h('i'))),
-    h('div', { class: 'xwf-3d__plane', style: { width: `${planeW}px`, height: `${planeH}px`, marginLeft: `${-planeW / 2}px`, transform: `rotateX(${tilt}deg) rotateZ(${spin}deg)` } },
-      floors,
+    h('div', { class: 'xwf-3d__plane', style: { width: `${planeW}px`, height: `${planeH}px`, marginLeft: `${-planeW / 2}px`, transform: `scale(${zoom}) rotateX(${tilt}deg) rotateZ(${spin}deg)` } },
+      floorEls,
       h('svg', { width: planeW, height: planeH, viewBox: `0 0 ${planeW} ${planeH}`, fill: 'none', 'stroke-linecap': 'round', class: 'xwf-3d__wires', 'aria-hidden': 'true' }, wires),
       shadows, nodes));
 }

@@ -4,7 +4,7 @@
  * depends on the notation (lane KPIs, legends, simulation controls, 3D camera).
  */
 import {
-  XWUINavTabs, XWUIDisplayChip, XWUIInputNumber, XWUIInputSlider, XWUIDisplayStatistic,
+  XWUINavTabs, XWUIDisplayChip, XWUIInputSlider, XWUIInputSwitch, XWUIDisplayStatistic,
 } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
@@ -12,6 +12,7 @@ import { template, formatNumber } from '../../../core/format.js';
 import { CANVAS_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { kpiEl, downloadText, selectEl } from '../shared/studio-ui.js';
 import { XWFFlowDiagram } from '../../../components/XWFFlowDiagram/XWFFlowDiagram.js';
+import { XWF_DIAGRAM_LANE_BY } from '../../../components/XWFFlowDiagram/XWFFlowDiagram.model.js';
 import { XWFBarSpark } from '../../../components/XWFBarSpark/XWFBarSpark.js';
 import {
   retriesInRun, formatSimClock, queueBuckets, deriveSystems, validateBpmn, flowToBpmnXml, sequenceToPlantUml, sequenceToMermaid,
@@ -19,6 +20,8 @@ import {
 import { projectXWFDiagramSymbol } from '../../../components/XWFFlowDiagram/XWFFlowDiagram.view.js';
 
 const DEFAULT_CAMERA = { tilt: 56, spin: -24, height: 1 };
+const TILT_RANGE = { min: 10, max: 80 };
+const ORBIT_STEP = 15;
 /** Notations drawn as a static 2D picture get zoom tools on the stage. */
 const ZOOMABLE = new Set(['flowchart', 'swimlane', 'bpmn', 'sequence']);
 const ZOOM_STEP = 1.25;
@@ -148,20 +151,30 @@ export default {
           legacyNote)];
       },
       swimlane: () => {
-        const chipRow = h('div', { class: 'wrapf gap8' });
-        Object.entries(C.laneOptions).forEach(([id, label]) => {
-          const host = h('span');
-          chipRow.append(host);
-          const chip = scope.mount(XWUIDisplayChip, host, { label }, { clickable: true, size: 'sm', variant: id === 'system' ? 'primary' : 'default', type: 'filter' });
-          host.addEventListener('click', () => { if (id !== 'system') ctx.notify.info(template(C.notInPrototype, { name: `${C.laneBy}: ${label}` })); });
-          void chip;
-        });
-        return [
+        const kpiHost = h('div', { class: 'view-lane-kpis' });
+        const renderKpis = () => kpiHost.replaceChildren(
           kpiEl(scope, { title: C.lanes, value: diagram.getSystems().length, tone: 'violet' }),
           kpiEl(scope, { title: C.handoffs, value: diagram.getHandoffs(), tone: 'cyan' }),
-          kpiEl(scope, { title: C.retries, value: retriesInRun(run), tone: 'red', valueTone: 'err' }),
-          h('div', { class: 'glass pad-s stack gap8 view-laneby' }, h('b', { class: 'small' }, C.laneBy), chipRow),
-        ];
+          kpiEl(scope, { title: C.retries, value: retriesInRun(run), tone: 'red', valueTone: 'err' }));
+        let laneBy = 'system';
+        const chipRow = h('div', { class: 'wrapf gap8' });
+        const renderChips = () => chipRow.replaceChildren(...Object.entries(C.laneOptions).map(([id, label]) => {
+          const host = h('span');
+          scope.mount(XWUIDisplayChip, host, { label }, { clickable: true, size: 'sm', variant: id === laneBy ? 'primary' : 'default', type: 'filter' });
+          host.addEventListener('click', () => {
+            if (id === laneBy) return;
+            // Only groupings the model can derive are offered as live lanes.
+            if (!XWF_DIAGRAM_LANE_BY.includes(id)) { ctx.notify.info(template(C.notInPrototype, { name: `${C.laneBy}: ${label}` })); return; }
+            laneBy = id;
+            diagram.setLayout({ laneBy });
+            renderChips();
+            renderKpis();
+          });
+          return host;
+        }));
+        renderChips();
+        renderKpis();
+        return [kpiHost, h('div', { class: 'glass pad-s stack gap8 view-laneby' }, h('b', { class: 'small' }, C.laneBy), chipRow)];
       },
       sequence: () => {
         const systemsModel = deriveSystems(flow, typeIndex, connections, catalog.lanes);
@@ -276,19 +289,72 @@ export default {
         ];
       },
       '3d': () => {
-        const camera = { ...DEFAULT_CAMERA };
-        const numberField = (label, key, opts) => {
-          const host = h('div');
-          const input = scope.mount(XWUIInputNumber, host, { value: camera[key], label }, { size: 'sm', ...opts });
-          input.onChange?.((v) => { camera[key] = Number(v); diagram.setView(camera); });
-          return h('div', { class: 'view-3d__field' }, host);
+        const camera = () => diagram.getView();
+        const tiltValue = h('span', { class: 'mono xs view-3d__tilt-value' }, template(C.tiltValue, { n: camera().tilt }));
+        const tiltHost = h('div', { class: 'view-3d__slider' });
+        const tilt = scope.mount(XWUIInputSlider, tiltHost, { value: camera().tilt, ariaLabel: C.tilt }, { min: TILT_RANGE.min, max: TILT_RANGE.max, step: 1, size: 'sm' });
+        tilt.onChange?.((value) => {
+          const n = Math.round(Number(Array.isArray(value) ? value[0] : value));
+          tiltValue.textContent = template(C.tiltValue, { n });
+          diagram.setView({ tilt: n });
+        });
+        // Orbiting by drag changes the tilt too; keep the slider and label in step.
+        const syncTilt = () => {
+          const n = Math.round(camera().tilt);
+          tiltValue.textContent = template(C.tiltValue, { n });
+          tilt.updateData?.({ value: n });
         };
-        return [h('section', { class: 'glass pad wrapf gap16 view-3d__controls' },
-          h('p', { class: 'small sec view-3d__hint' }, C.threeDHint),
-          numberField(C.tilt, 'tilt', { min: 10, max: 80, step: 5 }),
-          numberField(C.spin, 'spin', { min: -180, max: 180, step: 10 }),
-          numberField(C.height, 'height', { min: 0.5, max: 2, step: 0.25, precision: 2 }),
-          ui.button(C.resetView, { variant: 'secondary', size: 'sm', icon: 'refresh', onClick: () => diagram.setView(DEFAULT_CAMERA) }))];
+        scope.listen(window, 'pointerup', () => requestAnimationFrame(syncTilt));
+        const cameraButton = (icon, label, onClick) => ui.button('', { variant: 'secondary', size: 'sm', icon, ariaLabel: label, title: label, onClick });
+        const layoutSwitch = (label, key, checked) => {
+          const host = h('div');
+          scope.mount(XWUIInputSwitch, host, { checked, label }, { size: 'sm' }).onChange?.((value) => diagram.setLayout({ [key]: Boolean(value?.checked ?? value) }));
+          return host;
+        };
+        const laneBy = selectEl(scope, {
+          label: C.laneBy,
+          value: 'system',
+          options: XWF_DIAGRAM_LANE_BY.map((id) => ({ value: id, label: C.laneOptions[id] })),
+          onChange: (value) => diagram.setLayout({ laneBy: value ?? 'system' }),
+        });
+        const replayHost = h('div');
+        const renderReplay = () => {
+          const playing = diagram.isReplaying();
+          replayHost.replaceChildren(ui.button(playing ? C.stopReplay : C.replay, {
+            variant: 'primary', icon: playing ? 'player-stop' : 'play', fullWidth: true,
+            onClick: () => {
+              if (!run) { ctx.notify.info(C.noRunToReplay); return; }
+              if (diagram.isReplaying()) { diagram.stopReplay(); diagram.setRun(run); } else diagram.replay();
+              renderReplay();
+            },
+          }));
+        };
+        scope.listen(diagramHost, 'xwf-replay', (e) => { if (e.detail.done) renderReplay(); });
+        renderReplay();
+        stage.append(
+          h('aside', { class: 'glass stack gap12 view-3d__panel', 'aria-label': C.cameraLabel },
+            h('b', { class: 'small' }, C.camera),
+            h('div', { class: 'rowf gap8 wrapf' },
+              cameraButton('rotate-2', C.orbitLeft, () => diagram.setView({ spin: camera().spin - ORBIT_STEP })),
+              cameraButton('rotate-clockwise-2', C.orbitRight, () => diagram.setView({ spin: camera().spin + ORBIT_STEP })),
+              cameraButton('plus', C.zoomIn, () => diagram.zoomBy(ZOOM_STEP)),
+              cameraButton('minus', C.zoomOut, () => diagram.zoomBy(1 / ZOOM_STEP)),
+              cameraButton('maximize', C.resetCamera, () => { diagram.setView({ ...DEFAULT_CAMERA, zoom: 1 }); syncTilt(); })),
+            h('div', { class: 'rowf gap12' }, h('span', { class: 'small b' }, C.tilt), tiltHost, tiltValue),
+            h('hr', { class: 'sep' }),
+            h('b', { class: 'small' }, C.layout),
+            layoutSwitch(C.floors, 'floors', true),
+            layoutSwitch(C.heightByDuration, 'heightByDuration', true),
+            layoutSwitch(C.failedOnly, 'failedOnly', false),
+            h('label', { class: 'stack gap4 small b' }, C.laneBy, laneBy),
+            replayHost),
+          h('div', { class: 'glass rowf gap16 wrapf view-3d__legend' },
+            h('span', { class: 'xs b sec' }, C.heightLegend.title.toUpperCase()),
+            h('span', { class: 'small' }, C.heightLegend.body),
+            h('span', { class: 'st ok' }, h('i'), C.heightLegend.done),
+            h('span', { class: 'st err' }, h('i'), C.heightLegend.failed),
+            h('span', { class: 'st run' }, h('i'), C.heightLegend.selected)));
+        return [];
       },
     };
     footer.append(...(footers[notation]?.() ?? []));

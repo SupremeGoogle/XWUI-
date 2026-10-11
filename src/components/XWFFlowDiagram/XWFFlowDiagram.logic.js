@@ -45,9 +45,10 @@ const KIND_TONE = { source: 'lime', engine: 'violet', ai: 'pink', apps: 'cyan', 
  * Participants (lanes / lifelines). A flow may declare `systems` and tag nodes with
  * `system`; otherwise lanes come from the step types' `lane` and connection names.
  */
-export function deriveSystems(flow, types, connections = [], lanesCatalog = []) {
+export function deriveSystems(flow, types, connections = [], lanesCatalog = [], laneBy = 'system') {
   const graph = flow.graph;
-  if (flow.systems?.length) {
+  if (laneBy === 'team') return deriveTeams(flow, connections);
+  if (laneBy === 'system' && flow.systems?.length) {
     const engine = flow.systems.find((s) => s.kind === 'engine')?.id;
     return {
       systems: flow.systems,
@@ -80,6 +81,20 @@ export function deriveSystems(flow, types, connections = [], lanesCatalog = []) 
     systems.splice(Math.min(1, systems.length), 0, { id: 'engine', label: lane?.label ?? 'Engine', hint: '', tone: lane?.tone ?? 'violet', kind: 'engine' });
   }
   return { systems, systemOf: systemIdOf, engineId: 'engine' };
+}
+
+const TEAM_TONES = ['cyan', 'violet', 'pink', 'orange', 'lime'];
+
+/**
+ * Lanes by owning team: a step that uses a connection belongs to that connection's team,
+ * every other step to the flow's own folder (the team that owns the flow).
+ */
+function deriveTeams(flow, connections) {
+  const home = flow.folder ?? flow.name;
+  const teamOf = (node) => connections.find((c) => c.id === node.params?.connectionId)?.team ?? home;
+  const names = [...new Set([home, ...flow.graph.nodes.map(teamOf)])];
+  const systems = names.map((name, i) => ({ id: `team:${name}`, label: name, hint: '', tone: TEAM_TONES[i % TEAM_TONES.length], kind: name === home ? 'engine' : 'system' }));
+  return { systems, systemOf: (node) => `team:${teamOf(node)}`, engineId: `team:${home}` };
 }
 
 /** Edges whose two ends live in different lanes. */
