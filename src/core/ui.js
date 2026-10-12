@@ -160,6 +160,7 @@ export function createUi(scope) {
      */
     dialog({ title, content, actions = [], size = 'md' }) {
       return new Promise((resolve) => {
+        const previousFocus = document.activeElement;
         const el = host('div', 'xw-host');
         document.body.append(el);
         let settled = false;
@@ -172,6 +173,7 @@ export function createUi(scope) {
             try { dialog?.close(); } catch { /* already closed */ }
             try { dialog?.destroy?.(); } catch { /* ignore */ }
             el.remove();
+            if (previousFocus?.isConnected) previousFocus.focus();
           });
         };
         scope.onDispose(() => finish(null));

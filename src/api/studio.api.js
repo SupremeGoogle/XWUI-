@@ -1,3 +1,5 @@
+import { createResourceApi } from './resources.api.js';
+import { STUDIO_RESOURCES } from '../data/studio/resources.data.js';
 /**
  * Studio dummy API: flows, versions, runs, connections, assistant drafts.
  * Every method is async, adds latency, returns clones and persists mutations.
@@ -140,7 +142,23 @@ export function getDemoFlowId() {
   return flows.get(gallery.demoFlowId)?.id ?? flows.list()[0]?.id ?? null;
 }
 
+const resourceApi = createResourceApi({
+  namespace: 'studio_resources', definitions: STUDIO_RESOURCES,
+  derive: (id) => {
+    if (id === 'templates') return db.templates.map(item => ({ id: item.id, name: item.name, description: item.steps.map(step => step.name).join(' / '), templateId: item.id }));
+    if (id === 'insights') {
+      const all = runs.list().map(materializeRun);
+      return ['succeeded', 'failed', 'waiting', 'running'].map(status => ({ id: status, name: db.runStatuses[status].label, value: String(all.filter(run => run.status === status).length), description: STUDIO_RESOURCES.insights.description }));
+    }
+    return null;
+  },
+  action: (id, record) => {
+    if (id !== 'templates') throw new ApiError('invalid', STUDIO_RESOURCES.templates.description);
+    return studioApi.createFlow({ templateId: record.templateId, name: record.name });
+  },
+});
 export const studioApi = {
+  ...resourceApi,
   /** Rail, top bar and project chrome. */
   getShell: () => respond(() => ({
     nav: db.studioNav,

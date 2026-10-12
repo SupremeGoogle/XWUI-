@@ -5,6 +5,8 @@ export const WEBSITE_ROUTES = Object.freeze({
 export const STUDIO_ROUTES = Object.freeze({
   assistant: '/studio', flows: '/studio/flows', editor: '/studio/flows/:flowId',
   view: '/studio/flows/:flowId/view/:notation', runs: '/studio/runs', run: '/studio/runs/:runId',
+  agents: '/studio/agents', tables: '/studio/tables', forms: '/studio/forms', variables: '/studio/variables',
+  mcp: '/studio/mcp', templates: '/studio/templates', insights: '/studio/insights', settings: '/studio/settings',
   connections: '/studio/connections', notations: WEBSITE_ROUTES.notations,
 });
 export const ADMIN_ROUTES = Object.freeze({

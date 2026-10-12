@@ -1,3 +1,4 @@
+import resources from './pages/resources.page.js';
 /** Studio zone manifest. */
 import { StudioLayout } from './layout/StudioLayout.js';
 import { CanvasLayout } from './layout/CanvasLayout.js';
@@ -14,5 +15,5 @@ import notations from './pages/notations.page.js';
 export default {
   id: 'studio',
   layouts: { [STUDIO_LAYOUT_ID]: StudioLayout, [CANVAS_LAYOUT_ID]: CanvasLayout },
-  pages: [assistant, flows, runs, run, connections, editor, view, notations],
+  pages: [...resources, assistant, flows, runs, run, connections, editor, view, notations],
 };

@@ -93,7 +93,7 @@ browser's site storage and reload. There is no live backend or authentication.
 With Node.js installed, run the local regression suite:
 
 ```bash
-node --test src/core/router.test.mjs src/api/studio.test.mjs src/api/website-admin.test.mjs
+node --test src/core/router.test.mjs src/api/studio.test.mjs src/api/website-admin.test.mjs src/api/resources.test.mjs
 ```
 
 The regression suite has 26 passing tests. Browser checks cover navigation,

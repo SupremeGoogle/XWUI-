@@ -1,3 +1,4 @@
+import { STUDIO_ROUTES } from '../../core/routes.js';
 export const studioAssetRefs = {
   emptyFlows: 'illustration-empty-flows',
   emptyRuns: 'illustration-empty-runs',
@@ -6,7 +7,6 @@ export const studioAssetRefs = {
 export const studioNav = {
   brand: 'xwflow',
   collapseLabel: 'Collapse the rail',
-  expandLabel: 'Expand the rail',
   expandLabel: 'Expand the rail',
   searchPlaceholder: 'Search',
   searchLabel: 'Search everything',
@@ -20,9 +20,9 @@ export const studioNav = {
   chatsGroup: 'Chats',
   footer: [
     { id: 'admin', label: 'Admin panel', icon: 'shield', route: '/admin' },
-    { id: 'templates', label: 'Templates', icon: 'layers', route: null },
-    { id: 'insights', label: 'Insights', icon: 'chart', route: null },
-    { id: 'settings', label: 'Settings', icon: 'settings', route: null },
+    { id: 'templates', label: 'Templates', icon: 'layers', route: STUDIO_ROUTES.templates },
+    { id: 'insights', label: 'Insights', icon: 'chart', route: STUDIO_ROUTES.insights },
+    { id: 'settings', label: 'Settings', icon: 'settings', route: STUDIO_ROUTES.settings },
   ],
   helpLabel: 'Help',
   help: {
@@ -50,13 +50,13 @@ export const studioNav = {
 /** Project tabs (flows / runs / connections pages). */
 export const projectTabs = [
   { id: 'flows', label: 'Flows', route: '/studio/flows' },
-  { id: 'agents', label: 'Agents', route: null },
-  { id: 'tables', label: 'Tables', route: null },
-  { id: 'forms', label: 'Forms', route: null },
+  { id: 'agents', label: 'Agents', route: STUDIO_ROUTES.agents },
+  { id: 'tables', label: 'Tables', route: STUDIO_ROUTES.tables },
+  { id: 'forms', label: 'Forms', route: STUDIO_ROUTES.forms },
   { id: 'connections', label: 'Connections', route: '/studio/connections' },
-  { id: 'variables', label: 'Variables', route: null },
+  { id: 'variables', label: 'Variables', route: STUDIO_ROUTES.variables },
   { id: 'runs', label: 'Runs', route: '/studio/runs' },
-  { id: 'mcp', label: 'MCP servers', route: null },
+  { id: 'mcp', label: 'MCP servers', route: STUDIO_ROUTES.mcp },
 ];
 
 /** Notation views reachable from the editor and the gallery. */
