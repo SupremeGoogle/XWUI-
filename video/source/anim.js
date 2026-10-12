@@ -62,6 +62,12 @@ function env(el,t,a,b){
   return true;
 }
 
+const TYPE0=15.95,TCPS=26;window._pend=[];
+function setSrc(img,u){if(img.getAttribute('src')!==u){img.setAttribute('src',u);window._pend.push(img.decode().catch(()=>{}))}}
+// show css-space point (cx,cy) of a 1600x1000 UI capture at the centre of a W x H view, zoomed by s
+function frame(img,W,H,s,cx,cy){const k=W/1600*s;let ox=cx-W/2/k,oy=cy-H/2/k;ox=Math.max(0,Math.min(1600-W/k,ox));oy=Math.max(0,Math.min(1000-H/k,oy));
+  img.style.width=(1600*k)+'px';img.style.left=(-ox*k)+'px';img.style.top=(-oy*k)+'px';return (x,y)=>[(x-ox)*k,(y-oy)*k]}
+window.flush=async()=>{const p=window._pend;window._pend=[];await Promise.all(p)};
 function render(t){
   // background drift
   $('b1').style.transform=`translate(${-200+Math.sin(t*.21)*260}px,${-250+Math.cos(t*.17)*160}px)`;
@@ -94,15 +100,37 @@ function render(t){
   if(vis.s3){
     words($('s3h'),t,C.just-.15,.07);
     const p=oE(P(t,15.3,1.1));const sh=$('s3shot');
-    sh.style.transform=`perspective(1800px) translateY(${(1-p)*300}px) rotateX(${lerp(26,8,p)-P(t,15.3,4)*6}deg) scale(${lerp(.9,1,p)+P(t,15.3,4)*.04})`;sh.style.opacity=cl(p*2);
-    show($('s3prompt'),t,15.9,.5);type($('s3typed'),' Alert sales when an order is over $500',t,16.0,26);caret($('s3caret'),t);
+    sh.style.transform=`perspective(1800px) translateY(${(1-p)*300}px) rotateX(${lerp(22,0,p)}deg) scale(${lerp(.9,1,p)})`;sh.style.opacity=cl(p*2);
+    const n=Math.max(0,Math.min(38,Math.floor((t-TYPE0)*TCPS)));
+    setSrc($('s3img'),t>=TYPE0+38/TCPS+.25?'ui/a_done.jpg':`ui/a${String(n).padStart(2,'0')}.jpg`);
+    const z=ioC(P(t,15.7,TYPE0+38/TCPS-15.5)),z2=ioC(P(t,17.7,1.5));
+    const s=lerp(1,1.55,z)*lerp(1,.85,z2), cx=lerp(800,928,z), cy=lerp(520,548,z)+z2*150;
+    frame($('s3img'),1400,782,s,cx,cy);
     words($('s3b'),t,C.drafts,.07);
   }
   if(vis.s4){
     words($('s4h'),t,C.drag-.1,.07);
     const p=oE(P(t,19.45,1));const k=P(t,19.45,7);const sh=$('s4shot');
-    sh.style.transform=`perspective(2000px) rotateY(${lerp(18,6,p)-k*4}deg) translateX(${(1-p)*-200}px) scale(${1+k*.03})`;sh.style.opacity=cl(p*2);
-    sh.querySelector('img').style.transform=`translate(${-k*120}px,${-k*40}px) scale(${1.0+k*.12})`;
+    sh.style.transform=`perspective(2000px) rotateY(${lerp(14,0,p)}deg) translateX(${(1-p)*-200}px)`;sh.style.opacity=cl(p*2);
+    const s=lerp(1.5,1.62,ioC(k)), cx=lerp(520,540,k), cy=lerp(450,455,k);
+    const map=frame($('s4img'),1300,782,s,cx,cy);
+    // current keyframe
+    let i=0;while(i<KF.length-1&&KF[i+1][0]<=t)i++;
+    let img='e000';for(let j=0;j<=i;j++)if(KF[j][3]&&KF[j][0]<=t)img=KF[j][3];
+    setSrc($('s4img'),`ui/${img}.jpg`);
+    const a=KF[i],b=KF[Math.min(i+1,KF.length-1)];const q=b===a||t<a[0]?0:ioC(P(t,a[0],b[0]-a[0]));
+    const x=lerp(a[1],b[1],q),y=lerp(a[2],b[2],q);const [px,py]=map(x,y);
+    const cu=$('s4cur');cu.style.left=(px-6)+'px';cu.style.top=(py-4)+'px';
+    cu.style.opacity=cl(P(t,19.8,.3))*(1-P(t,26.0,.25));const pressed=t>=KF[0][0]&&a[4];
+    cu.style.transform=`scale(${pressed?.82:1})`;
+    const gh=$('s4ghost');const gl=a[4]&&a[5]?a[5]:'';
+    if(gl){gh.style.display='flex';$('s4gl').textContent=gl;$('s4gi').style.background=gl.startsWith('HTTP')?'var(--cyan)':'var(--pink)';
+      gh.style.left=(px+14)+'px';gh.style.top=(py+10)+'px';gh.style.transform=`rotate(-3deg) scale(${lerp(.7,1,oB(P(t,a[0],.2)))})`;}
+    else gh.style.display='none';
+    // ripple on drops / connects
+    let rt=-9;KF.forEach((f,j)=>{if(j&&KF[j-1][4]&&!f[4]&&f[0]<=t)rt=f[0]});
+    const rq=P(t,rt,.5);const rp=$('s4rip');const rr=lerp(10,90,oC(rq));
+    rp.style.width=rp.style.height=rr+'px';rp.style.left=(px-rr/2)+'px';rp.style.top=(py-rr/2)+'px';rp.style.opacity=rq>0&&rq<1?(1-rq):0;
     [...$('s4chips').children].forEach((d,i)=>{const q=P(t,C[nodes[i][2]],.55);d.style.opacity=cl(q*3);d.style.transform=`translateX(${(1-oE(q))*260}px) scale(${lerp(.7,1,oB(q))})`;
       const act=t>=C[nodes[i][2]]&&(i===4||t<C[nodes[i+1][2]]);d.style.borderColor=act?'rgba(200,255,61,.8)':'rgba(255,255,255,.14)';d.style.boxShadow=act?'0 0 50px rgba(200,255,61,.35)':'0 20px 60px rgba(0,0,0,.55)'});
   }

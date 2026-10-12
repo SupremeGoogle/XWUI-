@@ -67,14 +67,14 @@ html,body{width:1920px;height:1080px;background:#000;overflow:hidden}
   <!-- S3 assistant -->
   <div class="scene" id="s3">
     <div class="abs" style="left:0;right:0;top:70px;text-align:center"><div class="h" id="s3h">Just tell the <span class="pill">assistant</span> what you need</div></div>
-    <div class="shot" id="s3shot" style="left:260px;top:200px;width:1400px;height:820px"><div class="chrome"><i style="left:16px;background:#ff5f57"></i><i style="left:36px;background:#febc2e"></i><i style="left:56px;background:#28c840"></i></div><div class="view"><img src="shots/assistant.png"></div></div>
-    <div class="chip" id="s3prompt" style="left:430px;top:600px;font-size:34px;padding:26px 34px;border-color:rgba(200,255,61,.5)"><span style="color:var(--lime)">✦</span><span id="s3typed"></span><span class="caret" id="s3caret"></span></div>
-    <div class="abs" style="left:0;right:0;bottom:70px;text-align:center"><div class="h sm" id="s3b">…and it <span class="pill">drafts the whole flow</span> for you.</div></div>
+    <div class="shot" id="s3shot" style="left:260px;top:200px;width:1400px;height:820px"><div class="chrome"><i style="left:16px;background:#ff5f57"></i><i style="left:36px;background:#febc2e"></i><i style="left:56px;background:#28c840"></i></div><div class="view"><img id="s3img" src="ui/a00.jpg" style="position:absolute;max-width:none"></div></div>
+        <div class="abs" style="left:0;right:0;bottom:70px;text-align:center"><div class="h sm" id="s3b">…and it <span class="pill">drafts the whole flow</span> for you.</div></div>
   </div>
 
   <!-- S4 editor -->
   <div class="scene" id="s4">
-    <div class="shot" id="s4shot" style="left:120px;top:150px;width:1300px;height:820px"><div class="chrome"><i style="left:16px;background:#ff5f57"></i><i style="left:36px;background:#febc2e"></i><i style="left:56px;background:#28c840"></i></div><div class="view"><img src="shots/editor.png"></div></div>
+    <div class="shot" id="s4shot" style="left:120px;top:150px;width:1300px;height:820px"><div class="chrome"><i style="left:16px;background:#ff5f57"></i><i style="left:36px;background:#febc2e"></i><i style="left:56px;background:#28c840"></i></div><div class="view"><img id="s4img" src="ui/e000.jpg" style="position:absolute;max-width:none"><div id="s4ghost" class="abs" style="z-index:4;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:12px;background:rgba(22,22,36,.95);border:1px solid rgba(255,255,255,.25);font-weight:700;font-size:20px;white-space:nowrap;box-shadow:0 18px 40px rgba(0,0,0,.6)"><i id="s4gi" style="width:28px;height:28px;border-radius:8px;display:inline-block"></i><span id="s4gl"></span></div>
+<div id="s4rip" class="abs" style="z-index:3;border-radius:50%;border:3px solid var(--lime);pointer-events:none"></div><img class="cursor" id="s4cur" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M4 2l16 10-7 1.5L9.5 21z' fill='white' stroke='black' stroke-width='1.2'/></svg>" style="width:40px;height:40px;z-index:5"></div></div>
     <div class="abs" style="left:120px;top:56px"><div class="h" id="s4h" style="text-align:left">Drag steps onto the <span class="pill">canvas</span></div></div>
     <div id="s4chips"></div>
   </div>
@@ -163,6 +163,6 @@ html,body{width:1920px;height:1080px;background:#000;overflow:hidden}
   <div class="full" id="vign"></div>
   <div class="full" id="fade" style="background:#000;opacity:0"></div>
 </div>
-<script src="cues.js"></script>
+<script src="cues.js"></script><script src="kf.js"></script>
 <script src="anim.js"></script>
 </body></html>

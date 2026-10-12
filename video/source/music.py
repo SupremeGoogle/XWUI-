@@ -194,7 +194,7 @@ def thud():
     return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 10) * .9 + filt(rng.standard_normal(len(t)), hi=1500) * np.exp(-t * 40) * .4
 
 # typing
-for txt, a, cps in [('Okay, real talk.', 1.0, 14), (' Alert sales when an order is over $500', 16.0, 26)]:
+for txt, a, cps in [('Okay, real talk.', 1.0, 14), ('Alert sales when an order is over $500', 15.95 + 1 / 26, 26)]:
     for i, ch in enumerate(txt):
         if ch != ' ': add(sfx, tick(), a + i / cps + .01, .55 + .2 * rng.random(), rng.uniform(-.3, .3))
 # chips / pops
@@ -213,7 +213,24 @@ def chime(m1, m2, g=.32):
 PENTA = [76, 79, 81, 84, 86, 88, 91, 93, 96, 88, 91, 93]
 for i in range(12): add(sfx, blip(PENTA[i]), C['tabs'] + i * .36, 1, rng.uniform(-.7, .7))
 for k, (a, b) in zip(['tabs', 'sheets', 'inbox'], [(64, 71), (67, 74), (69, 76)]): add(sfx, chime(a, b), C[k], 1)
-for j, k in enumerate(['webhooks', 'http', 'ai', 'emails', 'subflows']): add(sfx, pop(800 + j * 90, 400 + j * 50), C[k], 1, .5)
+for j, k in enumerate(['emails', 'subflows']): add(sfx, pop(980 + j * 90, 500), C[k], 1, .5)
+add(sfx, click(), 17.55, .7)  # Send
+# editor: pick up, drop, connect
+for tp, td in [(20.45, 21.35), (22.1, 22.9)]:
+    add(sfx, click(), tp, .6, -.3)
+    add(sfx, whoosh(.5, True, 1500, 9000), td - .45, .18, .2)
+    add(sfx, pop(520, 260, .14, .55), td, 1, .1)
+    add(sfx, blip(84, .12), td + .03, 1, .1)
+def zip_(d):
+    t = tt(d); n = rng.standard_normal(len(t)); out = np.zeros(len(t))
+    for i, (lo, hi) in enumerate([(1500, 3000), (3000, 6000), (6000, 11000)]):
+        out += filt(n, lo=lo, hi=hi) * np.clip((t / d * 3) - i + .5, 0, 1)
+    return out * np.sin(np.pi * t / d) * .12
+for t0 in [23.3, 24.6]:
+    add(sfx, click(), t0 + .1, .6, .2)
+    add(sfx, zip_(.75), t0 + .12, 1, .2)
+    add(sfx, chime(76, 83, .28), t0 + .85, 1, .2)
+    add(sfx, click(), t0 + .85, .5, .2)
 for k in ['test', 'prod']: add(sfx, pop(700, 350, .12, .5), C[k], 1)
 add(sfx, pop(700, 350, .12, .5), C['publish'] + .25, 1)
 for j, k in enumerate(['crm', 'payments', 'databases', 'chat']): add(sfx, pop(950 + j * 80, 500), C[k], 1, .6)
