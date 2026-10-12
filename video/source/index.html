@@ -1,0 +1,168 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#07070d;--lime:#c8ff3d;--cyan:#2ee6ff;--violet:#9b6bff;--pink:#ff4fa3;--orange:#ff8a3d;--txt:#f3f3f8;--mut:#9a9ab0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;background:#000;overflow:hidden}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--ink);font-family:Manrope,sans-serif;color:var(--txt)}
+.abs{position:absolute}
+.full{position:absolute;inset:0}
+.center{display:flex;align-items:center;justify-content:center;flex-direction:column}
+#grid{background-image:radial-gradient(rgba(255,255,255,.07) 1.2px,transparent 1.4px);background-size:34px 34px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%)}
+.blob{position:absolute;width:900px;height:900px;border-radius:50%;filter:blur(140px);opacity:.35}
+.scene{position:absolute;inset:0;opacity:0;will-change:transform,opacity,filter}
+.h{font-family:Manrope;font-weight:700;font-size:64px;letter-spacing:-1.5px;line-height:1.15;text-align:center;white-space:nowrap}
+.h.sm{font-size:50px}
+.h.xl{font-size:120px;letter-spacing:-4px}
+.w{display:inline-block;will-change:transform,opacity,filter}
+.pill{display:inline-block;background:var(--lime);color:#0b0b10;border-radius:14px;padding:0 18px 4px;margin:0 4px;box-shadow:0 0 40px rgba(200,255,61,.35)}
+.grad{background:linear-gradient(90deg,var(--cyan),var(--violet) 34%,var(--pink) 66%,var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
+.caret{display:inline-block;width:5px;height:.95em;background:var(--lime);vertical-align:-.1em;margin-left:6px;border-radius:2px}
+.shot{position:absolute;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 60px 140px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04),0 0 120px rgba(155,107,255,.18);background:#0b0b14}
+.shot img{position:absolute;left:0;top:0;width:100%;}
+.chrome{position:absolute;left:0;right:0;top:0;height:38px;background:rgba(18,18,30,.96);border-bottom:1px solid rgba(255,255,255,.08);z-index:2}
+.chrome i{position:absolute;top:13px;width:12px;height:12px;border-radius:50%}
+.shot .view{position:absolute;left:0;right:0;top:38px;bottom:0;overflow:hidden}
+.chip{position:absolute;display:flex;align-items:center;gap:16px;padding:16px 26px 16px 18px;border-radius:18px;background:rgba(16,16,28,.92);border:1px solid rgba(255,255,255,.14);font-weight:700;font-size:30px;white-space:nowrap;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.chip img{width:46px;height:46px}
+.tab{position:absolute;padding:14px 22px;border-radius:12px 12px 4px 4px;background:#151522;border:1px solid rgba(255,255,255,.12);font-weight:600;font-size:22px;color:#c9c9da;white-space:nowrap;box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.tab b{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:10px;vertical-align:0}
+.stat{display:inline-flex;align-items:center;gap:0;font-weight:700;font-size:44px}
+.stat .box{padding:14px 30px;border-radius:16px;background:#12121e;border:1px solid rgba(255,255,255,.16)}
+.stat .arr{width:78px;height:78px;border-radius:18px;background:var(--lime);color:#0b0b10;display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 18px;box-shadow:0 0 50px rgba(200,255,61,.45)}
+.label{font-family:"JetBrains Mono";font-size:22px;color:var(--mut);letter-spacing:2px;text-transform:uppercase}
+.ring{position:absolute;border-radius:50%;border:2px solid rgba(200,255,61,.5)}
+#vign{background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65))}
+.cursor{position:absolute;width:44px;height:44px;z-index:20}
+</style></head>
+<body><div id="stage">
+  <div class="full" id="bgwrap">
+    <div class="blob" id="b1" style="background:var(--violet)"></div>
+    <div class="blob" id="b2" style="background:var(--cyan)"></div>
+    <div class="blob" id="b3" style="background:var(--pink)"></div>
+    <div class="full" id="grid"></div>
+  </div>
+
+  <!-- S1 chaos -->
+  <div class="scene" id="s1">
+    <div class="full" id="tabs"></div>
+    <div class="full center"><div class="h" id="s1a"></div></div>
+    <div class="full center"><div class="h" id="s1b">Your processes live in…</div></div>
+    <div class="full center" style="top:150px"><div id="s1stats" style="display:flex;gap:26px"></div></div>
+  </div>
+
+  <!-- S2 meet -->
+  <div class="scene" id="s2">
+    <div class="full center">
+      <div id="s2logo" style="display:flex;align-items:center;gap:34px">
+        <img id="s2mark" src="assets/logo-mark.svg" style="width:190px;height:190px">
+        <div id="s2word" class="h xl" style="font-family:Unbounded;font-weight:800;letter-spacing:-5px;font-size:150px">xwflow</div>
+      </div>
+      <div class="h sm" id="s2sub" style="margin-top:40px">Workflow orchestration that <span class="pill">finally makes sense.</span></div>
+    </div>
+    <div class="full center"><div class="h" id="s2meet" style="font-size:90px">Meet</div></div>
+  </div>
+
+  <!-- S3 assistant -->
+  <div class="scene" id="s3">
+    <div class="abs" style="left:0;right:0;top:70px;text-align:center"><div class="h" id="s3h">Just tell the <span class="pill">assistant</span> what you need</div></div>
+    <div class="shot" id="s3shot" style="left:260px;top:200px;width:1400px;height:820px"><div class="chrome"><i style="left:16px;background:#ff5f57"></i><i style="left:36px;background:#febc2e"></i><i style="left:56px;background:#28c840"></i></div><div class="view"><img src="shots/assistant.png"></div></div>
+    <div class="chip" id="s3prompt" style="left:430px;top:600px;font-size:34px;padding:26px 34px;border-color:rgba(200,255,61,.5)"><span style="color:var(--lime)">✦</span><span id="s3typed"></span><span class="caret" id="s3caret"></span></div>
+    <div class="abs" style="left:0;right:0;bottom:70px;text-align:center"><div class="h sm" id="s3b">…and it <span class="pill">drafts the whole flow</span> for you.</div></div>
+  </div>
+
+  <!-- S4 editor -->
+  <div class="scene" id="s4">
+    <div class="shot" id="s4shot" style="left:120px;top:150px;width:1300px;height:820px"><div class="chrome"><i style="left:16px;background:#ff5f57"></i><i style="left:36px;background:#febc2e"></i><i style="left:56px;background:#28c840"></i></div><div class="view"><img src="shots/editor.png"></div></div>
+    <div class="abs" style="left:120px;top:56px"><div class="h" id="s4h" style="text-align:left">Drag steps onto the <span class="pill">canvas</span></div></div>
+    <div id="s4chips"></div>
+  </div>
+
+  <!-- S5 publish -->
+  <div class="scene" id="s5">
+    <div class="shot" id="s5shot" style="left:160px;top:120px;width:1600px;height:900px;filter:blur(6px) brightness(.45)"><div class="view" style="top:0"><img src="shots/flows.png"></div></div>
+    <div class="full center">
+      <div class="h" id="s5h" style="margin-bottom:70px">Publish a <span class="pill">version</span></div>
+      <div style="display:flex;align-items:center" id="s5row">
+        <div class="stat" id="s5a"><div class="box">v3 · Published</div></div>
+        <div class="stat" id="s5b"><div class="arr">→</div><div class="box">Test run</div></div>
+        <div class="stat" id="s5c"><div class="arr">→</div><div class="box" style="border-color:var(--lime);box-shadow:0 0 50px rgba(200,255,61,.3)">Production ✓</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6 receipts -->
+  <div class="scene" id="s6">
+    <div class="shot" id="s6shot" style="left:160px;top:200px;width:1600px;height:900px"><div class="chrome"><i style="left:16px;background:#ff5f57"></i><i style="left:36px;background:#febc2e"></i><i style="left:56px;background:#28c840"></i></div><div class="view"><img src="shots/runs.png"></div></div>
+    <div class="abs" style="left:0;right:0;top:70px;text-align:center"><div class="h" id="s6h">And every single run?</div></div>
+    <div class="chip" id="s6r" style="left:1080px;top:430px;flex-direction:column;align-items:flex-start;gap:10px;padding:30px 36px;border-color:rgba(200,255,61,.6);width:620px">
+      <div class="label" style="color:var(--lime)">Run receipt · #4821</div>
+      <div style="font-size:40px">Immutable <span style="color:var(--lime)">✓</span></div>
+      <div style="font-family:JetBrains Mono;font-size:20px;color:var(--mut);font-weight:500">sha256 · 9f2c…a71e · v3 · production</div>
+    </div>
+    <div class="abs" style="left:1100px;top:690px"><div class="h sm" id="s6w" style="font-size:40px;font-style:italic;color:var(--lime);text-align:left">auditors love that ;)</div></div>
+  </div>
+
+  <!-- S7 notations -->
+  <div class="scene" id="s7">
+    <div class="abs" style="left:0;right:0;top:64px;text-align:center"><div class="h" id="s7h">Want a different <span class="pill">angle?</span></div></div>
+    <div id="s7cards"></div>
+    <div class="abs" style="left:0;right:0;bottom:60px;text-align:center"><div class="h sm" id="s7l"></div></div>
+  </div>
+
+  <!-- S8 connections -->
+  <div class="scene" id="s8">
+    <div class="shot" id="s8shot" style="left:120px;top:170px;width:1180px;height:780px"><div class="chrome"><i style="left:16px;background:#ff5f57"></i><i style="left:36px;background:#febc2e"></i><i style="left:56px;background:#28c840"></i></div><div class="view"><img src="shots/connections.png"></div></div>
+    <div class="abs" style="left:120px;top:60px"><div class="h" id="s8h" style="text-align:left">Connect your <span class="pill">tools</span></div></div>
+    <div id="s8icons"></div>
+    <div class="chip" id="s8btn" style="left:1380px;top:820px;font-size:30px"><span id="s8dot" style="width:16px;height:16px;border-radius:50%;background:var(--orange);display:inline-block"></span><span id="s8txt">Reconnect</span></div>
+    <img class="cursor" id="s8cur" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M4 2l16 10-7 1.5L9.5 21z' fill='white' stroke='black' stroke-width='1.2'/></svg>">
+    <div class="abs" style="left:1340px;top:930px"><div class="h sm" id="s8b" style="font-size:40px;text-align:left">in <span class="pill">one click</span></div></div>
+  </div>
+
+  <!-- S9 admin -->
+  <div class="scene" id="s9">
+    <div class="abs" style="left:0;right:0;top:50px;text-align:center"><div class="h" id="s9h">And for <span class="pill">admins</span></div></div>
+    <div id="s9grid" class="abs" style="left:0;top:0;width:1920px;height:1080px"></div>
+    <div class="full center"><div class="h" id="s9b" style="font-size:92px;text-shadow:0 10px 60px #000">All in <span class="pill">one place.</span></div></div>
+  </div>
+
+  <!-- S10 self-host -->
+  <div class="scene" id="s10">
+    <div class="shot" id="s10shot" style="left:860px;top:140px;width:1240px;height:800px"><div class="view" style="top:0"><img src="shots/selfhost.png"></div></div>
+    <div class="abs" style="left:150px;top:380px"><div class="h" id="s10a" style="text-align:left;font-size:88px"><span class="pill">Self-host</span> it…</div>
+    <div class="h" id="s10b" style="text-align:left;font-size:60px;margin-top:26px;color:var(--mut)">…or run it <span style="color:var(--txt)">with us.</span></div></div>
+  </div>
+
+  <!-- S11 tagline -->
+  <div class="scene" id="s11">
+    <div class="full center">
+      <div class="h xl grad" id="s11x" style="font-family:Unbounded;font-weight:800;font-size:130px;letter-spacing:-5px">xwflow.</div>
+      <div style="display:flex;gap:22px;margin-top:50px" id="s11row"></div>
+    </div>
+  </div>
+
+  <!-- S12 final -->
+  <div class="scene" id="s12">
+    <div class="full" id="s12rings"></div>
+    <div class="abs" id="s12dot" style="left:960px;top:470px;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle,#fff,var(--lime) 40%,rgba(200,255,61,0) 70%)"></div>
+    <div class="full center">
+      <div id="s12logo" style="display:flex;align-items:center;gap:36px;position:relative">
+        <img id="s12mark" src="assets/logo-mark.svg" style="width:200px;height:200px">
+        <div id="s12word" style="font-family:Unbounded;font-weight:800;font-size:160px;letter-spacing:-6px"></div>
+        <div id="s12sweep" class="abs" style="top:-40px;bottom:-40px;width:160px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);mix-blend-mode:overlay"></div>
+      </div>
+      <div class="h sm" id="s12tag" style="margin-top:46px;color:#cfcfe0">Own the workflow. <span class="grad">Watch every action.</span></div>
+      <div class="h sm" id="s12cta" style="margin-top:34px;font-size:46px">Start building <span class="pill">today.</span></div>
+    </div>
+  </div>
+
+  <div class="full" id="circ" style="pointer-events:none"></div>
+  <div class="full" id="flash" style="background:#fff;opacity:0;mix-blend-mode:overlay"></div>
+  <div class="full" id="vign"></div>
+  <div class="full" id="fade" style="background:#000;opacity:0"></div>
+</div>
+<script src="cues.js"></script>
+<script src="anim.js"></script>
+</body></html>
