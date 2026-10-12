@@ -29,35 +29,35 @@ export function createInspector({ catalog, copy, handlers }) {
     if (f.kind === 'flow') {
       const options = ctx.flows.map(flow => ({ value: flow.id, label: flow.name }));
       const select = scope.mountField(XWUIInputSelect, host, { options, value: value || undefined, label: f.label }, { fullWidth: true, size: 'sm', clearable: true });
-      select.onChange?.(v => set((Array.isArray(v) ? v[0] : v) ?? ''));
+      select.onChange(v => set((Array.isArray(v) ? v[0] : v) ?? ''));
       return field(host);
     }
     if (f.kind === 'select') {
       const s = scope.mountField(XWUIInputSelect, host, { options: f.options.map((o) => ({ value: o, label: o })), value, label: f.label }, { fullWidth: true, size: 'sm' });
-      s.onChange?.((v) => set(Array.isArray(v) ? v[0] : v));
+      s.onChange((v) => set(Array.isArray(v) ? v[0] : v));
       return field(host);
     }
     if (f.kind === 'number') {
       const n = scope.mountField(XWUIInputNumber, host, { value, label: f.label }, { size: 'sm', min: 0 });
-      n.onChange?.((v) => set(Number(v)));
+      n.onChange((v) => set(Number(v)));
       return field(host);
     }
     if (f.kind === 'textarea') {
       const t = scope.mountField(XWUITextarea, host, { value, label: f.label, rows: '3' }, { fullWidth: true, size: 'sm', autoResize: true, className: f.mono ? 'editor-mono' : '' });
-      t.onChange?.((v) => set(v));
+      t.onChange((v) => set(v));
       return field(host);
     }
     if (f.kind === 'switch') {
       const retry = typeIndex[node.type]?.retry ?? {};
       const sw = scope.mountField(XWUIInputSwitch, host, { checked: Boolean(value), label: f.label }, { size: 'sm' });
-      sw.onChange?.((v) => set(Boolean(v?.checked ?? v)));
+      sw.onChange((v) => set(Boolean(v?.checked ?? v)));
       return h('div', { class: 'rowf gap12 editor-switch' }, host,
         h('div', { class: 'grow' }, h('div', { class: 'xs sec' }, template(copy.retryHint, retry))));
     }
     if (f.kind === 'connection') {
       const options = ctx.connections.map((c) => ({ value: c.id, label: c.name }));
       const s = scope.mountField(XWUIInputSelect, host, { options, value: value || undefined, label: f.label, placeholder: copy.connectionMissing }, { fullWidth: true, size: 'sm', clearable: true });
-      s.onChange?.((v) => set((Array.isArray(v) ? v[0] : v) ?? ''));
+      s.onChange((v) => set((Array.isArray(v) ? v[0] : v) ?? ''));
       const conn = ctx.connections.find((c) => c.id === value);
       const status = conn ? catalog.connectionStatuses[conn.status] : null;
       const hint = h('p', { class: 'hint rowf gap8' }, status ? statusEl(kit.scope, template(status.label, { days: conn.daysLeft }), status.st, { size: 'sm' }) : h('span', { class: 'ter' }, copy.noConnection), copy.credentialNote);
@@ -68,7 +68,7 @@ export function createInspector({ catalog, copy, handlers }) {
       return h('div', { class: 'rowf gap8 wrapf editor-expression' }, kit.ui.tag(copy.expression, 'default', { className: 'xw-tone-violet' }), h('span', { class: 'mono small editor-expression__text' }, value));
     }
     const t = scope.mountField(XWUIInputText, host, { value, label: f.label }, { fullWidth: true, size: 'sm', className: f.mono ? 'editor-mono' : '' });
-    t.onChange?.((v) => set(v));
+    t.onChange((v) => set(v));
     return field(host);
   }
 
@@ -84,7 +84,7 @@ export function createInspector({ catalog, copy, handlers }) {
     const tabs = scope.mount(XWUINavTabs, tabsHost, {
       tabs: Object.entries(copy.sections).map(([id, label]) => ({ id, label })), activeTab: section,
     }, { variant: 'button', size: 'sm', hideContent: true });
-    tabs.onChange?.((id) => { section = id?.id ?? id; render(ctx); });
+    tabs.onChange((id) => { section = id?.id ?? id; render(ctx); });
 
     let body;
     if (section === 'params') {
@@ -96,8 +96,8 @@ export function createInspector({ catalog, copy, handlers }) {
     } else if (section === 'settings') {
       const disabledHost = h('div');
       const pinnedHost = h('div');
-      scope.mountField(XWUIInputSwitch, disabledHost, { checked: Boolean(node.disabled), label: copy.disabledLabel }, { size: 'sm' }).onChange?.((v) => handlers.onNode(node.id, { disabled: Boolean(v?.checked ?? v) }));
-      scope.mountField(XWUIInputSwitch, pinnedHost, { checked: Boolean(node.pinned), label: copy.pinnedLabel }, { size: 'sm' }).onChange?.((v) => handlers.onNode(node.id, { pinned: Boolean(v?.checked ?? v) }));
+      scope.mountField(XWUIInputSwitch, disabledHost, { checked: Boolean(node.disabled), label: copy.disabledLabel }, { size: 'sm' }).onChange((v) => handlers.onNode(node.id, { disabled: Boolean(v?.checked ?? v) }));
+      scope.mountField(XWUIInputSwitch, pinnedHost, { checked: Boolean(node.pinned), label: copy.pinnedLabel }, { size: 'sm' }).onChange((v) => handlers.onNode(node.id, { pinned: Boolean(v?.checked ?? v) }));
       body = [
         h('div', { class: 'rowf gap12 editor-switch' }, disabledHost, h('div', { class: 'grow' }, h('div', { class: 'xs sec' }, copy.disabledHint))),
         h('div', { class: 'rowf gap12 editor-switch' }, pinnedHost, h('div', { class: 'grow' }, h('div', { class: 'xs sec' }, copy.pinnedHint))),
@@ -105,7 +105,7 @@ export function createInspector({ catalog, copy, handlers }) {
     } else {
       const notesHost = h('div');
       scope.mountField(XWUITextarea, notesHost, { value: node.notes ?? '', label: copy.sections.notes, placeholder: copy.notesPlaceholder, rows: '6' }, { fullWidth: true, size: 'sm' })
-        .onChange?.((v) => handlers.onNode(node.id, { notes: v }));
+        .onChange((v) => handlers.onNode(node.id, { notes: v }));
       body = [notesHost];
     }
 

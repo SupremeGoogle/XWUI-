@@ -68,7 +68,7 @@ export function createRunPanel({ ctx, catalog, copy, onWaitResolved }) {
       tabs: Object.entries(copy.panelTabs).map(([id, label]) => ({ id, label: id === 'problems' && state.problems.length ? `${label} (${state.problems.length})` : label })),
       activeTab: tab,
     }, { variant: 'button', size: 'sm', hideContent: true, ariaLabel: copy.panelLabel });
-    tabs.onChange?.((id) => { tab = id?.id ?? id; render(state); });
+    tabs.onChange((id) => { tab = id?.id ?? id; render(state); });
 
     const summary = runSummary(state.run);
     const chips = [];

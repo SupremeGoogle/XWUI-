@@ -30,12 +30,8 @@ async function boot() {
   router.addLayouts(appZone.layouts);
   router.addPages(appZone.pages);
 
-  const zones = await Promise.all(ZONES.map((load) => load()
-    .then((mod) => mod.default)
-    .catch((error) => {
-      console.warn('[app] zone not available yet:', error.message);
-      return null;
-    })));
+  const zones = await Promise.all(ZONES.map(async (load, index) =>
+    (await load().catch((error) => { throw new Error(`Zone ${index}: ${error.message}`, { cause: error }); })).default));
 
   for (const zone of zones.filter(Boolean)) {
     router.addLayouts(zone.layouts ?? {});

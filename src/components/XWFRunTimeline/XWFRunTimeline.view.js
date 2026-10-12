@@ -3,9 +3,9 @@ import { h } from '../../core/dom.js';
 
 export function projectXWFRunTimelineView({ rows, startLabel, endLabel, labelWidth, minBarPx, selectable }, { onSelect }) {
   return h('div', { class: 'xwf-run-timeline' },
-    h('div', { class: 'xwf-run-timeline__axis xs ter', style: { paddingInlineStart: `${labelWidth + 16}px` } },
+    h('div', { class: 'xwf-run-timeline__axis xs ter', style: { '--xwf-axis-offset': `${labelWidth + 16}px` } },
       h('span', {}, startLabel), h('span', { class: 'sp' }, endLabel)),
-    h('div', { class: 'xwf-run-timeline__grid', style: { gridTemplateColumns: `${labelWidth}px 1fr` } },
+    h('div', { class: 'xwf-run-timeline__grid', style: { '--xwf-timeline-columns': `${labelWidth}px 1fr` } },
       rows.map((row) => {
         const clickable = selectable && row.hasBar;
         return [

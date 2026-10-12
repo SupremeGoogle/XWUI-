@@ -168,7 +168,7 @@ export default {
     ]);
     // Rows have native links as well as keyboard row activation.
     const table = failures.querySelector('.xw-host')?.xw;
-    table?.onRowClick?.((row) => ctx.navigate(row.path));
+    table?.onRowClick((row) => ctx.navigate(row.path));
     return session.handle;
   },
 };

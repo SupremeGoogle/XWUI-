@@ -143,6 +143,6 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .xwf-hero-scene * {
-    animation: none !important;
+    animation: none ;
   }
 }

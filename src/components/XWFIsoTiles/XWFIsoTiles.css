@@ -59,7 +59,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .xwf-iso-tiles * {
-    animation: none !important;
+    animation: none ;
   }
 }
 

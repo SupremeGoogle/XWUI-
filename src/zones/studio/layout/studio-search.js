@@ -34,8 +34,8 @@ export async function openStudioSearch(ctx) {
   };
 
   const dialog = new XWUIOverlayDialog(host, { title: STUDIO_SEARCH.title, content }, { size: 'md' });
-  dialog.open?.();
-  dialog.onClose?.(close);
+  dialog.open();
+  dialog.onClose(close);
   openDialog = dialog;
 
   const go = (route) => { close(); ctx.navigate(route); };
@@ -64,7 +64,7 @@ export async function openStudioSearch(ctx) {
   };
 
   const input = scope.mountField(XWUIInputText, inputHost, { placeholder: STUDIO_SEARCH.placeholder }, { leadingIcon: 'search', fullWidth: true, clearable: true, ariaLabel: STUDIO_SEARCH.placeholder });
-  input.onChange?.((value) => {
+  input.onChange((value) => {
     clearTimeout(debounce);
     debounce = setTimeout(() => search(value), STUDIO_SEARCH.debounceMs);
   });

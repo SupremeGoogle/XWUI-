@@ -46,13 +46,13 @@ export function projectTabsEl(scope, ctx, tabs, activeId, STUDIO_COPY) {
     tabs: tabs.map((t) => ({ id: t.id, label: t.label })),
     activeTab: activeId,
   }, { variant: 'button', size: 'sm', ariaLabel: STUDIO_COPY.projectTabsLabel, hideContent: true });
-  nav.onChange?.((id) => {
+  nav.onChange((id) => {
     const tab = tabs.find((t) => t.id === (id?.id ?? id));
     if (!tab || tab.id === activeId) return;
     if (tab.route) ctx.navigate(tab.route);
     else {
       ctx.notify.info(template(STUDIO_COPY.notInPrototype, { name: tab.label }));
-      nav.setActiveTab?.(activeId);
+      nav.setActiveTab(activeId);
     }
   });
   return host;
@@ -62,7 +62,7 @@ export function searchEl(scope, { placeholder, value = '', onChange, debounceMs 
   const host = h('div', { class: 'studio-filters__search' });
   const input = scope.mountField(XWUIInputText, host, { placeholder, value }, { leadingIcon: 'search', fullWidth: true, clearable: true, ariaLabel: placeholder, size: 'md' });
   let timer = null;
-  input.onChange?.((v) => {
+  input.onChange((v) => {
     clearTimeout(timer);
     timer = setTimeout(() => onChange(v), debounceMs);
   });
@@ -73,7 +73,7 @@ export function searchEl(scope, { placeholder, value = '', onChange, debounceMs 
 export function selectEl(scope, { label, options, value, onChange }) {
   const host = h('div', { class: 'studio-filters__select' });
   const select = scope.mountField(XWUIInputSelect, host, { options, value, placeholder: label, label }, { size: 'md', fullWidth: true, showLabel: false });
-  select.onChange?.((v) => onChange(Array.isArray(v) ? v[0] : v));
+  select.onChange((v) => onChange(Array.isArray(v) ? v[0] : v));
   host.setAttribute('aria-label', label);
   return host;
 }

@@ -158,6 +158,7 @@ body { overflow-x: hidden; }
 .app-boot__text { color: var(--xw-tx3); font-size: .875rem; animation: pulse 1.4s infinite; }
 
 .visually-hidden {
+  /* Keep assistive-only text outside layouts, including utility overrides. */
   position: absolute !important;
   width: 1px; height: 1px;
   overflow: hidden;

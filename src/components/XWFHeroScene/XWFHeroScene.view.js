@@ -31,7 +31,7 @@ export function projectXWFHeroSceneView({ scene, zoom, busy }, handlers, ui) {
           h('path', {
             d,
             fill: 'none',
-            stroke: `var(--xw-${scene.nodes[index]?.tone ?? 'violet'})`,
+            style: { stroke: `var(--xw-${scene.nodes[index]?.tone ?? 'violet'})` },
             'stroke-width': 5,
             class: 'flow',
           }),

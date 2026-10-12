@@ -169,7 +169,7 @@ export function createUi(scope) {
           settled = true;
           resolve(result);
           queueMicrotask(() => {
-            try { dialog?.close?.(); } catch { /* already closed */ }
+            try { dialog?.close(); } catch { /* already closed */ }
             try { dialog?.destroy?.(); } catch { /* ignore */ }
             el.remove();
           });
@@ -180,9 +180,8 @@ export function createUi(scope) {
         const footer = h('div', { class: 'xw-dialog-actions' },
           actions.map((a) => footerUi.button(a.label, { variant: a.variant ?? 'secondary', onClick: () => finish(a.id) })));
         dialog = new XWUIOverlayDialog(el, { title, content, footer }, { size });
-        dialog.open?.();
-        dialog.onClose?.(() => finish(null));
-        el.addEventListener('close', () => finish(null));
+        dialog.open();
+        dialog.onClose(() => finish(null));
         const observer = new MutationObserver(() => {
           if (!el.isConnected) { observer.disconnect(); footerScope.destroy(); finish(null); }
         });

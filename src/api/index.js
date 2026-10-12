@@ -1,8 +1,7 @@
 /**
  * Dummy API entry point.
- * Each domain lives in its own module; this file only loads and groups them. A module
- * that is missing (e.g. while a zone is still being built) is skipped with a warning
- * so the rest of the app keeps working.
+ * Each required domain loads before routes start. A failed module reaches the
+ * application error screen with retry, rather than leaving an undefined API.
  */
 const MODULES = [
   ['studioApi', () => import('./studio.api.js')],
@@ -14,13 +13,10 @@ const MODULES = [
 export const api = {};
 
 export async function loadApi() {
-  await Promise.all(MODULES.map(async ([name, load]) => {
-    try {
-      const mod = await load();
-      api[name] = mod[name];
-    } catch (error) {
-      console.warn(`[api] ${name} is not available yet`, error.message);
-    }
+  const modules = await Promise.all(MODULES.map(async ([name, load]) => {
+    const mod = await load().catch((error) => { throw new Error(`${name}: ${error.message}`, { cause: error }); });
+    return [name, mod[name]];
   }));
+  Object.assign(api, Object.fromEntries(modules));
   return api;
 }

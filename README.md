@@ -105,3 +105,7 @@ Codex and Claude Code were used to investigate public documentation, implement a
 review the frontend, and create assets. AI image generation was used for raster artwork.
 No eXonware frontend skills or XWUI MCP were used; XWUI integration uses public CDN
 documentation, schemas and source.
+
+## Known XWUI CDN issues
+
+The current `basic.bundle.js` exports `XWUIDisplayStatusPill` without registering its component stylesheet path. `createXwfKit` loads the public `XWUIDisplayStatus.css` once, because the pill uses that shared projection/style. Chip closing, input changes and modal lifecycle use their public component methods; no fallback DOM event handlers are needed.

@@ -56,14 +56,14 @@ export function projectXWFFlowCanvasView(model, ctx) {
   const defs = h('defs', {}, edges.map((e) => h('linearGradient', {
     id: `xwf-eg-${ctx.uid}-${e.id}`, gradientUnits: 'userSpaceOnUse', x1: e.a.x, y1: e.a.y, x2: e.b.x, y2: e.b.y,
   },
-  h('stop', { offset: '0', 'stop-color': tone(types[nodeById.get(e.from)?.type]?.tone) }),
-  h('stop', { offset: '1', 'stop-color': tone(types[nodeById.get(e.to)?.type]?.tone) }))));
+  h('stop', { offset: '0', style: { stopColor: tone(types[nodeById.get(e.from)?.type]?.tone) } }),
+  h('stop', { offset: '1', style: { stopColor: tone(types[nodeById.get(e.to)?.type]?.tone) } }))));
 
   const edgeRefs = new Map();
   const edgeEls = edges.map((e) => {
     const target = nodeById.get(e.to);
     const muted = target?.disabled;
-    const base = h('path', { d: e.d, class: ['xwf-edge', { 'is-muted': muted, 'is-selected': selectedId === e.id }], stroke: muted ? 'var(--xw-tx3)' : `url(#xwf-eg-${ctx.uid}-${e.id})`, dataset: { edgeId: e.id } });
+    const base = h('path', { d: e.d, class: ['xwf-edge', { 'is-muted': muted, 'is-selected': selectedId === e.id }], style: { stroke: muted ? 'var(--xw-tx3)' : `url(#xwf-eg-${ctx.uid}-${e.id})` }, dataset: { edgeId: e.id } });
     const flow = h('path', { d: e.d, class: ['xwf-edge__flow', 'flow', { 'is-hidden': muted }] });
     const hit = h('path', { d: e.d, class: 'xwf-edge__hit', dataset: { edgeId: e.id } });
     edgeRefs.set(e.id, [base, flow, hit]);

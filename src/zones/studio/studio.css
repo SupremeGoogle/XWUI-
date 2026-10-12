@@ -63,7 +63,7 @@ html body .studio-rail .xwui-menu-item[data-id^="grp_"] > .xwui-menu-link {
 html body .studio-rail .xwui-menu-item[data-id="spacer"] { flex: 1 1 auto; min-height: 24px; pointer-events: none; }
 html body .studio-rail .xwui-menu-item[data-id="spacer"] > .xwui-menu-link { display: none; }
 html body .studio-rail .xwui-menu-item[data-id="project"] .xwui-icon {
-  width: 18px !important; height: 18px !important; border-radius: 6px; color: transparent !important;
+  width: 18px ; height: 18px ; border-radius: 6px; color: transparent ;
   background: linear-gradient(135deg, var(--xw-violet), var(--xw-cyan));
 }
 
@@ -237,7 +237,7 @@ html body .editor-runpanel tbody tr.is-selected td:first-child { box-shadow: ins
 .assistant-core__ring1 { position: absolute; inset: 0; transform: rotateX(72deg); transform-style: preserve-3d; }
 .assistant-core__ring2 { position: absolute; left: 15px; top: 15px; width: 170px; height: 170px; transform: rotateY(70deg) rotateX(20deg); }
 .assistant-prompt { border-radius: 26px; padding: 14px; box-shadow: 0 40px 100px -40px rgba(155, 107, 255, .9); }
-html body .assistant-textarea textarea, html body .assistant-prompt textarea { border: 0 !important; background: transparent !important; box-shadow: none !important; font-size: 1.1rem; min-height: 96px; padding: 12px; resize: none; }
+html body .assistant-textarea textarea, html body .assistant-prompt textarea { border: 0 ; background: transparent ; box-shadow: none ; font-size: 1.1rem; min-height: 96px; padding: 12px; resize: none; }
 html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt [class*="textarea-container"] { border: 0; background: transparent; box-shadow: none; }
 .assistant-prompt__bar { flex-wrap: wrap; padding: 0 4px; }
 .assistant-pills { justify-content: center; }
@@ -251,7 +251,7 @@ html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt 
 .mk:hover, .mk:focus-visible { border-color: color-mix(in srgb, var(--gc) 55%, transparent); box-shadow: 0 20px 50px -24px var(--gc); outline: none; }
 .mk .ico.s { color: var(--xw-ink); }
 .assistant-reco { gap: 12px; }
-.assistant-reco__dot { width: 24px !important; height: 24px !important; }
+.assistant-reco__dot { width: 24px ; height: 24px ; }
 
 /* ---------- connections ---------- */
 .connections__vault { border-radius: 26px; padding: 26px; align-items: center; overflow: hidden; }
@@ -272,7 +272,7 @@ html body .assistant-prompt .xwui-textarea-wrapper, html body .assistant-prompt 
 .studio-search__row button { width: 100%; display: flex; gap: 12px; justify-content: flex-start; }
 .editor-palette__item { display: block; width: 100%; }
 .editor-palette__item button { justify-content: flex-start; cursor: grab; }
-.editor-palette__item .xwui-icon { width: 28px !important; height: 28px !important; padding: 6px; border-radius: 8px; background: var(--gc); color: var(--xw-ink); box-shadow: 0 0 16px -6px var(--gc); }
+.editor-palette__item .xwui-icon { width: 28px ; height: 28px ; padding: 6px; border-radius: 8px; background: var(--gc); color: var(--xw-ink); box-shadow: 0 0 16px -6px var(--gc); }
 .run-ledger__step button { padding: 0; text-align: start; }
 @media (max-width: 1200px) {
   .editor-header { height: auto; min-height: 62px; flex-wrap: wrap; padding: 8px 12px; gap: 8px; }

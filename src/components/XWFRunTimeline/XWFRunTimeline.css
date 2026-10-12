@@ -1,7 +1,7 @@
 /* XWFRunTimeline - the prototype's .wf waterfall. */
 .xwf-run-timeline { display: flex; flex-direction: column; gap: 10px; }
-.xwf-run-timeline__axis { display: flex; }
-.xwf-run-timeline__grid { display: grid; gap: 12px 16px; align-items: center; font-size: .84rem; }
+.xwf-run-timeline__axis { padding-inline-start: var(--xwf-axis-offset); display: flex; }
+.xwf-run-timeline__grid { grid-template-columns: var(--xwf-timeline-columns); display: grid; gap: 12px 16px; align-items: center; font-size: .84rem; }
 .xwf-run-timeline__label { font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .xwf-run-timeline__label.is-muted { color: var(--xw-tx3); }
 .xwf-run-timeline__track { position: relative; height: 22px; border-radius: 8px; background: rgba(255, 255, 255, .035); }

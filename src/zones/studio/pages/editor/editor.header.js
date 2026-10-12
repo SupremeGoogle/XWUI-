@@ -35,10 +35,10 @@ export function createHeader({ ctx, flow, project, catalog, copy, handlers }) {
     const tabs = [...notationTabs, { id: 'all', label: copy.allViews }, { id: 'versions', label: copy.versionsTab }, { id: 'runs', label: copy.runsTab }];
     const tabsHost = h('div', { class: 'studio-tabs editor-header__tabs' });
     const nav = scope.mount(XWUINavTabs, tabsHost, { tabs, activeTab: 'editor' }, { variant: 'button', size: 'sm', ariaLabel: copy.viewsLabel, hideContent: true });
-    nav.onChange?.((id) => {
+    nav.onChange((id) => {
       const key = id?.id ?? id;
       if (key === 'editor') return;
-      nav.setActiveTab?.('editor');
+      nav.setActiveTab('editor');
       handlers.onTab(key);
     });
 

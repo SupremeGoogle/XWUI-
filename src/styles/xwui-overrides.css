@@ -18,7 +18,9 @@ html body .xwui-button {
   font-family: var(--xw-font-body);
   font-weight: 800;
   letter-spacing: 0;
-  border-radius: 999px;
+  --radius-button: 999px;
+  --button-font-weight: 800;
+  border-radius: var(--radius-button);
   white-space: nowrap;
   transition: transform .2s, box-shadow .2s, background .2s, color .2s;
 }
@@ -31,7 +33,8 @@ html body .xwui-button:focus-visible { outline: 2px solid var(--xw-focus); outli
 html body .xwui-button.xwui-button-primary {
   background: var(--xw-lime);
   border-color: var(--xw-lime);
-  color: var(--xw-ink) !important;
+  --role-primary-fg: var(--xw-ink);
+  color: var(--xw-ink);
   box-shadow: 0 0 0 1px rgba(200, 255, 61, .4), 0 10px 40px -8px rgba(200, 255, 61, .6);
 }
 html body .xwui-button.xwui-button-primary:hover:not(:disabled) {
@@ -40,27 +43,30 @@ html body .xwui-button.xwui-button-primary:hover:not(:disabled) {
 }
 
 html body .xwui-button.xwui-button-secondary {
+  --text-inverse: var(--xw-tx);
   background: var(--xw-panel2);
   border: 1px solid var(--xw-line2);
-  color: var(--xw-tx) !important;
+  color: var(--xw-tx);
   backdrop-filter: blur(10px);
   box-shadow: none;
 }
 html body .xwui-button.xwui-button-secondary:hover:not(:disabled) { background: var(--xw-panel3); }
 
 html body .xwui-button.xwui-button-outline {
+  --accent-primary: var(--xw-tx);
   border: 1px solid transparent;
   background: linear-gradient(var(--xw-bg2), var(--xw-bg2)) padding-box, var(--xw-grad) border-box;
-  color: var(--xw-tx) !important;
+  color: var(--xw-tx);
 }
 
-html body .xwui-button.xwui-button-ghost { background: transparent; border-color: transparent; color: var(--xw-tx) !important; box-shadow: none; }
+html body .xwui-button.xwui-button-ghost { --xwui-button-ghost-fg: var(--xw-tx); background: transparent; border-color: transparent; color: var(--xw-tx); box-shadow: none; }
 html body .xwui-button.xwui-button-ghost:hover:not(:disabled) { background: var(--xw-panel2); }
 
 html body .xwui-button.xwui-button-danger {
+  --role-danger-fg: #ff99a3;
   background: rgba(255, 92, 108, .12);
   border: 1px solid rgba(255, 92, 108, .45);
-  color: #ff99a3 !important;
+  color: #ff99a3;
   box-shadow: none;
 }
 html body .xwui-button.xwui-button-danger:hover:not(:disabled) { background: rgba(255, 92, 108, .2); }
@@ -120,4 +126,4 @@ html body .xwui-input, html body .xwui-input-text input, html body .xwui-select-
 /* ---------- overlays ---------- */
 .xw-dialog-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 .xw-toaster { position: fixed; z-index: 1000; }
-html body .xwui-button .xwui-button-text { font-weight: 800; }
+

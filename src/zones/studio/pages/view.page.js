@@ -41,7 +41,7 @@ export default {
     const tabs = [...catalog.notations.map((n) => ({ id: n.id, label: n.id === 'editor' ? n.label : n.short })),
       { id: 'all', label: template(C.all, { n: gallery?.items?.length ?? catalog.notations.length }) }];
     scope.mount(XWUINavTabs, tabsHost, { tabs, activeTab: notation }, { variant: 'button', size: 'sm', ariaLabel: C.viewAs, hideContent: true })
-      .onChange?.((id) => {
+      .onChange((id) => {
         const key = id?.id ?? id;
         if (key === notation) return;
         if (key === 'all') ctx.navigate(ctx.href(STUDIO_ROUTES.notations, {}, { flow: flow.id }).slice(1));
@@ -50,7 +50,7 @@ export default {
       });
     const dimHost = h('div', { class: 'studio-tabs view-dim' });
     scope.mount(XWUINavTabs, dimHost, { tabs: [{ id: '2d', label: C.d2 }, { id: '3d', label: C.d3 }], activeTab: notation === '3d' ? '3d' : '2d' }, { variant: 'button', size: 'sm', ariaLabel: C.dimension, hideContent: true })
-      .onChange?.((id) => {
+      .onChange((id) => {
         const key = id?.id ?? id;
         if (key === '3d' && notation !== '3d') ctx.navigate(ctx.href(STUDIO_ROUTES.view, { flowId: flow.id, notation: '3d' }).slice(1));
         if (key === '2d' && notation === '3d') ctx.navigate(ctx.href(STUDIO_ROUTES.view, { flowId: flow.id, notation: 'flowchart' }).slice(1));
@@ -125,7 +125,7 @@ export default {
         };
         const speedHost = h('div', { class: 'studio-tabs' });
         scope.mount(XWUINavTabs, speedHost, { tabs: C.speeds.map((s) => ({ id: String(s), label: `${s}x` })), activeTab: '1' }, { variant: 'button', size: 'sm', ariaLabel: C.speed, hideContent: true })
-          .onChange?.((id) => diagram.setSimSpeed(Number(id?.id ?? id)));
+          .onChange((id) => diagram.setSimSpeed(Number(id?.id ?? id)));
         scope.listen(diagramHost, 'xwf-step', (e) => { renderStats(e.detail.state); if (!e.detail.state.running) renderPlay(); });
         renderPlay();
         renderStats(diagram.data.simState);
@@ -144,7 +144,7 @@ export default {
         const numberField = (label, key, opts) => {
           const host = h('div');
           const input = scope.mountField(XWUIInputNumber, host, { value: camera[key], label }, { size: 'sm', ...opts });
-          input.onChange?.((v) => { camera[key] = Number(v); diagram.setView(camera); });
+          input.onChange((v) => { camera[key] = Number(v); diagram.setView(camera); });
           return h('div', { class: 'view-3d__field' }, host);
         };
         return [h('section', { class: 'glass pad wrapf gap16 view-3d__controls' },

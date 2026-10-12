@@ -46,7 +46,7 @@ export function createPalette({ catalog, copy, onAdd }) {
     ]) : [h('p', { class: 'small ter' }, copy.paletteEmpty)]));
   }
 
-  input.onChange?.((v) => render(v));
+  input.onChange((v) => render(v));
   render();
 
   return {

@@ -47,7 +47,7 @@ export default {
     const renderSend = () => sendHost.replaceChildren(ui.button(A.sendLabel, {
       variant: 'primary', icon: 'send', disabled: !state.text.trim() || state.drafting, loading: state.drafting, onClick: () => draft({ text: state.text }),
     }));
-    textarea.onChange?.((v) => { state.text = v; renderSend(); });
+    textarea.onChange((v) => { state.text = v; renderSend(); });
     renderSend();
 
     const notReady = (name) => ctx.notify.info(template(A.notInPrototype, { name }));
@@ -66,7 +66,7 @@ export default {
     const renderPills = () => pills.replaceChildren(
       ...A.suggestions.map((s) => ui.button(s.label, {
         variant: state.activeSuggestion === s.id ? 'primary' : 'secondary', size: 'sm',
-        onClick: () => { state.activeSuggestion = s.id; renderPills(); textarea.setValue?.(s.label); state.text = s.label; renderSend(); draft({ text: s.label, templateId: s.templateId }); },
+        onClick: () => { state.activeSuggestion = s.id; renderPills(); textarea.setValue(s.label); state.text = s.label; renderSend(); draft({ text: s.label, templateId: s.templateId }); },
       })),
       ui.button(A.seeAll, { variant: 'ghost', size: 'sm', onClick: () => document.getElementById('assistant-recommended')?.scrollIntoView({ behavior: 'smooth' }) }));
     renderPills();
@@ -155,7 +155,7 @@ export default {
         t.steps.map((s) => h('span', { class: 'ico s assistant-reco__dot', style: { '--gc': toneVar(typeIndex[s.type]?.tone) } })),
         h('span', { class: 'xs sec sp' }, template(t.connectionsNeeded ? A.stepsToConnect : A.stepsCount, { n: t.steps.length, c: t.connectionsNeeded })))) }, {
           padding: 'none', clickable: true, ariaLabel: t.name,
-          onClick: () => { textarea.setValue?.(t.name); state.text = t.name; renderSend(); draft({ text: t.name, templateId: t.id }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+          onClick: () => { textarea.setValue(t.name); state.text = t.name; renderSend(); draft({ text: t.name, templateId: t.id }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
         }, { className: `mk assistant-reco__card studio-card${t.top ? ' gb' : ''}` }))));
     }
     renderReco();
@@ -184,7 +184,7 @@ export default {
     const chat = ctx.query.chat ? shell.chats.find((c) => c.id === ctx.query.chat) : null;
     if (chat) {
       const flow = await studioApi.getFlow(chat.flowId);
-      textarea.setValue?.(chat.title);
+      textarea.setValue(chat.title);
       state.text = chat.title;
       state.draft = { name: flow.name, request: chat.title, graph: flow.graph, template: { id: null }, flowId: flow.id };
       renderSend();

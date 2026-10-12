@@ -274,13 +274,13 @@ export default {
             canvas.setNodeStates(nodeStatesFromRun(restored.graph, state.run, catalog, C.nodeStates));
             refreshPanels();
             ctx.notify.success(template(C.restored, { v: v.version }));
-            sheet.close?.();
+            sheet.close();
           } catch (error) { ctx.notify.fromError(error); }
         } }))));
       const sheet = new XWUIOverlaySideSheet(host, { title: C.versionsTitle, content: list, open: true }, { placement: 'end', width: '380px', closable: true });
-      sheet.open?.();
+      sheet.open();
       const cleanup = () => { scope.destroy(); try { sheet.destroy(); } catch { /* gone */ } host.remove(); };
-      sheet.onClose?.(cleanup);
+      sheet.onClose(cleanup);
       page.scope.onDispose(cleanup);
     }
 
@@ -289,7 +289,7 @@ export default {
       const examples = (await studioApi.getEditorAssistant()).examples;
       const host = h('div', { class: 'stack gap12' });
       const inputHost = h('div');
-      host.append(inputHost, h('div', { class: 'wrapf gap8' }, examples.map((ex) => ui.button(ex, { variant: 'ghost', size: 'sm', onClick: () => input.setValue?.(ex) }))));
+      host.append(inputHost, h('div', { class: 'wrapf gap8' }, examples.map((ex) => ui.button(ex, { variant: 'ghost', size: 'sm', onClick: () => input.setValue(ex) }))));
       const input = scope.mountField(XWUIInputText, inputHost, { label: C.askLabel, placeholder: C.askPlaceholder }, { fullWidth: true, leadingIcon: 'sparkles' });
       requestAnimationFrame(() => input.focus?.());
       const choice = await page.ui.dialog({ title: C.askTitle, content: host, actions: [{ id: 'cancel', label: C.cancel, variant: 'ghost' }, { id: 'ask', label: C.askConfirm, variant: 'primary' }], size: 'md' });

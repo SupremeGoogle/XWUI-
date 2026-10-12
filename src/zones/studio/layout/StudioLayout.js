@@ -87,7 +87,7 @@ export class StudioLayout {
         const search = scope.mountField(XWUIInputText, el, { placeholder: nav.searchPlaceholder }, {
           trigger: true, leadingIcon: 'search', shortcut: 'Control+K', fullWidth: true, ariaLabel: nav.searchLabel, size: 'sm',
         });
-        search.onActivate?.(() => this.openSearch());
+        search.onActivate(() => this.openSearch());
       } }),
       createBtn);
 
@@ -96,7 +96,7 @@ export class StudioLayout {
       triggerElement: createBtn.querySelector('button'),
       items: nav.createMenu.map((m) => ({ id: m.id, label: m.label, icon: m.icon })),
     }, { placement: 'bottom', align: 'start' });
-    menu.onItemClick?.((item) => this.onCreate(nav.createMenu.find((m) => m.id === (item?.id ?? item))));
+    menu.onItemClick((item) => this.onCreate(nav.createMenu.find((m) => m.id === (item?.id ?? item))));
     createBtn.remove();
     header.append(menuHost);
 
@@ -201,7 +201,7 @@ export class StudioLayout {
     this.pendingRoute = route;
     if (!this.sidebar) return;
     const navId = studioRouteToNavId(route);
-    this.sidebar.setSelected?.(navId);
+    this.sidebar.setSelected(navId);
   }
 
   destroy() {

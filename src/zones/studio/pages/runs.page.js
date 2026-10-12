@@ -54,9 +54,7 @@ export default {
       chipHost.append(host);
       const chip = page.scope.mount(XWUIDisplayChip, host, { label: C.windowChip }, { closable: true, size: 'sm', className: 'xw-tone-violet studio-chip' });
       const clear = () => { filters.days = null; renderWindowChip(); reload(); };
-      chip.onClose?.(clear);
-      host.addEventListener('close', clear);
-      host.addEventListener('click', (e) => { if (e.target.closest('[class*="close"]')) clear(); });
+      chip.onClose(clear);
     }
 
     const statusOptions = [{ value: 'all', label: C.statusAll }, ...Object.entries(catalog.runStatuses).filter(([id]) => id !== 'succeeded_after_retry').map(([value, item]) => ({ value, label: item.label }))];
@@ -143,7 +141,7 @@ export default {
           ],
           data: result.items,
         }, { selectable: true, hoverable: true });
-        table.onSelect?.((rows) => { selection = rows; renderSelectionBar(); });
+        table.onSelect((rows) => { selection = rows; renderSelectionBar(); });
       }
       tail.textContent = result.page >= result.pages ? C.noMore : '';
       renderSelectionBar();

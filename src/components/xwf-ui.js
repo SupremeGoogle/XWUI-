@@ -18,7 +18,8 @@ import { h, ensureStylesheet } from '../core/dom.js';
 
 export function createXwfKit(owner) {
   ensureStylesheet('xwf-ui-css', new URL('./xwf-ui.css', import.meta.url));
-  // The concrete pill shares the base stylesheet; its own inferred CDN path is absent.
+  // CDN basic.bundle.js does not register a component path for StatusPill.
+  // Its projection uses the shared Status CSS; load that public stylesheet once.
   ensureStylesheet(
     'xwui-css-xwuidisplaystatuspill',
     'https://xwui.dev/styles/components/basic/XWUIDisplayStatus/XWUIDisplayStatus.css',
@@ -67,30 +68,14 @@ export function createXwfKit(owner) {
       el.querySelector('input')?.setAttribute('aria-label', fieldLabel);
       el.querySelector('button')?.setAttribute(
         'aria-label',
-        `${fieldLabel} picker`,
+        fieldLabel,
       );
     };
     labelField();
-    scope.onDispose(el.xw.getInput()?.logic.subscribe(labelField));
-    // The picker forwards a value event; native typing is observed separately.
-    if (onChange) {
-      el.xw.getPicker?.()?.onChange(onChange);
-      scope.listen(el, 'input', () => {
-        onChange(el.xw.getValue?.() ?? el.xw.data.value);
-        labelField();
-      });
-      scope.listen(el, 'change', (event) =>
-        onChange(event.detail?.value ?? el.xw.getValue?.() ?? el.xw.data.value),
-      );
-      const off = el.xw.logic.subscribe(() => {
-        const next = el.xw.data.value;
-        if (next !== value) {
-          value = next;
-          onChange(next);
-        }
-      });
-      scope.onDispose(off);
-    }
+    const observer = new MutationObserver(labelField);
+    observer.observe(el, { childList: true, subtree: true });
+    scope.onDispose(() => observer.disconnect());
+    if (onChange) el.xw.onChange(onChange);
     return el;
   };
   ui.switch = (data, onChange, conf = {}) => {

@@ -153,7 +153,7 @@ export default {
       };
       const tabsHost = h('div', { class: 'studio-tabs' });
       const tabs = detailKit.scope.mount(XWUINavTabs, tabsHost, { tabs: sections.map(({ id, label }) => ({ id, label })), activeTab: initial }, { variant: 'button', size: 'sm', hideContent: true });
-      tabs.onChange?.((id) => showSection(id?.id ?? id));
+      tabs.onChange((id) => showSection(id?.id ?? id));
       const expires = new Date(new Date(run.startedAt).getTime() + RETENTION_DAYS * 864e5).toISOString();
 
       detailHost.replaceChildren(

@@ -222,8 +222,8 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .xwf-website * {
-    animation: none !important;
-    scroll-behavior: auto !important;
+    animation: none ;
+    scroll-behavior: auto ;
   }
 }
 

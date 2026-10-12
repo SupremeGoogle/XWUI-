@@ -93,7 +93,7 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 /* surfaces */
 .glass{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.02));border:1px solid var(--xw-line);border-radius:var(--xw-radius);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 30px 80px -40px rgba(0,0,0,.8)}
 .glass.pad{padding:24px}.glass.pad-s{padding:16px}.glass.pad-l{padding:36px}
-.gb{border:1px solid transparent!important;background:linear-gradient(var(--xw-bg2),var(--xw-bg2)) padding-box,var(--xw-grad) border-box!important}
+.gb{border:1px solid transparent;background:linear-gradient(var(--xw-bg2),var(--xw-bg2)) padding-box,var(--xw-grad) border-box}
 .glow-l{box-shadow:0 0 0 1px rgba(200,255,61,.35),0 20px 80px -20px rgba(200,255,61,.45)}
 .glow-v{box-shadow:0 0 0 1px rgba(155,107,255,.35),0 30px 90px -20px rgba(155,107,255,.55)}
 .sep{height:1px;background:var(--xw-line);border:0;margin:0}
@@ -163,7 +163,7 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 @keyframes dash{to{stroke-dashoffset:-40}}
 @keyframes hover3d{0%,100%{transform:translateZ(var(--z,40px))}50%{transform:translateZ(calc(var(--z,40px) + 18px))}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-@media (prefers-reduced-motion:reduce){.orb,.ring,.cube,.marquee,.flow,.st.run i,.nd3{animation:none!important}}
+@media (prefers-reduced-motion:reduce){.orb,.ring,.cube,.marquee,.flow,.st.run i,.nd3{animation:none}}
 
 /* flow nodes (canvas) */
 .cv{position:relative;overflow:hidden;border-radius:22px;border:1px solid var(--xw-line);background-color:#07070f;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:22px 22px}
@@ -233,3 +233,8 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 .uptime i.w{background:var(--xw-amber)}.uptime i.e{background:var(--xw-red);box-shadow:0 0 10px var(--xw-red)}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--xw-grad);flex:none;box-shadow:0 0 0 2px #05050a,0 0 0 3px rgba(255,255,255,.2)}
 .xwf-route-page { flex: 1 1 auto; width: 100%; min-width: 0; min-height: 0; }
+
+/* Override decorative inline animation styles, including styles injected by the CDN. */
+@media (prefers-reduced-motion: reduce) {
+  html body .xw *, html body .xw *::before, html body .xw *::after { animation: none !important; scroll-behavior: auto; }
+}

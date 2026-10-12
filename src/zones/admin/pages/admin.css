@@ -233,6 +233,7 @@
     flex-basis: 210px;
   }
   .xwf-admin-sidebar {
+    /* CDN sidebar width is inline; this breakpoint needs a narrower rail. */
     width: 210px !important;
   }
   .xwf-admin__outlet {
@@ -254,6 +255,7 @@
     border-inline-end: 0;
   }
   .xwf-admin-sidebar {
+    /* CDN sidebar width is inline; the phone rail spans its container. */
     width: 100% !important;
     min-height: 0;
     max-height: 250px;
@@ -277,7 +279,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .xwf-admin * {
-    animation: none !important;
+    animation: none ;
   }
 }
 
