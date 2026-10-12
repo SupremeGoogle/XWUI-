@@ -6,16 +6,17 @@
 import { XWUIComponent, createXWUIElement } from '@exonware/xwui/basic';
 import { h, ensureStylesheet } from '../../core/dom.js';
 import { createKit } from '../../core/ui.js';
-import { XWF_FLOW_DIAGRAM_EVENTS as EV } from './XWFFlowDiagram.model.js';
+import { XWF_FLOW_DIAGRAM_EVENTS as EV, DIAGRAM_TIMING, DIAGRAM_GEOMETRY as G } from './XWFFlowDiagram.model.js';
 import { createXWFFlowDiagramLogic, deriveSystems, createSimState, stepSim } from './XWFFlowDiagram.logic.js';
+import { serializeSvg } from './renderers/svg.js';
 import { projectXWFFlowDiagramView } from './XWFFlowDiagram.view.js';
 
 ensureStylesheet('xwf-css-xwfflowdiagram', new URL('./XWFFlowDiagram.css', import.meta.url));
 
 let uidCounter = 0;
 /** Simulated minutes per animation tick at 1x speed, and the tick length. */
-const SIM_MINUTES_PER_TICK = 2;
-const SIM_TICK_MS = 300;
+const SIM_MINUTES_PER_TICK = DIAGRAM_TIMING.minutesPerTick;
+const SIM_TICK_MS = DIAGRAM_TIMING.tickMs;
 
 export class XWFFlowDiagram extends XWUIComponent {
   static componentName = 'XWFFlowDiagram';
@@ -64,11 +65,7 @@ export class XWFFlowDiagram extends XWUIComponent {
   toSvgString() {
     const svg = this.container.querySelector('svg.xwf-diagram__svg');
     if (!svg) return null;
-    const copy = svg.cloneNode(true);
-    copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    const css = getComputedStyle(document.documentElement);
-    const resolved = copy.outerHTML.replace(/var\((--[\w-]+)\)/g, (_, v) => css.getPropertyValue(v).trim() || '#888');
-    return `<?xml version="1.0" encoding="UTF-8"?>\n${resolved}`;
+    return serializeSvg(svg);
   }
 
   /* ------------------------------ simulation */
@@ -110,8 +107,8 @@ export class XWFFlowDiagram extends XWUIComponent {
     };
     this.onOrbitMove = (e) => {
       if (!drag) return;
-      const spin = drag.spin + (e.clientX - drag.x) * 0.25;
-      const tilt = Math.max(10, Math.min(80, drag.tilt - (e.clientY - drag.y) * 0.2));
+      const spin = drag.spin + (e.clientX - drag.x) * G.orbit.spinFactor;
+      const tilt = Math.max(G.orbit.minTilt, Math.min(G.orbit.maxTilt, drag.tilt - (e.clientY - drag.y) * G.orbit.tiltFactor));
       const plane = this.container.querySelector('.xwf-3d__plane');
       if (plane) plane.style.transform = `rotateX(${tilt}deg) rotateZ(${spin}deg)`;
       drag.next = { tilt, spin };

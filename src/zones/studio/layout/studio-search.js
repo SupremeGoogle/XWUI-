@@ -1,3 +1,4 @@
+import { STUDIO_ROUTES } from '../studio.routes.js';
 /**
  * Ctrl K search: an XWUIOverlayDialog with an XWUIInputText that finds flows and runs
  * through the studio API and jumps to them.
@@ -48,8 +49,8 @@ export async function openStudioSearch(ctx) {
       ]);
       if (disposed || current !== token) return;
       const rows = [
-        ...flows.items.map((f) => ({ kind: STUDIO_SEARCH.flowKind, label: f.name, hint: f.folder, icon: 'workflow', route: `/studio/flows/${f.id}` })),
-        ...runs.items.map((r) => ({ kind: STUDIO_SEARCH.runKind, label: `${r.flowName}`, hint: r.shortId, icon: 'history', route: `/studio/runs/${r.id}` })),
+        ...flows.items.map((f) => ({ kind: STUDIO_SEARCH.flowKind, label: f.name, hint: f.folder, icon: 'workflow', route: ctx.href(STUDIO_ROUTES.editor, { flowId: f.id }).slice(1) })),
+        ...runs.items.map((r) => ({ kind: STUDIO_SEARCH.runKind, label: `${r.flowName}`, hint: r.shortId, icon: 'history', route: ctx.href(STUDIO_ROUTES.run, { runId: r.id }).slice(1) })),
       ];
       results.replaceChildren(...(rows.length ? rows.map((r) => {
         const row = ui.button(r.label, { variant: 'ghost', icon: r.icon, fullWidth: true, className: 'studio-search__row', onClick: () => go(r.route) });

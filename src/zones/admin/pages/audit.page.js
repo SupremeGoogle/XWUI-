@@ -1,3 +1,4 @@
+import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { XWUITable } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import {
@@ -10,7 +11,7 @@ import {
 
 export default {
   id: 'admin-audit',
-  path: '/admin/audit',
+  path: ADMIN_ROUTES.audit,
   layout: 'admin',
   title: 'Audit',
   async mount(el, ctx) {

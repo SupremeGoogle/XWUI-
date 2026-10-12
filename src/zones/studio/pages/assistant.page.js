@@ -118,10 +118,10 @@ export default {
     }
 
     async function openDraft() {
-      if (state.draft.flowId) { ctx.navigate(`/studio/flows/${state.draft.flowId}`); return; }
+      if (state.draft.flowId) { ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: state.draft.flowId }).slice(1)); return; }
       try {
         const { id } = await studioApi.createFlow({ templateId: state.draft.template.id, name: state.draft.name });
-        ctx.navigate(`/studio/flows/${id}`);
+        ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: id }).slice(1));
       } catch (error) { ctx.notify.fromError(error); }
     }
 

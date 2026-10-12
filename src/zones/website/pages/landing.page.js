@@ -1,3 +1,4 @@
+import { WEBSITE_ROUTES } from '../../../core/routes.js';
 import { XWUIProgressBar, XWUIDisplayKbd } from '@exonware/xwui/basic';
 import { h, ensureStylesheet } from '../../../core/dom.js';
 import {
@@ -11,7 +12,7 @@ import { HERO_ZOOM } from '../../../components/XWFHeroScene/XWFHeroScene.model.j
 
 export default {
   id: 'landing',
-  path: '/',
+  path: WEBSITE_ROUTES.home,
   layout: 'website',
   title: 'xwflow',
   async mount(el, ctx) {

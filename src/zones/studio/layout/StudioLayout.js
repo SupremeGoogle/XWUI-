@@ -1,3 +1,4 @@
+import { STUDIO_ROUTES } from '../studio.routes.js';
 /**
  * Studio shell: XWUINavSidebar rail (brand, search, create, nav, chats, usage meter)
  * plus a top bar whose breadcrumbs and actions each page sets through setTopbar().
@@ -111,11 +112,11 @@ export class StudioLayout {
     const items = [
       ...nav.primary.map((i) => ({ id: i.id, label: i.label, icon: i.icon, href: this.ctx.href(i.route), badge: i.badge?.label })),
       { id: 'grp_project', label: nav.projectGroup },
-      { id: 'project', label: project.name, icon: 'folder', href: this.ctx.href('/studio/flows') },
+      { id: 'project', label: project.name, icon: 'folder', href: this.ctx.href(STUDIO_ROUTES.flows) },
       { id: 'grp_chats', label: nav.chatsGroup },
-      ...chats.map((c) => ({ id: `chat_${c.id}`, label: c.title, icon: 'message', href: this.ctx.href('/studio', {}, { chat: c.id }), badge: c.waiting ? c.waitingLabel : undefined })),
+      ...chats.map((c) => ({ id: `chat_${c.id}`, label: c.title, icon: 'message', href: this.ctx.href(STUDIO_ROUTES.assistant, {}, { chat: c.id }), badge: c.waiting ? c.waitingLabel : undefined })),
       { id: 'spacer', label: '' },
-      ...nav.footer.map((i) => ({ id: i.id, label: i.label, icon: i.icon, href: i.route ? this.ctx.href(i.route) : this.ctx.href('/studio', {}, { soon: i.id }) })),
+      ...nav.footer.map((i) => ({ id: i.id, label: i.label, icon: i.icon, href: i.route ? this.ctx.href(i.route) : this.ctx.href(STUDIO_ROUTES.assistant, {}, { soon: i.id }) })),
     ];
 
     this.sidebar = scope.mount(XWUINavSidebar, this.sidebarHost, { header, footer, items, selected: '' }, {
@@ -156,7 +157,7 @@ export class StudioLayout {
     }
     try {
       const { id } = await this.ctx.api.studioApi.createFlow({});
-      this.ctx.navigate(`/studio/flows/${id}`);
+      this.ctx.navigate(this.ctx.href(STUDIO_ROUTES.editor, { flowId: id }).slice(1));
     } catch (error) {
       this.ctx.notify.fromError(error);
     }

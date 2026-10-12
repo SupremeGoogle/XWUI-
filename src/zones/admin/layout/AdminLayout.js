@@ -1,3 +1,4 @@
+import { WEBSITE_ROUTES } from '../../../core/routes.js';
 import { XWUINavSidebar } from '@exonware/xwui/basic';
 import { h, ensureStylesheet } from '../../../core/dom.js';
 import {
@@ -101,7 +102,7 @@ export class AdminLayout {
         'div',
         { class: 'crumb' },
         h('span', {}, group),
-        h('span', {}, '/'),
+        h('span', {}, WEBSITE_ROUTES.home),
         h('b', {}, item?.label ?? route.page.title),
       ),
       h(

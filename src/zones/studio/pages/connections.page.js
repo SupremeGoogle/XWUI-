@@ -149,7 +149,7 @@ export default {
       h('section', { class: 'glass wrapf gap24 connections__vault' },
         h('div', { class: 'connections__vault-orb', 'aria-hidden': 'true' },
           h('div', { class: 'orb', style: { '--oc': 'var(--xw-lime)', width: '96px', height: '96px', left: '0', top: '0' } }),
-          h('span', { class: 'connections__vault-icon' }, ui.icon('lock', { size: 'lg', color: '#0a0a0a' }))),
+          h('span', { class: 'connections__vault-icon' }, ui.icon('lock', { size: 'lg', color: 'var(--xw-ink)' }))),
         h('div', { class: 'stack gap4 connections__vault-text' }, h('h2', { class: 'h3' }, C.vaultTitle), h('p', { class: 'sec' }, C.vaultBody)),
         ui.button(C.addConnection, { variant: 'primary', icon: 'plus', onClick: addConnection })),
       h('div', { class: 'studio-filters' },

@@ -39,7 +39,7 @@ export default {
       try {
         const { id } = await studioApi.createFlow({});
         ctx.notify.success(C.created);
-        ctx.navigate(`/studio/flows/${id}`);
+        ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: id }).slice(1));
       } catch (error) { ctx.notify.fromError(error); }
     };
 
@@ -75,11 +75,11 @@ export default {
 
     async function runAction(action, row) {
       try {
-        if (action === 'open') ctx.navigate(`/studio/flows/${row.id}`);
+        if (action === 'open') ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: row.id }).slice(1));
         if (action === 'runs') ctx.navigate(ctx.href(STUDIO_ROUTES.runs, {}, { flow: row.id }).slice(1));
         if (action === 'run') {
           const { id } = await studioApi.startRun(row.id, { mode: row.statusKey === 'draft' ? 'test' : 'production' });
-          ctx.notify.success(template(C.runStarted, { name: row.name }), { action: { label: STUDIO_COPY.run.crumbsRuns, onClick: () => ctx.navigate(`/studio/runs/${id}`) } });
+          ctx.notify.success(template(C.runStarted, { name: row.name }), { action: { label: STUDIO_COPY.run.crumbsRuns, onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.run, { runId: id }).slice(1)) } });
           reload();
         }
         if (action === 'duplicate') {
@@ -107,7 +107,7 @@ export default {
       const status = catalog.runStatuses[row.lastRun.status];
       const when = formatRelative(row.lastRun.startedAt);
       const label = row.lastRun.status === 'failed' ? template(C.lastRunFailed, { when }) : row.lastRun.status === 'running' ? status.label : when;
-      return h('a', { href: `#/studio/runs/${row.lastRun.id}`, class: 'studio-cell-link' }, statusEl(tableKit.scope, label, status.st));
+      return h('a', { href: ctx.href(STUDIO_ROUTES.run, { runId: row.lastRun.id }), class: 'studio-cell-link' }, statusEl(tableKit.scope, label, status.st));
     }
 
     function render(result) {
@@ -128,7 +128,7 @@ export default {
         tableHost.append(host);
         tableKit.scope.mount(XWUITable, host, {
           columns: [
-            { key: 'name', title: C.columns.name, render: (_v, r) => h('div', {}, h('a', { class: 'studio-flow-link', href: `#/studio/flows/${r.id}` }, r.name), h('div', { class: 'xs sec' }, r.folder)) },
+            { key: 'name', title: C.columns.name, render: (_v, r) => h('div', {}, h('a', { class: 'studio-flow-link', href: ctx.href(STUDIO_ROUTES.editor, { flowId: r.id }) }, r.name), h('div', { class: 'xs sec' }, r.folder)) },
             { key: 'chain', title: C.columns.steps, render: (v) => chainEl(v, STUDIO_COPY) },
             { key: 'statusKey', title: C.columns.status, render: (_v, r) => statusEl(tableKit.scope, r.status.label, r.status.st) },
             { key: 'lastRun', title: C.columns.lastRun, render: (_v, r) => lastRunCell(r) },

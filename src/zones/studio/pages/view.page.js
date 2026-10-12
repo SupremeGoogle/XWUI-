@@ -30,7 +30,7 @@ export default {
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.views;
     const notationInfo = catalog.notations.find((n) => n.id === notation);
-    if (!notationInfo || notation === 'editor') { ctx.navigate(`/studio/flows/${flow.id}`, { replace: true }); return { unmount() {} }; }
+    if (!notationInfo || notation === 'editor') { ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: flow.id }).slice(1), { replace: true }); return { unmount() {} }; }
     ctx.setTitle(`${flow.name}: ${notationInfo.label}`);
     const typeIndex = Object.fromEntries(catalog.nodeTypes.map((t) => [t.id, t]));
     const run = flow.lastRun;
@@ -45,15 +45,15 @@ export default {
         const key = id?.id ?? id;
         if (key === notation) return;
         if (key === 'all') ctx.navigate(ctx.href(STUDIO_ROUTES.notations, {}, { flow: flow.id }).slice(1));
-        else if (key === 'editor') ctx.navigate(`/studio/flows/${flow.id}`);
-        else ctx.navigate(`/studio/flows/${flow.id}/view/${key}`);
+        else if (key === 'editor') ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: flow.id }).slice(1));
+        else ctx.navigate(ctx.href(STUDIO_ROUTES.view, { flowId: flow.id, notation: key }).slice(1));
       });
     const dimHost = h('div', { class: 'studio-tabs view-dim' });
     scope.mount(XWUINavTabs, dimHost, { tabs: [{ id: '2d', label: C.d2 }, { id: '3d', label: C.d3 }], activeTab: notation === '3d' ? '3d' : '2d' }, { variant: 'button', size: 'sm', ariaLabel: C.dimension, hideContent: true })
       .onChange?.((id) => {
         const key = id?.id ?? id;
-        if (key === '3d' && notation !== '3d') ctx.navigate(`/studio/flows/${flow.id}/view/3d`);
-        if (key === '2d' && notation === '3d') ctx.navigate(`/studio/flows/${flow.id}/view/flowchart`);
+        if (key === '3d' && notation !== '3d') ctx.navigate(ctx.href(STUDIO_ROUTES.view, { flowId: flow.id, notation: '3d' }).slice(1));
+        if (key === '2d' && notation === '3d') ctx.navigate(ctx.href(STUDIO_ROUTES.view, { flowId: flow.id, notation: 'flowchart' }).slice(1));
       });
 
     const crumbs = h('div', { class: 'crumb' }, h('a', { href: ctx.href(STUDIO_ROUTES.flows) }, shell.project.name), h('span', {}, '/'), h('a', { href: ctx.href(STUDIO_ROUTES.editor, { flowId: flow.id }) }, h('b', {}, flow.name)));
@@ -61,7 +61,7 @@ export default {
 
     const diagramHost = h('div', { class: 'view-diagram' });
     const header = h('header', { class: 'glass rowf gap12 view-header' },
-      ui.button('', { variant: 'ghost', icon: 'arrow-left', ariaLabel: C.back, title: C.back, onClick: () => ctx.navigate('/studio/flows') }),
+      ui.button('', { variant: 'ghost', icon: 'arrow-left', ariaLabel: C.back, title: C.back, onClick: () => ctx.navigate(STUDIO_ROUTES.flows) }),
       h('span', { class: 'mark view-header__mark', 'aria-hidden': 'true' }),
       crumbs, status, tabsHost,
       h('div', { class: 'rowf gap8 sp' }, dimHost, ui.button(C.export, { variant: 'secondary', size: 'sm', icon: 'download', onClick: exportDiagram })));
@@ -106,7 +106,7 @@ export default {
       sequence: () => [h('div', { class: 'view-note wrapf gap16' },
         ui.tag(C.sequenceTag, 'default', { className: 'xw-tone-violet' }),
         h('span', { class: 'small sec' }, C.sequenceBody),
-        run && ui.button(C.openReceipt, { variant: 'secondary', size: 'sm', className: 'sp', onClick: () => ctx.navigate(`/studio/runs/${run.id}`) }))],
+        run && ui.button(C.openReceipt, { variant: 'secondary', size: 'sm', className: 'sp', onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.run, { runId: run.id }).slice(1)) }))],
       sim: () => {
         const clock = h('span', { class: 'mono small view-sim__clock' });
         const stats = h('div', { class: 'wrapf gap16 view-sim__stats' });

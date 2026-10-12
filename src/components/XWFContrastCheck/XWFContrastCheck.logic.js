@@ -31,7 +31,7 @@ export function deriveContrastRows(kit, content) {
   return [
     [content.dark, kit.buttonText, kit.primary],
     [content.primary, kit.primary, kit.background],
-    [content.white, r.white, kit.primary],
+    [content.white, content.whiteColor, kit.primary],
     [content.body, kit.text, kit.background],
   ].map(([label, a, b]) => {
     const ratio = contrastRatio(a, b);

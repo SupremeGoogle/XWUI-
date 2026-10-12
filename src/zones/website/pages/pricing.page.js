@@ -1,3 +1,4 @@
+import { WEBSITE_ROUTES } from '../../../core/routes.js';
 import { XWUITable, XWUIAccordion } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { pageSession, assetImage } from '../../../components/xwf-ui.js';
@@ -5,7 +6,7 @@ import { XWFPricingTiers } from '../../../components/XWFPricingTiers/XWFPricingT
 
 export default {
   id: 'pricing',
-  path: '/pricing',
+  path: WEBSITE_ROUTES.pricing,
   layout: 'website',
   title: 'Pricing',
   async mount(el, ctx) {

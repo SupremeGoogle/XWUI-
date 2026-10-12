@@ -180,6 +180,7 @@ export const STUDIO_COPY = {
     resetView: 'Reset view',
     notInPrototype: '{name} is not part of this prototype yet.',
     diagram: {
+      engineName: 'xwflow', secondsUnit: 's',
       start: 'Start', end: 'End', yes: 'Yes', no: 'No', unsure: 'Unsure', case_1: 'Case 1', case_2: 'Case 2', default: 'Default', found: 'Found?', tryWord: 'try', wait: 'Wait', thenRetry: 'then retry',
       tryAgain: 'try again', step: 'step', disabled: 'disabled, skipped', unavailable: 'unavailable',
       handoff: 'hand-off', automation: 'Automation', blackBox: 'black-box pool', message: 'order message',

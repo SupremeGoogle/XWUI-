@@ -29,3 +29,8 @@
 .xwf-3d__node .ico.s { color: var(--xw-ink); }
 .xwf-3d__node .ico.s svg { width: 16px; height: 16px; }
 @media (prefers-reduced-motion: reduce) { .xwf-3d__plane { transition: none; } }
+
+/* Each element binds a semantic theme token to the appropriate SVG paint. */
+.xwf-dg__fill { fill: var(--xwf-dg-paint-fill); }
+.xwf-dg__stroke { stroke: var(--xwf-dg-paint-stroke); }
+.xwf-dg__stop-color { stop-color: var(--xwf-dg-paint-stop-color); }

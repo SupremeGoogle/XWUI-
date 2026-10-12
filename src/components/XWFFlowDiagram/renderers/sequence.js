@@ -3,13 +3,12 @@
  * (failed replies red), waits as self-messages, an `alt` fragment for each condition, and
  * numbered receipt dots that link back to ledger rows.
  */
-import { h } from '../../../core/dom.js';
+import { diagramElement as h, paint } from './svg.js';
+import { DIAGRAM_GEOMETRY as G } from '../XWFFlowDiagram.model.js';
 import { deriveSequence } from '../XWFFlowDiagram.logic.js';
 import { defs, marker, svgRoot, MUTED } from './svg.js';
 
-const LANE_GAP = 250;
-const HEAD = { w: 180, h: 54 };
-const ROW = 46;
+const { laneGap: LANE_GAP, head: HEAD, row: ROW } = G.sequence;
 
 const toneVar = (tone) => `var(--xw-${tone})`;
 const DOT_TONES = ['lime', 'red', 'cyan', 'orange', 'pink', 'violet', 'amber', 'green'];
@@ -35,13 +34,13 @@ export function renderSequence({ flow, types, run, labels, uid, systemsModel, on
   const height = bottom + 20;
 
   const out = [];
-  out.push(h('rect', { x: 20, y: 88, width: 70, height: bottom - 88, rx: 14, fill: 'rgba(255,255,255,.025)' }),
+  out.push(h('rect', { x: 20, y: 88, width: 70, height: bottom - 88, rx: 14, fill: paint('receipt-surface') }),
     h('text', { x: 55, y: 110, 'text-anchor': 'middle', 'font-size': '10', fill: MUTED }, labels.receipt));
-  out.push(h('g', { stroke: '#4a4a66', 'stroke-width': '1.6', 'stroke-dasharray': '6 6' },
+  out.push(h('g', { stroke: paint('lifeline'), 'stroke-width': '1.6', 'stroke-dasharray': '6 6' },
     systems.map((s) => h('path', { d: `M${x.get(s.id)} 72 V${bottom}` }))));
   systems.forEach((s) => out.push(
     h('rect', { x: x.get(s.id) - HEAD.w / 2, y: 18, width: HEAD.w, height: HEAD.h, rx: 14, fill: toneVar(s.tone) }),
-    h('text', { x: x.get(s.id), y: 51, 'text-anchor': 'middle', 'font-size': '16', fill: s.tone === 'violet' ? '#fff' : '#0a0a0a' }, s.label)));
+    h('text', { x: x.get(s.id), y: 51, 'text-anchor': 'middle', 'font-size': '16', fill: s.tone === 'violet' ? paint('white') : paint('ink') }, s.label)));
   const engine = systemsModel.engineId;
   const engineSys = systems.find((s) => s.id === engine);
   out.push(h('rect', { x: x.get(engine) - 8, y: top - 10, width: 16, height: bottom - top - 20, rx: 4, fill: toneVar(engineSys?.tone ?? 'violet'), opacity: '.75' }));
@@ -49,9 +48,9 @@ export function renderSequence({ flow, types, run, labels, uid, systemsModel, on
   fragments.forEach((f) => {
     const y1 = rowY(f.from) - 40; const y2 = rowY(f.to) + 22;
     const fx = x.get(engine) - 70; const fw = width - fx - 60;
-    out.push(h('rect', { x: fx, y: y1, width: fw, height: y2 - y1, rx: 6, fill: 'rgba(200,255,61,.04)', stroke: 'var(--xw-lime)', 'stroke-width': '1.8' }),
+    out.push(h('rect', { x: fx, y: y1, width: fw, height: y2 - y1, rx: 6, fill: paint('branch-surface'), stroke: 'var(--xw-lime)', 'stroke-width': '1.8' }),
       h('path', { d: `M${fx} ${y1} h56 v16 l-10 10 h-46 z`, fill: 'var(--xw-lime)' }),
-      h('text', { x: fx + 24, y: y1 + 18, 'text-anchor': 'middle', 'font-size': '13', fill: '#0a0a0a' }, labels.alt),
+      h('text', { x: fx + 24, y: y1 + 18, 'text-anchor': 'middle', 'font-size': '13', fill: paint('ink') }, labels.alt),
       h('text', { x: fx + 70, y: y1 + 18, 'font-size': '13', fill: 'var(--xw-lime)' }, `[${f.guard}]`));
     for (const separator of f.separators) {
       const ey = rowY(separator.at) - 30;
@@ -66,23 +65,23 @@ export function renderSequence({ flow, types, run, labels, uid, systemsModel, on
     const x1 = x.get(m.from); const x2 = x.get(m.to);
     const mid = (x1 + x2) / 2;
     if (m.kind === 'self' || m.kind === 'wait') {
-      const color = m.kind === 'wait' ? '#ffc53d' : '#e8e8f5';
+      const color = m.kind === 'wait' ? paint('amber') : paint('message');
       out.push(h('path', { d: `M${x1 + 8} ${y} H${x1 + 70} V${y + 30} H${x1 + 12}`, stroke: color, 'stroke-width': '2', fill: 'none', 'marker-end': marker(uid, m.kind === 'wait' ? 'arrow-amber' : 'arrow') }),
-        h('text', { x: x1 + 80, y: y + 20, 'font-size': '13', fill: m.kind === 'wait' ? '#ffd77a' : '#e8e8f5' }, m.label));
+        h('text', { x: x1 + 80, y: y + 20, 'font-size': '13', fill: m.kind === 'wait' ? paint('warning-text') : paint('message') }, m.label));
     } else if (m.skipped) {
       out.push(h('text', { x: mid, y: y + 4, 'text-anchor': 'middle', 'font-size': '13', fill: MUTED }, `${m.label}: ${m.reason === 'disabled' ? labels.skipped : labels.notRun}`));
     } else {
-      const color = m.kind === 'error' ? '#ff5c6c' : m.kind === 'reply' ? (m.label.startsWith('2') ? '#3dffa2' : '#a9a9c2') : '#e8e8f5';
+      const color = m.kind === 'error' ? paint('red') : m.kind === 'reply' ? (m.label.startsWith('2') ? paint('green') : paint('secondary')) : paint('message');
       const dir = x2 > x1 ? 1 : -1;
-      out.push(h('path', { d: `M${x1 + 8 * dir} ${y} H${x2 - 10 * dir}`, stroke: color, 'stroke-width': '2', 'stroke-dasharray': m.kind === 'call' ? null : '7 5', 'marker-end': marker(uid, m.kind === 'error' ? 'arrow-red' : m.kind === 'reply' && color === '#3dffa2' ? 'arrow-green' : m.kind === 'call' ? 'arrow' : 'arrow-muted') }),
-        h('text', { x: mid, y: y - 9, 'text-anchor': 'middle', 'font-size': '14', fill: m.kind === 'error' ? '#ff8e9a' : color === '#3dffa2' ? '#3dffa2' : m.kind === 'reply' ? '#a9a9c2' : '#e8e8f5' }, m.label));
+      out.push(h('path', { d: `M${x1 + 8 * dir} ${y} H${x2 - 10 * dir}`, stroke: color, 'stroke-width': '2', 'stroke-dasharray': m.kind === 'call' ? null : '7 5', 'marker-end': marker(uid, m.kind === 'error' ? 'arrow-red' : m.kind === 'reply' && color === paint('green') ? 'arrow-green' : m.kind === 'call' ? 'arrow' : 'arrow-muted') }),
+        h('text', { x: mid, y: y - 9, 'text-anchor': 'middle', 'font-size': '14', fill: m.kind === 'error' ? paint('error-text') : color === paint('green') ? paint('green') : m.kind === 'reply' ? paint('secondary') : paint('message') }, m.label));
     }
     if (m.ledgerIndex) {
       const tone = m.kind === 'error' ? 'red' : DOT_TONES[dot % DOT_TONES.length];
       dot += 1;
       out.push(h('g', { class: 'xwf-seq-dot', role: 'button', tabindex: '0', 'aria-label': `${labels.ledgerRow} ${m.ledgerIndex}`, onClick: () => onLedger?.(m.ledgerIndex), onKeydown: (e) => { if (e.key === 'Enter') onLedger?.(m.ledgerIndex); } },
         h('circle', { cx: 55, cy: y, r: 13, fill: toneVar(tone) }),
-        h('text', { x: 55, y: y + 4, 'text-anchor': 'middle', 'font-size': '12', 'font-family': 'JetBrains Mono', fill: tone === 'violet' ? '#fff' : '#0a0a0a' }, String(dot))));
+        h('text', { x: 55, y: y + 4, 'text-anchor': 'middle', 'font-size': '12', 'font-family': 'JetBrains Mono', fill: tone === 'violet' ? paint('white') : paint('ink') }, String(dot))));
     }
   });
 

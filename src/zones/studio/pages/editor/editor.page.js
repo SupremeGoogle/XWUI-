@@ -204,7 +204,7 @@ export default {
             refreshPanels({ inspector: false });
             const status = catalog.runStatuses[run.status];
             ctx.notify[run.status === 'failed' ? 'error' : 'success'](template(C.runFinished, { status: status.label.toLowerCase() }), {
-              action: { label: C.openReceipt, onClick: () => ctx.navigate(`/studio/runs/${run.id}`) },
+              action: { label: C.openReceipt, onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.run, { runId: run.id }).slice(1)) },
             });
           } catch (error) {
             state.running = false;

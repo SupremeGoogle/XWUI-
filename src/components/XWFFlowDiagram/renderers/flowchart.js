@@ -2,13 +2,12 @@
  * Classic flowchart (ISO 5807): Start/End terminals, input for the trigger, process boxes,
  * decisions, predefined process, document; a retrying step gets its retry loop drawn.
  */
-import { h } from '../../../core/dom.js';
+import { diagramElement as h, paint } from './svg.js';
+import { DIAGRAM_GEOMETRY as G } from '../XWFFlowDiagram.model.js';
 import { layoutColumns } from '../XWFFlowDiagram.logic.js';
 import { defs, fill, marker, label, svgRoot, inkFor, LINE, MUTED } from './svg.js';
 
-const COL = 230;
-const ROW = 190;
-const BOX = { w: 170, h: 70 };
+const { column: COL, row: ROW, box: BOX } = G.flowchart;
 
 const SHAPES = {
   terminal: ({ x, y, w, h: hh, fill: f, dx = 0, dy = 0, opacity }) => h('rect', { x: x + dx, y: y + dy, width: w, height: hh, rx: hh / 2, fill: f, opacity }),
@@ -27,12 +26,12 @@ const SHAPE_OF = { terminal: 'io', io: 'predefined', process: 'process', decisio
 
 function drawShape(uid, shape, box, tone, { faded = false } = {}) {
   const fn = SHAPES[shape] ?? SHAPES.process;
-  const parts = [fn({ ...box, dx: 6, dy: 6, fill: '#000', opacity: '.5' }), fn({ ...box, fill: faded ? '#2a2a40' : fill(uid, tone) })];
+  const parts = [fn({ ...box, dx: 6, dy: 6, fill: paint('shadow'), opacity: '.5' }), fn({ ...box, fill: faded ? paint('disabled-surface') : fill(uid, tone) })];
   if (shape === 'predefined') {
-    parts.push(h('line', { x1: box.x + 16, y1: box.y, x2: box.x + 16, y2: box.y + box.h, stroke: '#0a0a0a', 'stroke-width': '2' }));
-    parts.push(h('line', { x1: box.x + box.w - 16, y1: box.y, x2: box.x + box.w - 16, y2: box.y + box.h, stroke: '#0a0a0a', 'stroke-width': '2' }));
+    parts.push(h('line', { x1: box.x + 16, y1: box.y, x2: box.x + 16, y2: box.y + box.h, stroke: paint('ink'), 'stroke-width': '2' }));
+    parts.push(h('line', { x1: box.x + box.w - 16, y1: box.y, x2: box.x + box.w - 16, y2: box.y + box.h, stroke: paint('ink'), 'stroke-width': '2' }));
   }
-  if (!faded && shape !== 'decision') parts.push(h('rect', { x: box.x + 10, y: box.y + 5, width: box.w - 20, height: 16, rx: 8, fill: '#fff', opacity: '.22' }));
+  if (!faded && shape !== 'decision') parts.push(h('rect', { x: box.x + 10, y: box.y + 5, width: box.w - 20, height: 16, rx: 8, fill: paint('white'), opacity: '.22' }));
   return h('g', {}, parts);
 }
 
@@ -69,10 +68,10 @@ export function renderFlowchart({ flow, types, labels, uid, thumbnail }) {
         const dbox = { x: dx, y, w: BOX.w, h: BOX.h };
         out.push(drawShape(uid, 'decision', dbox, 'orange'), label(dx + BOX.w / 2, y + 35, [labels.found, `${labels.tryWord} <= ${s.type.retry.tries}`], { size: 14, sub: 11 }));
         const wbox = { x: dx - 10, y: y + 220, w: 150, h: 56 };
-        out.push(drawShape(uid, 'process', wbox, 'amber'), label(wbox.x + 75, wbox.y + 28, [`${labels.wait} ${s.type.retry.delayMs / 1000} s`, labels.thenRetry], { size: 14 }));
+        out.push(drawShape(uid, 'process', wbox, 'amber'), label(wbox.x + 75, wbox.y + 28, [`${labels.wait} ${s.type.retry.delayMs / 1000} ${labels.secondsUnit}`, labels.thenRetry], { size: 14 }));
         edges.push({ d: `M${x + BOX.w} ${y + 35} H${dx + 18}`, tone: 'arrow' });
-        edges.push({ d: `M${dx + BOX.w / 2} ${y + 95} V${wbox.y - 4}`, tone: 'arrow', text: labels.no, at: [dx + BOX.w / 2 + 16, y + 150], color: '#ff8e9a' });
-        edges.push({ d: `M${wbox.x} ${wbox.y + 28} H${x + BOX.w / 2} V${y + BOX.h + 6}`, tone: 'arrow', text: labels.tryAgain, at: [x + BOX.w / 2 + 20, wbox.y + 20], color: '#ffd77a' });
+        edges.push({ d: `M${dx + BOX.w / 2} ${y + 95} V${wbox.y - 4}`, tone: 'arrow', text: labels.no, at: [dx + BOX.w / 2 + 16, y + 150], color: paint('error-text') });
+        edges.push({ d: `M${wbox.x} ${wbox.y + 28} H${x + BOX.w / 2} V${y + BOX.h + 6}`, tone: 'arrow', text: labels.tryAgain, at: [x + BOX.w / 2 + 20, wbox.y + 20], color: paint('warning-text') });
         pos.get(s.node.id).exit = { x: dx + BOX.w / 2 + 66, y: y + 35, yesLabel: true };
       }
       if (s.node.disabled === false && !faded && !thumbnail && s.col > 0) {
@@ -96,7 +95,7 @@ export function renderFlowchart({ flow, types, labels, uid, thumbnail }) {
     else if (e.port === 'no' && a.shape === 'decision') d = `M${a.box.x + BOX.w / 2} ${a.box.y + 95} V${by} H${bx - 6}`;
     else d = Math.abs(ay - by) < 2 ? `M${ax} ${ay} H${bx - 6}` : `M${ax} ${ay} H${(ax + bx) / 2} V${by} H${bx - 6}`;
     const port = e.port !== 'out' ? e.port : null;
-    edges.push({ d, faded: b.step.node.disabled, text: port ? labels[port] ?? port : (a.exit?.yesLabel ? labels.yes : null), at: port ? [a.box.x + BOX.w / 2 + 14, port === 'yes' ? a.box.y - 40 : a.box.y + 130] : [ax + 10, ay - 10], color: port === 'no' ? '#ff8e9a' : 'var(--xw-lime)' });
+    edges.push({ d, faded: b.step.node.disabled, text: port ? labels[port] ?? port : (a.exit?.yesLabel ? labels.yes : null), at: port ? [a.box.x + BOX.w / 2 + 14, port === 'yes' ? a.box.y - 40 : a.box.y + 130] : [ax + 10, ay - 10], color: port === 'no' ? paint('error-text') : 'var(--xw-lime)' });
   });
   // End terminal after the last column
   const sinks = flow.graph.nodes.filter((n) => !flow.graph.edges.some((e) => e.from === n.id) && pos.get(n.id));

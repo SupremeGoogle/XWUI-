@@ -79,7 +79,7 @@ export default {
         actions: [
           page.ui.button(C.compare, { variant: 'secondary', size: 'sm', icon: 'git-compare', onClick: compare }),
           page.ui.button(C.export, { variant: 'secondary', size: 'sm', icon: 'download', onClick: exportReceipt }),
-          page.ui.button(C.showOnCanvas, { variant: 'outline', size: 'sm', onClick: () => ctx.navigate(`/studio/flows/${run.flowId}?run=${run.id}`) }),
+          page.ui.button(C.showOnCanvas, { variant: 'outline', size: 'sm', onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: run.flowId }, { run: run.id }).slice(1)) }),
         ],
       });
     }
@@ -124,7 +124,7 @@ export default {
       try {
         const { id } = await studioApi.retryFromStep(run.id, row.nodeId);
         ctx.notify.success(template(C.retryStarted, { step: row.stepName }));
-        ctx.navigate(`/studio/runs/${id}`);
+        ctx.navigate(ctx.href(STUDIO_ROUTES.run, { runId: id }).slice(1));
       } catch (error) { ctx.notify.fromError(error); }
     }
 
@@ -164,7 +164,7 @@ export default {
         h('p', { class: 'xs sec' }, C.credentialsNote),
         h('div', { class: 'wrapf gap8' },
           detailKit.ui.button(C.retryFromStep, { variant: 'primary', size: 'sm', icon: 'refresh', disabled: run.status === 'running', onClick: () => retryFrom(row) }),
-          detailKit.ui.button(C.openStep, { variant: 'secondary', size: 'sm', onClick: () => ctx.navigate(`/studio/flows/${run.flowId}?node=${row.nodeId}`) })));
+          detailKit.ui.button(C.openStep, { variant: 'secondary', size: 'sm', onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: run.flowId }, { node: row.nodeId }).slice(1)) })));
       showSection(initial);
     }
 

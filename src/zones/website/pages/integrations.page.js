@@ -1,3 +1,4 @@
+import { WEBSITE_ROUTES } from '../../../core/routes.js';
 import { h } from '../../../core/dom.js';
 import {
   pageSession,
@@ -9,7 +10,7 @@ import { XWFIntegrationCard } from '../../../components/XWFIntegrationCard/XWFIn
 
 export default {
   id: 'integrations',
-  path: '/integrations',
+  path: WEBSITE_ROUTES.integrations,
   layout: 'website',
   title: 'Integrations',
   async mount(el, ctx) {
@@ -31,7 +32,7 @@ export default {
         clearTimeout(timer);
         timer = setTimeout(refresh, data.searchDelay);
       },
-      { type: 'search', clearable: true, leadingIcon: 'search', shortcut: '/' },
+      { type: 'search', clearable: true, leadingIcon: 'search', shortcut: WEBSITE_ROUTES.home },
     );
     search.classList.add('xwf-search');
     scope.onDispose(() => {
@@ -40,7 +41,7 @@ export default {
     });
     scope.listen(window, 'keydown', (event) => {
       if (
-        event.key === '/' &&
+        event.key === WEBSITE_ROUTES.home &&
         !event.ctrlKey &&
         !event.metaKey &&
         !event.altKey &&

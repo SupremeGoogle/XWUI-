@@ -164,3 +164,96 @@ body { overflow-x: hidden; }
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Diagram paint follows the shared palette rather than renderer literals. */
+:root {
+  --xwf-dg-ink: var(--xw-ink);
+  --xwf-dg-white: var(--xw-tx);
+  --xwf-dg-text: var(--xw-tx);
+  --xwf-dg-secondary: var(--xw-tx2);
+  --xwf-dg-tertiary: var(--xw-tx3);
+  --xwf-dg-shadow: color-mix(in srgb, var(--xw-ink) 0%, black);
+  --xwf-dg-surface: color-mix(in srgb, var(--xw-bg) 85%, var(--xw-bg2));
+  --xwf-dg-stroke: color-mix(in srgb, var(--xw-tx) 42%, var(--xw-tx2));
+  --xwf-dg-outline: color-mix(in srgb, var(--xw-tx) 60%, var(--xw-tx2));
+  --xwf-dg-muted: color-mix(in srgb, var(--xw-tx2) 47%, var(--xw-tx3));
+  --xwf-dg-lane-line: color-mix(in srgb, var(--xw-tx3) 80%, var(--xw-bg3));
+  --xwf-dg-lifeline: color-mix(in srgb, var(--xw-tx3) 63%, var(--xw-bg3));
+  --xwf-dg-grid: color-mix(in srgb, var(--xw-tx3) 22%, var(--xw-bg3));
+  --xwf-dg-disabled-surface: color-mix(in srgb, var(--xw-tx3) 28%, var(--xw-bg3));
+  --xwf-dg-panel: color-mix(in srgb, var(--xw-bg3) 96%, var(--xw-violet));
+  --xwf-dg-done-surface: color-mix(in srgb, var(--xw-tx3) 43%, var(--xw-bg3));
+  --xwf-dg-message: color-mix(in srgb, var(--xw-tx) 88%, var(--xw-tx2));
+  --xwf-dg-error-text: color-mix(in srgb, var(--xw-red) 69%, var(--xw-tx));
+  --xwf-dg-warning-text: color-mix(in srgb, var(--xw-amber) 72%, var(--xw-tx));
+  --xwf-dg-receipt-surface: color-mix(in srgb, var(--xw-tx) 2.5%, transparent);
+  --xwf-dg-branch-surface: color-mix(in srgb, var(--xw-lime) 4%, transparent);
+  --xwf-dg-source-surface: color-mix(in srgb, var(--xw-cyan) 6%, transparent);
+  --xwf-dg-pool-surface: color-mix(in srgb, var(--xw-tx) 1.5%, transparent);
+  --xwf-dg-disabled-overlay: color-mix(in srgb, var(--xw-tx) 4%, transparent);
+  --xwf-dg-store-surface: color-mix(in srgb, var(--xw-lime) 10%, transparent);
+  --xwf-dg-store-top: color-mix(in srgb, var(--xw-lime) 18%, transparent);
+  --xwf-dg-lime: var(--xw-lime);
+  --xwf-dg-lime-start: color-mix(in srgb, var(--xw-lime) 60%, var(--xw-tx));
+  --xwf-dg-lime-end: color-mix(in srgb, var(--xw-lime) 82%, var(--xw-ink));
+  --xwf-dg-cyan: var(--xw-cyan);
+  --xwf-dg-cyan-start: color-mix(in srgb, var(--xw-cyan) 60%, var(--xw-tx));
+  --xwf-dg-cyan-end: color-mix(in srgb, var(--xw-cyan) 82%, var(--xw-ink));
+  --xwf-dg-violet: var(--xw-violet);
+  --xwf-dg-violet-start: color-mix(in srgb, var(--xw-violet) 60%, var(--xw-tx));
+  --xwf-dg-violet-end: color-mix(in srgb, var(--xw-violet) 82%, var(--xw-ink));
+  --xwf-dg-orange: var(--xw-orange);
+  --xwf-dg-orange-start: color-mix(in srgb, var(--xw-orange) 60%, var(--xw-tx));
+  --xwf-dg-orange-end: color-mix(in srgb, var(--xw-orange) 82%, var(--xw-ink));
+  --xwf-dg-pink: var(--xw-pink);
+  --xwf-dg-pink-start: color-mix(in srgb, var(--xw-pink) 60%, var(--xw-tx));
+  --xwf-dg-pink-end: color-mix(in srgb, var(--xw-pink) 82%, var(--xw-ink));
+  --xwf-dg-amber: var(--xw-amber);
+  --xwf-dg-amber-start: color-mix(in srgb, var(--xw-amber) 60%, var(--xw-tx));
+  --xwf-dg-amber-end: color-mix(in srgb, var(--xw-amber) 82%, var(--xw-ink));
+  --xwf-dg-green: var(--xw-green);
+  --xwf-dg-green-start: color-mix(in srgb, var(--xw-green) 60%, var(--xw-tx));
+  --xwf-dg-green-end: color-mix(in srgb, var(--xw-green) 82%, var(--xw-ink));
+  --xwf-dg-red: var(--xw-red);
+  --xwf-dg-red-start: color-mix(in srgb, var(--xw-red) 60%, var(--xw-tx));
+  --xwf-dg-red-end: color-mix(in srgb, var(--xw-red) 82%, var(--xw-ink));
+}
+
+/* Preserve the reference shades exactly where relative color syntax is supported. */
+@supports (color: rgb(from white r g b)) {
+  :root {
+    --xwf-dg-ink: rgb(from var(--xw-ink) r g b);
+    --xwf-dg-white: rgb(from var(--xw-tx) calc(r + 10) calc(g + 10) calc(b + 5));
+    --xwf-dg-shadow: rgb(from var(--xw-ink) calc(r - 10) calc(g - 10) calc(b - 10));
+    --xwf-dg-surface: rgb(from var(--xw-bg) calc(r + 1) calc(g + 1) calc(b + 3));
+    --xwf-dg-text: rgb(from var(--xw-tx) r g b);
+    --xwf-dg-stroke: rgb(from var(--xw-tx2) calc(r + 32) calc(g + 32) calc(b + 27));
+    --xwf-dg-outline: rgb(from var(--xw-tx2) calc(r + 45) calc(g + 45) calc(b + 38));
+    --xwf-dg-muted: rgb(from var(--xw-tx3) calc(r + 27) calc(g + 27) calc(b + 28));
+    --xwf-dg-lane-line: rgb(from var(--xw-tx3) calc(r - 21) calc(g - 21) calc(b - 21));
+    --xwf-dg-lifeline: rgb(from var(--xw-tx3) calc(r - 37) calc(g - 37) calc(b - 36));
+    --xwf-dg-grid: rgb(from var(--xw-bg3) calc(r + 21) calc(g + 21) calc(b + 32));
+    --xwf-dg-disabled-surface: rgb(from var(--xw-bg3) calc(r + 25) calc(g + 25) calc(b + 34));
+    --xwf-dg-panel: rgb(from var(--xw-bg3) calc(r + 3) calc(g + 3) calc(b + 12));
+    --xwf-dg-done-surface: rgb(from var(--xw-bg3) calc(r + 41) calc(g + 41) calc(b + 55));
+    --xwf-dg-message: rgb(from var(--xw-tx) calc(r - 13) calc(g - 13) calc(b - 5));
+    --xwf-dg-error-text: rgb(from var(--xw-red) r calc(g + 50) calc(b + 46));
+    --xwf-dg-warning-text: rgb(from var(--xw-amber) r calc(g + 18) calc(b + 61));
+    --xwf-dg-lime-start: rgb(from var(--xw-lime) calc(r + 26) g calc(b + 77));
+    --xwf-dg-lime-end: rgb(from var(--xw-lime) calc(r - 41) calc(g - 35) calc(b - 43));
+    --xwf-dg-cyan-start: rgb(from var(--xw-cyan) calc(r + 92) calc(g + 13) b);
+    --xwf-dg-cyan-end: rgb(from var(--xw-cyan) calc(r - 26) calc(g - 46) calc(b - 41));
+    --xwf-dg-violet-start: rgb(from var(--xw-violet) calc(r + 39) calc(g + 59) b);
+    --xwf-dg-violet-end: rgb(from var(--xw-violet) calc(r - 39) calc(g - 39) calc(b - 15));
+    --xwf-dg-orange-start: rgb(from var(--xw-orange) r calc(g + 54) calc(b + 82));
+    --xwf-dg-orange-end: rgb(from var(--xw-orange) calc(r - 11) calc(g - 32) calc(b - 43));
+    --xwf-dg-pink-start: rgb(from var(--xw-pink) r calc(g + 76) calc(b + 40));
+    --xwf-dg-pink-end: rgb(from var(--xw-pink) calc(r - 26) calc(g - 47) calc(b - 36));
+    --xwf-dg-amber-start: rgb(from var(--xw-amber) r calc(g + 27) calc(b + 77));
+    --xwf-dg-amber-end: rgb(from var(--xw-amber) calc(r - 23) calc(g - 36) calc(b - 49));
+    --xwf-dg-green-start: rgb(from var(--xw-green) calc(r + 96) g calc(b + 46));
+    --xwf-dg-green-end: rgb(from var(--xw-green) calc(r - 39) calc(g - 61) calc(b - 40));
+    --xwf-dg-red-start: rgb(from var(--xw-red) r calc(g + 62) calc(b + 57));
+    --xwf-dg-red-end: rgb(from var(--xw-red) calc(r - 29) calc(g - 41) calc(b - 37));
+  }
+}

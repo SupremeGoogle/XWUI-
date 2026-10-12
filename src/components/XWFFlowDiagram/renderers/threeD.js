@@ -3,12 +3,11 @@
  * height that grows with how long they took in the latest run; wires run across floors.
  * Pure CSS 3D (no WebGL), so it degrades to a flat drawing without transforms.
  */
-import { h } from '../../../core/dom.js';
+import { diagramElement as h, paint } from './svg.js';
+import { DIAGRAM_GEOMETRY as G } from '../XWFFlowDiagram.model.js';
 import { layoutColumns } from '../XWFFlowDiagram.logic.js';
 
-const LANE_H = 128;
-const COL_W = 210;
-const NODE_W = 180;
+const { lane: LANE_H, column: COL_W, node: NODE_W } = G.threeD;
 
 const toneVar = (tone) => `var(--xw-${tone})`;
 
@@ -36,8 +35,8 @@ export function render3d({ flow, types, run, labels, systemsModel, ui, tilt, spi
     const tone = systems[b.lane]?.tone ?? 'violet';
     const off = b.step.node.disabled;
     return h('g', {},
-      h('path', { d, stroke: off ? '#6f6f8a' : toneVar(tone), 'stroke-width': '5', 'stroke-dasharray': off ? '10 8' : null, fill: 'none' }),
-      !off && h('path', { d, class: 'flow', stroke: '#fff', 'stroke-width': '2', fill: 'none' }));
+      h('path', { d, stroke: off ? paint('tertiary') : toneVar(tone), 'stroke-width': '5', 'stroke-dasharray': off ? '10 8' : null, fill: 'none' }),
+      !off && h('path', { d, class: 'flow', stroke: paint('white'), 'stroke-width': '2', fill: 'none' }));
   });
 
   const floors = systems.map((s, i) => h('div', { class: 'xwf-3d__lane', style: { '--lc': toneVar(s.tone), top: `${i * LANE_H}px`, width: `${planeW}px` } }, h('b', {}, s.label.toUpperCase())));

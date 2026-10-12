@@ -34,6 +34,8 @@ The router reuses the layout while consecutive pages share its id.
 
 In-page anchors: link to `#/path?section=<elementId>`; the router scrolls to it after mount.
 Build links with `ctx.href('/studio/runs/:runId', { runId })`.
+Canonical paths are exported by `src/core/routes.js`; Studio re-exports its table
+from `studio.routes.js`. UI links use these tables and `ctx.href()` to encode parameters.
 
 ## Mounting XWUI (src/core/ui.js)
 
@@ -80,6 +82,10 @@ components for lifecycle, projection and cleanup examples.
   `.gap*`, `.g2/.g3/.g4`, `.h1..h4`, `.eyebrow`, `.kpi`, `.st.*`, `.nd`, `.cv`...).
 - XWUI tuning: `src/styles/xwui-overrides.css`.
 - Page-specific styles next to the page (`<page>.css`), loaded with `ensureStylesheet`.
+- Diagram paint uses semantic `--xwf-dg-*` tokens derived from the shared palette.
+  SVG projections bind paint through CSS classes or inline styles; standalone export
+  freezes computed paint and typography. Reference shades use [relative CSS colors](https://developer.chrome.com/blog/css-relative-color-syntax)
+  with a mixed-color fallback.
 
 ## Canonical sample ids
 

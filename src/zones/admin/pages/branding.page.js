@@ -1,13 +1,13 @@
+import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { h } from '../../../core/dom.js';
 import { pageSession, routeAction } from '../../../components/xwf-ui.js';
 import { XWFBrandPreview } from '../../../components/XWFBrandPreview/XWFBrandPreview.js';
 import { XWFContrastCheck } from '../../../components/XWFContrastCheck/XWFContrastCheck.js';
 import { contrastRatio } from '../../../components/XWFContrastCheck/XWFContrastCheck.logic.js';
-import { CONTRAST_RULES } from '../../../components/XWFContrastCheck/XWFContrastCheck.model.js';
 
 export default {
   id: 'admin-branding',
-  path: '/admin/branding',
+  path: ADMIN_ROUTES.branding,
   layout: 'admin',
   title: 'Branding',
   async mount(el, ctx) {
@@ -34,7 +34,7 @@ export default {
     });
     const contrast = ui.mount(XWFContrastCheck, {
       kit: draft,
-      content: c.contrast,
+      content: { ...c.contrast, whiteColor: data.rules.whiteText },
     });
     scope.listen(preview, 'xwf-action', () => ctx.notify.info(c.preview.note));
     const status = ui.tag(data.labels.notSaved, 'default', {
@@ -60,9 +60,9 @@ export default {
       revision += 1;
       if (key === 'primary' && /^#[0-9a-f]{6}$/i.test(value)) {
         const dark = contrastRatio(data.rules.darkText, value);
-        const white = contrastRatio(CONTRAST_RULES.white, value);
+        const white = contrastRatio(data.rules.whiteText, value);
         draft.buttonText =
-          white > dark ? CONTRAST_RULES.white : data.rules.darkText;
+          white > dark ? data.rules.whiteText : data.rules.darkText;
         colorControls.buttonText?.xw.setValue(draft.buttonText);
       }
       refreshPreview();

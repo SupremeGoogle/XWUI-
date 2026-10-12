@@ -1,3 +1,4 @@
+import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { XWUITable, XWUIProgressBar } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import {
@@ -11,7 +12,7 @@ import { XWFIsoTiles } from '../../../components/XWFIsoTiles/XWFIsoTiles.js';
 
 export default {
   id: 'admin-overview',
-  path: '/admin',
+  path: ADMIN_ROUTES.overview,
   layout: 'admin',
   title: 'Overview',
   async mount(el, ctx) {

@@ -129,7 +129,7 @@ export default {
         tableHost.append(host);
         const table = listKit.scope.mount(XWUITable, host, {
           columns: [
-            { key: 'flowName', title: C.columns.flow, render: (v, r) => h('a', { class: 'studio-flow-link', href: `#/studio/runs/${r.id}` }, v) },
+            { key: 'flowName', title: C.columns.flow, render: (v, r) => h('a', { class: 'studio-flow-link', href: ctx.href(STUDIO_ROUTES.run, { runId: r.id }) }, v) },
             { key: 'status', title: C.columns.status, render: (v) => statusEl(listKit.scope, catalog.runStatuses[v].label, catalog.runStatuses[v].st) },
             { key: 'startedAt', title: C.columns.started, render: (v) => formatDateTime(v) },
             { key: 'durationMs', title: C.columns.runTime, align: 'end', render: (v) => h('span', { class: ['mono', v ? '' : 'ter'] }, v ? formatDuration(v) : STUDIO_COPY.never) },

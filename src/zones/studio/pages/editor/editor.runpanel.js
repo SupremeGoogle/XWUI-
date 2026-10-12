@@ -1,3 +1,4 @@
+import { STUDIO_ROUTES } from '../../studio.routes.js';
 /**
  * Flow editor - run panel (bottom floating panel): ledger, input, output and problems of
  * the latest run, with a link to the full receipt.
@@ -77,7 +78,7 @@ export function createRunPanel({ ctx, catalog, copy }) {
 
     el.replaceChildren(
       h('div', { class: 'rowf gap12 editor-runpanel__head' }, tabsHost, chips,
-        state.run && ui.button(copy.openReceipt, { variant: 'secondary', size: 'sm', className: 'sp', onClick: () => ctx.navigate(`/studio/runs/${state.run.id}`) })),
+        state.run && ui.button(copy.openReceipt, { variant: 'secondary', size: 'sm', className: 'sp', onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.run, { runId: state.run.id }).slice(1)) })),
       h('div', { class: 'editor-runpanel__body' }, body(state)));
   }
 

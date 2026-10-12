@@ -1,9 +1,10 @@
+import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { h } from '../../../core/dom.js';
 import { pageSession, assetImage } from '../../../components/xwf-ui.js';
 
 export default {
   id: 'admin-placeholder',
-  path: '/admin/:section',
+  path: ADMIN_ROUTES.section,
   layout: 'admin',
   title: 'Admin',
   async mount(el, ctx) {

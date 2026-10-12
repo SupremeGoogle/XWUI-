@@ -1,3 +1,4 @@
+import { STUDIO_ROUTES } from '../../studio.routes.js';
 /**
  * Flow editor - floating header: back, breadcrumbs, publish state tags, view tabs,
  * Ask AI / Run / Publish.
@@ -20,7 +21,7 @@ export function createHeader({ ctx, flow, project, catalog, copy, handlers }) {
     const { ui, scope } = kit;
     const crumbs = h('div', { class: 'editor-header__crumbs' });
     scope.mount(XWUINavBreadcrumbs, crumbs, {
-      items: [{ label: project.name, href: ctx.href('/studio/flows') }, { label: state.name }],
+      items: [{ label: project.name, href: ctx.href(STUDIO_ROUTES.flows) }, { label: state.name }],
     }, { size: 'sm', className: 'studio-crumbs' });
 
     const tags = [];
@@ -47,7 +48,7 @@ export function createHeader({ ctx, flow, project, catalog, copy, handlers }) {
     runBtn.querySelector('button')?.append(kbd);
 
     el.replaceChildren(
-      ui.button('', { variant: 'ghost', icon: 'arrow-left', ariaLabel: copy.back, title: copy.back, onClick: () => ctx.navigate('/studio/flows') }),
+      ui.button('', { variant: 'ghost', icon: 'arrow-left', ariaLabel: copy.back, title: copy.back, onClick: () => ctx.navigate(STUDIO_ROUTES.flows) }),
       h('span', { class: 'mark editor-header__mark', 'aria-hidden': 'true' }),
       crumbs,
       h('div', { class: 'rowf gap8' }, tags),

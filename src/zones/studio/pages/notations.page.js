@@ -1,3 +1,4 @@
+import { STUDIO_ROUTES } from '../studio.routes.js';
 /** One demo flow, five render modes and a lazily mounted notation gallery. */
 import { XWUICard, XWUINavTabs, XWUICodeBlock } from '@exonware/xwui/basic';
 import { h, ensureStylesheet } from '../../../core/dom.js';
@@ -19,7 +20,7 @@ ensureStylesheet(
 
 export default {
   id: 'notations',
-  path: '/notations',
+  path: STUDIO_ROUTES.notations,
   layout: 'website',
   async mount(el, ctx) {
     const page = createKit();
@@ -190,10 +191,10 @@ export default {
 
     const viewPath = (view) =>
       view === 'editor'
-        ? `/studio/flows/${flow.id}`
+        ? ctx.href(STUDIO_ROUTES.editor, { flowId: flow.id }).slice(1)
         : view === 'receipt'
-          ? `/studio/runs/${flow.lastRun?.id}`
-          : `/studio/flows/${flow.id}/view/${view}`;
+          ? ctx.href(STUDIO_ROUTES.run, { runId: flow.lastRun?.id }).slice(1)
+          : ctx.href(STUDIO_ROUTES.view, { flowId: flow.id, notation: view }).slice(1);
     function filterFamily(family) {
       observer.disconnect();
       pending.clear();

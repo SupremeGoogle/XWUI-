@@ -35,5 +35,4 @@ export const CONTRAST_RULES = Object.freeze({
   transferDivisor: 1.055,
   gamma: 2.4,
   weights: [0.2126, 0.7152, 0.0722],
-  white: '#ffffff',
 });

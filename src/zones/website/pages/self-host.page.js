@@ -1,3 +1,4 @@
+import { WEBSITE_ROUTES } from '../../../core/routes.js';
 import { XWUICodeBlock } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import {
@@ -8,7 +9,7 @@ import {
 
 export default {
   id: 'self-host',
-  path: '/self-host',
+  path: WEBSITE_ROUTES.selfHost,
   layout: 'website',
   title: 'Self-host',
   async mount(el, ctx) {

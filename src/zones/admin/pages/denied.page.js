@@ -1,3 +1,4 @@
+import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { h } from '../../../core/dom.js';
 import {
   pageSession,
@@ -7,7 +8,7 @@ import {
 
 export default {
   id: 'admin-quotas-denied',
-  path: '/admin/quotas',
+  path: ADMIN_ROUTES.quotas,
   layout: 'admin',
   title: 'Quotas',
   async mount(el, ctx) {

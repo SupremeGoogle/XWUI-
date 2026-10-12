@@ -1,3 +1,4 @@
+import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { XWUICodeBlock } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import {
@@ -11,7 +12,7 @@ import { XWFHealthCheck } from '../../../components/XWFHealthCheck/XWFHealthChec
 
 export default {
   id: 'system-health',
-  path: '/system/health',
+  path: ADMIN_ROUTES.health,
   layout: 'admin',
   title: 'Health',
   async mount(el, ctx) {
