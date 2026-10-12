@@ -198,8 +198,21 @@ for txt, a, cps in [('Okay, real talk.', 1.0, 14), (' Alert sales when an order 
     for i, ch in enumerate(txt):
         if ch != ' ': add(sfx, tick(), a + i / cps + .01, .55 + .2 * rng.random(), rng.uniform(-.3, .3))
 # chips / pops
-for i in range(12): add(sfx, pop(1300, 700, .06, .12), C['tabs'] + i * .36, 1, rng.uniform(-.7, .7))
-for k in ['tabs', 'sheets', 'inbox']: add(sfx, pop(), C[k], 1)
+def blip(m, g=.22):
+    t = tt(.35); f = mid(m)
+    x = (np.sin(2 * np.pi * f * t) + .25 * np.sin(2 * np.pi * 2 * f * t)) * np.exp(-t * 16) * (1 - np.exp(-t * 900))
+    air = filt(rng.standard_normal(len(t)), lo=4000) * np.exp(-t * 120) * .15
+    return (x + air) * g
+def chime(m1, m2, g=.32):
+    out = np.zeros(int(SR * .9))
+    for i, m in enumerate([m1, m2]):
+        t = tt(.8); f = mid(m)
+        x = (np.sin(2 * np.pi * f * t) + .35 * np.sin(2 * np.pi * 2 * f * t) + .1 * np.sin(2 * np.pi * 3.01 * f * t)) * np.exp(-t * 6) * (1 - np.exp(-t * 600))
+        s0 = int(i * .07 * SR); out[s0:s0 + len(x)] += x * (1 if i else .8)
+    return out * g
+PENTA = [76, 79, 81, 84, 86, 88, 91, 93, 96, 88, 91, 93]
+for i in range(12): add(sfx, blip(PENTA[i]), C['tabs'] + i * .36, 1, rng.uniform(-.7, .7))
+for k, (a, b) in zip(['tabs', 'sheets', 'inbox'], [(64, 71), (67, 74), (69, 76)]): add(sfx, chime(a, b), C[k], 1)
 for j, k in enumerate(['webhooks', 'http', 'ai', 'emails', 'subflows']): add(sfx, pop(800 + j * 90, 400 + j * 50), C[k], 1, .5)
 for k in ['test', 'prod']: add(sfx, pop(700, 350, .12, .5), C[k], 1)
 add(sfx, pop(700, 350, .12, .5), C['publish'] + .25, 1)
@@ -214,7 +227,22 @@ for x in SCN: add(sfx, whoosh(.8, True), x - .45, .55, rng.uniform(-.3, .3))
 add(sfx, whoosh(.9, True, g=1.0), C['want'] - .4, .5)
 for k in ['flowchart', 'swimlanes', 'bpmn', 'sequence', 'simulation', 'd3']: add(sfx, whoosh(.5, True, 800, 10000), C[k] - .4, .35, .4)
 # risers & impacts
-add(sfx, riser(2.6), D0 - 2.6, .55); add(sfx, impact(1.0), D0 - .02, .8)
+def swell(d=1.0):
+    t = tt(d); n = filt(rng.standard_normal((len(t), 2)), lo=1500, hi=9000)
+    return n * ((t / d) ** 3)[:, None] * .5
+def bubble_pop():
+    t = tt(.6)
+    f = 280 + 2600 * (1 - np.exp(-t * 90))
+    chirp = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 55)
+    burst = filt(rng.standard_normal(len(t)), lo=2500, hi=12000) * np.exp(-t * 160) * .7
+    ft = 75 * np.exp(-t * 12) + 38
+    thump = np.sin(2 * np.pi * np.cumsum(ft) / SR) * np.exp(-t * 9) * .8
+    return np.tanh((chirp * .9 + burst + thump) * 1.3)
+BP = C['meet'] - .3
+add(sfx, swell(1.0), BP - 1.0, .5)
+add(sfx, bubble_pop(), BP, .95)
+for j, m in enumerate([88, 95, 100]): add(sfx, blip(m, .18), BP + .06 + j * .05, 1, (-.5, .5, 0)[j])
+add(sfx, shimmer(.45), BP + .12, 1)
 add(sfx, riser(3.3, .5), 59.82 - 3.3, .55); add(sfx, impact(.7, 1.6), 59.82, .55)
 add(sfx, shimmer(.6), 59.85, 1)
 add(sfx, riser(1.6, .5), C['final'] + 1.0 - 1.6, .6)
@@ -238,7 +266,7 @@ duck = 1 - .55 * np.clip(env * 6, 0, 1)
 k = int(.15 * SR); duck = np.convolve(duck, np.ones(k) / k, mode='same')
 music *= duck[:, None]
 fx = reverb(sfx, 1.4, 7000, .22)
-mixd = music * .5 + fx * .55
+mixd = fx * .55
 np.save(sys.argv[2], mixd.astype(np.float32))
 out = np.clip(mixd / max(1e-9, np.abs(mixd).max()) * .89, -1, 1)
 w = wave.open(sys.argv[3], 'wb'); w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
