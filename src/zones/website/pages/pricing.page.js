@@ -10,7 +10,7 @@ export default {
   layout: 'website',
   title: 'Pricing',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const { ui } = session;
     const data = await ctx.api.websiteApi.getPricing();
     if (!session.active) return session.handle;

@@ -126,4 +126,3 @@ html body .xwui-input, html body .xwui-input-text input, html body .xwui-select-
 /* ---------- overlays ---------- */
 .xw-dialog-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 .xw-toaster { position: fixed; z-index: 1000; }
-

@@ -1,7 +1,7 @@
 import { APP_ROUTES } from '../../../core/routes.js';
 import { WEBSITE_ROUTES } from '../../../core/routes.js';
 import { h } from '../../../core/dom.js';
-import { createKit } from '../../../core/ui.js';
+import { pageSession } from '../../../components/xwf-ui.js';
 import { UI_CONFIG } from '../../../core/ui.config.js';
 
 export default {
@@ -10,8 +10,9 @@ export default {
   layout: null,
   title: UI_CONFIG.messages.notFoundTitle,
   async mount(el, ctx) {
-    const { scope, ui } = createKit();
-    el.append(h('main', { class: 'pg xw-not-found' },
+    const session = pageSession(el, ctx);
+    const { scope, ui } = session;
+    el.replaceChildren(h('main', { class: 'pg xw-not-found' },
       ui.empty({
         title: UI_CONFIG.messages.notFoundTitle,
         description: UI_CONFIG.messages.notFoundBody,

@@ -8,7 +8,7 @@ export default {
   layout: 'admin',
   title: 'Admin',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const data = await ctx.api.adminApi.getNavigation();
     if (!session.active) return session.handle;
     const item = data.groups

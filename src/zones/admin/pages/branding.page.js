@@ -11,7 +11,7 @@ export default {
   layout: 'admin',
   title: 'Branding',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const { ui, scope } = session;
     const data = await ctx.api.adminApi.getBranding();
     if (!session.active) return session.handle;

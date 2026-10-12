@@ -1,12 +1,7 @@
 import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { XWUITable, XWUIProgressBar } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
-import {
-  pageSession,
-  createXwfKit,
-  titleBlock,
-  routeAction,
-} from '../../../components/xwf-ui.js';
+import { pageSession, createXwfKit, titleBlock, routeAction } from '../../../components/xwf-ui.js';
 import { XWFBarChart } from '../../../components/XWFBarChart/XWFBarChart.js';
 import { XWFIsoTiles } from '../../../components/XWFIsoTiles/XWFIsoTiles.js';
 
@@ -16,7 +11,7 @@ export default {
   layout: 'admin',
   title: 'Overview',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const { ui, scope } = session;
     const meta = await ctx.api.adminApi.getOverview();
     if (!session.active) return session.handle;

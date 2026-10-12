@@ -1,0 +1,98 @@
+/** Admin copy, seed records and mock rules. */
+export const adminBrandingData = {
+  branding: {
+    samplesLabel: 'Sample brands',
+    sampleLabels: ['Prism Works', 'Orbit Labs', 'Evergrid'],
+    title: 'Brand kit',
+    description:
+      'Name, logo, colors and type this tenant shows its users. The preview updates as you type.',
+    notice:
+      'Per-tenant branding requires Commercial. Edit and preview freely. Saving is off on Core.',
+    plans: 'See plans',
+    plansPath: '/pricing',
+    fields: [
+      { key: 'productName', label: 'Product name' },
+      {
+        key: 'assistantName',
+        label: 'Assistant name',
+        helperText: 'Never "xwflow AI" on a branded tenant.',
+      },
+      {
+        key: 'domain',
+        label: 'Custom domain',
+        placeholder: 'automate.yourcompany.com',
+        helperText:
+          'After saving, add the DNS record we show you, then verify.',
+      },
+    ],
+    logoRemove: 'Remove logo',
+    faviconRemove: 'Remove favicon',
+    logo: 'Logo',
+    logoAction: 'Upload a logo',
+    favicon: 'Favicon',
+    faviconAction: 'Upload a favicon',
+    primary: 'Primary color',
+    background: 'App background',
+    text: 'Body text',
+    buttonText: 'Button text',
+    typeface: 'Typeface',
+    fonts: [
+      { value: 'unbounded', label: 'Unbounded and Manrope' },
+      { value: 'manrope', label: 'Manrope' },
+      { value: 'mono', label: 'JetBrains Mono' },
+    ],
+    removeMarks: 'Remove every xwflow name, logo and link',
+    removeHint: 'Screens, emails and the chat widget.',
+    save: 'Save brand kit',
+    saved: 'Brand kit saved.',
+    requires: 'Requires Commercial',
+    validation:
+      'Enter product and assistant names and valid six-digit hex colors.',
+    domainError: 'Use a domain name without a protocol or path.',
+    uploadError:
+      'Choose a PNG, JPEG, WebP, GIF, SVG, or icon image up to 1 MB.',
+    preview: {
+      title: 'Live preview',
+      assistantSuffix: 'assistant',
+      flow: 'Order alert',
+      published: 'Published',
+      run: 'Run flow',
+      share: 'Share',
+      note: 'Preview only',
+      steps: ['Webhook', 'HTTP request', 'Condition'],
+      vendor: 'Powered by xwflow',
+    },
+    contrast: {
+      title: 'Contrast checks',
+      columns: [
+        { key: 'label', title: 'Pair' },
+        { key: 'ratio', title: 'Ratio', align: 'end' },
+        { key: 'result', title: 'Result' },
+      ],
+      dark: 'Button text on the primary color',
+      primary: 'Primary color as text on the app background',
+      white: 'White text on the primary color',
+      body: 'Body text on the app background',
+      passes: 'Passes AA',
+      fails: 'Fails for body text',
+      note: 'Button text follows the stronger contrast when you change the primary color. Status colors always travel with a shape and a word.',
+    },
+    presets: ['#2ee6ff', '#ff4fa3', '#9b6bff', '#c8ff3d', '#ff8a3d'],
+  },
+  brandSeed: {
+    id: 'personal',
+    productName: 'Nova Flow',
+    assistantName: 'Nova',
+    primary: '#ff4fa3',
+    background: '#05050a',
+    text: '#f5f5fa',
+    buttonText: '#0a0a0a',
+    font: 'unbounded',
+    removeMarks: true,
+    domain: '',
+    logo: '',
+    favicon: '',
+    savedAt: null,
+  },
+
+};

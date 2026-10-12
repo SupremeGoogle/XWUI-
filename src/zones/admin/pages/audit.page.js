@@ -1,13 +1,7 @@
 import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { XWUITable } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
-import {
-  pageSession,
-  createXwfKit,
-  titleBlock,
-  routeAction,
-  saveDownload,
-} from '../../../components/xwf-ui.js';
+import { pageSession, createXwfKit, titleBlock, routeAction, saveDownload } from '../../../components/xwf-ui.js';
 
 export default {
   id: 'admin-audit',
@@ -15,7 +9,7 @@ export default {
   layout: 'admin',
   title: 'Audit',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const { ui, scope } = session;
     const data = await ctx.api.adminApi.getAudit();
     if (!session.active) return session.handle;

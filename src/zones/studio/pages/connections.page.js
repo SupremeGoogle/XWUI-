@@ -1,3 +1,4 @@
+import { pageSession } from '../../../components/xwf-ui.js';
 /**
  * Studio: connections. The vault banner, filters (search, status, grouping), credential
  * cards with masked secrets, and the actions the prototype shows: Reconnect, Test, Add.
@@ -18,12 +19,12 @@ export default {
   layout: STUDIO_LAYOUT_ID,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
-    const page = createKit();
+    const page = pageSession(el, ctx);
     let listKit = createKit();
     const filters = { q: '', status: 'all', group: 'connection' };
     const busy = new Set();
     const [shell, catalog, first] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.listConnections(filters)]);
-    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
+    if (!page.active) return page.handle;
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.connections;
     ctx.setTitle(C.title);
@@ -144,7 +145,7 @@ export default {
     const groupOptions = Object.entries(C.groups).map(([value, label]) => ({ value, label }));
     const { ui, scope } = page;
 
-    el.append(h('div', { class: 'pg' },
+    el.replaceChildren(h('div', { class: 'pg' },
       h('div', { class: 'rowf gap16 wrapf' }, h('h1', { class: 'h2 studio-page-title' }, C.title), h('div', { class: 'sp' }, projectTabsEl(scope, ctx, shell.tabs, 'connections', STUDIO_COPY))),
       h('section', { class: 'glass wrapf gap24 connections__vault' },
         h('div', { class: 'connections__vault-orb', 'aria-hidden': 'true' },

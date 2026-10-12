@@ -1,11 +1,7 @@
 import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { XWUICodeBlock } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
-import {
-  pageSession,
-  createXwfKit,
-  assetImage,
-} from '../../../components/xwf-ui.js';
+import { pageSession, createXwfKit, assetImage } from '../../../components/xwf-ui.js';
 import { XWFIsoTiles } from '../../../components/XWFIsoTiles/XWFIsoTiles.js';
 import { XWFUptimeBar } from '../../../components/XWFUptimeBar/XWFUptimeBar.js';
 import { XWFHealthCheck } from '../../../components/XWFHealthCheck/XWFHealthCheck.js';
@@ -16,7 +12,7 @@ export default {
   layout: 'admin',
   title: 'Health',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const { ui, scope } = session;
     const data = await ctx.api.adminApi.getHealth();
     if (!session.active) return session.handle;

@@ -1,3 +1,4 @@
+import { pageSession } from '../../../components/xwf-ui.js';
 /**
  * Studio: runs. KPIs, runs-per-hour bars, filters (search, status, mode, 7-day window chip),
  * selectable table with bulk retry / delete.
@@ -10,7 +11,7 @@ import { STUDIO_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { statusEl, kpiEl, projectTabsEl, searchEl, selectEl } from '../shared/studio-ui.js';
 import { XWFBarSpark } from '../../../components/XWFBarSpark/XWFBarSpark.js';
 
-const WINDOW_DAYS = 7;
+import { WINDOW_DAYS } from './runs.config.js';
 
 export default {
   id: 'studio-runs',
@@ -18,7 +19,7 @@ export default {
   layout: STUDIO_LAYOUT_ID,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
-    const page = createKit();
+    const page = pageSession(el, ctx);
     let listKit = createKit();
     const filters = { q: '', status: 'all', mode: 'all', days: WINDOW_DAYS, flowId: ctx.query.flow ?? null };
     let current = null;
@@ -26,7 +27,7 @@ export default {
 
     const [shell, catalog, first] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.listRuns(filters)]);
 
-    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
+    if (!page.active) return page.handle;
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.runs;
     ctx.setTitle(C.title);
@@ -147,7 +148,7 @@ export default {
       renderSelectionBar();
     }
 
-    el.append(h('div', { class: 'pg' },
+    el.replaceChildren(h('div', { class: 'pg' },
       h('div', { class: 'rowf gap16 wrapf' }, h('h1', { class: 'h2 studio-page-title' }, C.title), h('div', { class: 'sp' }, projectTabsEl(page.scope, ctx, shell.tabs, 'runs', STUDIO_COPY))),
       kpiRow, filtersRow, selectionBar, tableHost, tail));
     renderWindowChip();

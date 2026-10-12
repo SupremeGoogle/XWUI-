@@ -92,3 +92,9 @@ components for lifecycle, projection and cleanup examples.
 Flows: `flow_order_alert`, `flow_weekly_digest`, `flow_sync_customers`, `flow_refund_approval`, `flow_lead_intake`.
 Runs: `run_order_alert_001` (succeeded), `run_weekly_digest_014` (failed), `run_lead_intake_007` (failed),
 `run_order_alert_009` (failed), `run_sync_customers_003` (running).
+
+## Page sessions
+
+Every page starts with `pageSession(el, ctx)` from `components/xwf-ui.js`. It owns the XWUI scope, initial skeleton, route activity and abort cleanup. Check `session.active` after awaiting data before rendering. Nested render scopes are disposed through the page scope. `ctx.isActive()` and the router's isolated surface additionally guard callbacks and late navigation. Return `session.handle`, or a handle that also destroys page-specific panels/timers. Scope destruction is idempotent. Layouts and component child scopes still use `createKit()`.
+
+Large pages compose adjacent section/projection modules; page code coordinates API data and state. Data aggregators re-export domain fixtures under `src/data/<domain>/`; the public API shape stays stable.

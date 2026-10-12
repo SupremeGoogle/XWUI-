@@ -1,3 +1,4 @@
+import { pageSession } from '../../../components/xwf-ui.js';
 /**
  * Studio: one flow in one notation (#/studio/flows/:flowId/view/:notation).
  * Header with notation tabs and a 2D/3D switch, the generated diagram, and a footer that
@@ -5,7 +6,7 @@
  */
 import { XWUINavTabs, XWUIDisplayChip, XWUIInputNumber } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
-import { createKit } from '../../../core/ui.js';
+
 import { template, formatNumber } from '../../../core/format.js';
 import { CANVAS_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { kpiEl, downloadText } from '../shared/studio-ui.js';
@@ -21,12 +22,12 @@ export default {
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const notation = ctx.params.notation;
-    const page = createKit();
+    const page = pageSession(el, ctx);
     const [shell, catalog, flow, connections, gallery] = await Promise.all([
       studioApi.getShell(), studioApi.getCatalog(), studioApi.getFlow(ctx.params.flowId), studioApi.listConnections(),
       studioApi.getNotationGallery?.().catch(() => null) ?? null,
     ]);
-    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
+    if (!page.active) return page.handle;
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.views;
     const notationInfo = catalog.notations.find((n) => n.id === notation);
@@ -70,7 +71,7 @@ export default {
       notation !== '3d' && h('div', { class: 'halo', style: { left: '30%', top: '20%', width: '500px', height: '300px', background: `var(--xw-${notation === 'bpmn' ? 'orange' : 'violet'})`, opacity: '.18' } }),
       diagramHost);
     const footer = h('div', { class: 'wrapf gap16 view-footer' });
-    el.append(h('div', { class: 'xw view-page' }, header, stage, footer));
+    el.replaceChildren(h('div', { class: 'xw view-page' }, header, stage, footer));
 
     const diagram = scope.mount(XWFFlowDiagram, diagramHost, {
       flow, nodeTypes: typeIndex, run, connections, lanes: catalog.lanes, labels: C.diagram,

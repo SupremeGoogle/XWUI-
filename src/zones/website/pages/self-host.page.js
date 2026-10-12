@@ -1,11 +1,7 @@
 import { WEBSITE_ROUTES } from '../../../core/routes.js';
 import { XWUICodeBlock } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
-import {
-  pageSession,
-  routeAction,
-  assetImage,
-} from '../../../components/xwf-ui.js';
+import { pageSession, routeAction, assetImage } from '../../../components/xwf-ui.js';
 
 export default {
   id: 'self-host',
@@ -13,7 +9,7 @@ export default {
   layout: 'website',
   title: 'Self-host',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const { ui } = session;
     const data = await ctx.api.websiteApi.getSelfHost();
     if (!session.active) return session.handle;

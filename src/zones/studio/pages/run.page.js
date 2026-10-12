@@ -1,11 +1,10 @@
+import { pageSession } from '../../../components/xwf-ui.js';
 /**
  * Studio: run receipt. Gauge + status hero, failure alert, timeline waterfall, ledger and
  * attempt detail (input / output / error), compare, export, retry from a step.
  * A live run (just started) refreshes until the engine finishes it.
  */
-import {
-  XWUITable, XWUIProgressCircle, XWUIFeedbackAlert, XWUINavTabs, XWUICodeBlock,
-} from '@exonware/xwui/basic';
+import { XWUITable, XWUIProgressCircle, XWUIFeedbackAlert, XWUINavTabs, XWUICodeBlock } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatDateTime, formatDuration, formatNumber } from '../../../core/format.js';
@@ -46,7 +45,7 @@ export default {
   layout: STUDIO_LAYOUT_ID,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
-    const page = createKit();
+    const page = pageSession(el, ctx);
     let viewKit = createKit();
     let detailKit = createKit();
     let selectedIndex = null;
@@ -54,7 +53,7 @@ export default {
     let disposed = false;
 
     const [shell, catalog] = await Promise.all([studioApi.getShell(), studioApi.getCatalog()]);
-    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
+    if (!page.active) return page.handle;
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.run;
     let run = await studioApi.getRun(ctx.params.runId);

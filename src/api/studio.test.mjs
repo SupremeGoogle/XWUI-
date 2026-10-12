@@ -281,3 +281,37 @@ test('sub-flow respects publication, records the child result and rejects recurs
   assert.equal(recursive.status, 'failed');
   assert.match(JSON.stringify(recursive.ledger), /Recursive/);
 });
+
+
+test('editor warnings detect missing credentials, unreachable nodes and open branches without changing the graph', async () => {
+  const { findProblems } = await import('../zones/studio/pages/editor/editor.logic.js');
+  const catalog = await studioApi.getCatalog();
+  const types = Object.fromEntries(catalog.nodeTypes.map(type => [type.id, type]));
+  const graph = { nodes: [
+    { id: 'trigger', type: 'webhook', name: 'Trigger', params: {} },
+    { id: 'condition', type: 'condition', name: 'Condition', params: {} },
+    { id: 'http', type: 'http_request', name: 'HTTP', params: {} },
+  ], edges: [{ from: 'trigger', to: 'condition', port: 'out' }] };
+  const before = structuredClone(graph);
+  const problems = findProblems(graph, types, catalog.copy.editor.problems);
+  assert.equal(problems.filter(problem => problem.nodeId === 'http').length, 2);
+  assert.equal(problems.filter(problem => problem.nodeId === 'condition').length, 2);
+  assert.deepEqual(graph, before);
+  assert.equal(findProblems({ nodes: [], edges: [] }, types, catalog.copy.editor.problems)[0].level, 'error');
+});
+
+test('editor summary counts the latest attempt per node and waiting steps produce no output item', async () => {
+  const { runSummary, ledgerItems, nodeStatesFromRun } = await import('../zones/studio/pages/editor/editor.logic.js');
+  const catalog = await studioApi.getCatalog();
+  const run = { status: 'waiting', ledger: [
+    { nodeId: 'request', result: 'failed', attempt: 1 },
+    { nodeId: 'request', result: 'succeeded', attempt: 2, maxAttempts: 3 },
+    { nodeId: 'wait', result: 'waiting', attempt: 1, index: 2 },
+  ] };
+  const summary = runSummary(run);
+  assert.equal(summary.finished, 1); assert.equal(summary.failed, 0); assert.equal(summary.waiting, true);
+  assert.deepEqual(ledgerItems(run.ledger[2]), { in: 1, out: 0 });
+  const states = nodeStatesFromRun({ nodes: [{ id: 'request' }, { id: 'wait' }] }, run, catalog, catalog.copy.editor.nodeStates);
+  assert.equal(states.wait.kind, catalog.stepResults.waiting.st);
+  assert.match(states.request.label, /2/);
+});

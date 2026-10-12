@@ -164,20 +164,22 @@ export function createXwfKit(owner) {
 }
 
 /** Start a page with a visible CDN skeleton; async renders stop when the route changes. */
-export function pageSession(el) {
+export function pageSession(el, ctx) {
   const kit = createXwfKit();
   const initialHash = location.hash;
+  const dispose = () => { disposed = true; kit.scope.destroy(); };
   let disposed = false;
+  ctx?.signal?.addEventListener('abort', dispose, { once: true });
+  kit.scope.onDispose(() => ctx?.signal?.removeEventListener('abort', dispose));
   el.replaceChildren(kit.ui.skeleton({ width: '100%', height: '240px' }));
   const session = {
     ...kit,
     get active() {
-      return !disposed && el.isConnected && location.hash === initialHash;
+      return !disposed && el.isConnected && (ctx ? ctx.isActive() : location.hash === initialHash);
     },
     handle: {
       unmount() {
-        disposed = true;
-        kit.scope.destroy();
+        dispose();
       },
     },
   };

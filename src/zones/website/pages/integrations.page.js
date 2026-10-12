@@ -1,11 +1,6 @@
 import { WEBSITE_ROUTES } from '../../../core/routes.js';
 import { h } from '../../../core/dom.js';
-import {
-  pageSession,
-  createXwfKit,
-  assetImage,
-  routeAction,
-} from '../../../components/xwf-ui.js';
+import { pageSession, createXwfKit, assetImage, routeAction } from '../../../components/xwf-ui.js';
 import { XWFIntegrationCard } from '../../../components/XWFIntegrationCard/XWFIntegrationCard.js';
 
 export default {
@@ -14,7 +9,7 @@ export default {
   layout: 'website',
   title: 'Integrations',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const { ui, scope } = session;
     const data = await ctx.api.websiteApi.getDirectory();
     if (!session.active) return session.handle;

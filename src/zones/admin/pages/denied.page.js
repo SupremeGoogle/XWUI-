@@ -1,10 +1,6 @@
 import { ADMIN_ROUTES } from '../../../core/routes.js';
 import { h } from '../../../core/dom.js';
-import {
-  pageSession,
-  routeAction,
-  assetImage,
-} from '../../../components/xwf-ui.js';
+import { pageSession, routeAction, assetImage } from '../../../components/xwf-ui.js';
 
 export default {
   id: 'admin-quotas-denied',
@@ -12,7 +8,7 @@ export default {
   layout: 'admin',
   title: 'Quotas',
   async mount(el, ctx) {
-    const session = pageSession(el);
+    const session = pageSession(el, ctx);
     const { ui } = session;
     const data = await ctx.api.adminApi.getDenied();
     if (!session.active) return session.handle;

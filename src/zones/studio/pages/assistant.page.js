@@ -1,3 +1,4 @@
+import { pageSession } from '../../../components/xwf-ui.js';
 /**
  * Studio: assistant home. Describe a job; the assistant drafts a flow (read-only preview
  * on XWFFlowCanvas) that opens in the editor as a draft. Suggestions, "start directly"
@@ -21,11 +22,11 @@ export default {
   layout: STUDIO_LAYOUT_ID,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
-    const page = createKit();
+    const page = pageSession(el, ctx);
     let previewKit = createKit();
     let recoKit = createKit();
     const [shell, catalog, assistant] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.getAssistant()]);
-    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
+    if (!page.active) return page.handle;
     const STUDIO_COPY = catalog.copy;
     ctx.setTitle(STUDIO_COPY.assistantTitle);
     const A = assistant.copy;
@@ -160,7 +161,7 @@ export default {
     }
     renderReco();
 
-    el.append(h('div', { class: 'pg assistant' },
+    el.replaceChildren(h('div', { class: 'pg assistant' },
       h('div', { class: 'halo', style: { left: '30%', top: '60px', width: '460px', height: '320px', background: 'var(--xw-violet)' } }),
       h('div', { class: 'halo', style: { right: '10%', top: '260px', width: '300px', height: '300px', background: 'var(--xw-pink)', opacity: '.3' } }),
       h('div', { class: 'stack gap24 assistant__col' },

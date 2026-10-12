@@ -1,3 +1,4 @@
+import { pageSession } from '../../../components/xwf-ui.js';
 /**
  * Studio: flows (project overview). Hero, KPIs, project tabs, filters and the flows table
  * with row actions (open, run now, see runs, duplicate, delete).
@@ -7,9 +8,7 @@ import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatRelative } from '../../../core/format.js';
 import { STUDIO_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
-import {
-  statusEl, kpiEl, chainEl, ownerEl, projectTabsEl, searchEl, selectEl,
-} from '../shared/studio-ui.js';
+import { statusEl, kpiEl, chainEl, ownerEl, projectTabsEl, searchEl, selectEl } from '../shared/studio-ui.js';
 
 export default {
   id: 'studio-flows',
@@ -17,14 +16,14 @@ export default {
   layout: STUDIO_LAYOUT_ID,
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
-    const page = createKit();
+    const page = pageSession(el, ctx);
     let tableKit = createKit();
     const filters = { q: ctx.query.q ?? '', status: 'all', folder: 'all' };
 
     const [shell, catalog, initial] = await Promise.all([
       studioApi.getShell(), studioApi.getCatalog(), studioApi.listFlows(filters),
     ]);
-    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
+    if (!page.active) return page.handle;
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.flows;
     ctx.setTitle(C.title);
@@ -151,7 +150,7 @@ export default {
       footnote.textContent = template(C.footnote, { n: result.total });
     }
 
-    el.append(h('div', { class: 'pg' },
+    el.replaceChildren(h('div', { class: 'pg' },
       hero, kpis,
       projectTabsEl(page.scope, ctx, tabs, 'flows', STUDIO_COPY),
       filtersRow, tableHost, footnote));
