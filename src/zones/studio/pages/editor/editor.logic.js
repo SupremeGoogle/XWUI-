@@ -60,10 +60,12 @@ export function runSummary(run) {
   run.ledger.forEach((r) => finalPerNode.set(r.nodeId, r));
   const finals = [...finalPerNode.values()];
   return {
-    finished: finals.filter((r) => ['succeeded', 'pinned'].includes(r.result) || r.result.startsWith('took_')).length,
+    finished: finals.filter((r) => ['succeeded', 'pinned', 'approved'].includes(r.result) || r.result.startsWith('took_')).length,
     failed: finals.filter((r) => r.result === 'failed').length,
     disabled: finals.filter((r) => r.result === 'disabled').length,
     running: run.status === 'running',
+    waiting: run.status === 'waiting',
+    cancelled: run.status === 'cancelled',
   };
 }
 
@@ -73,6 +75,6 @@ export function ledgerItems(row) {
   const isTrigger = row.index === 1;
   return {
     in: recorded && !isTrigger ? 1 : 0,
-    out: recorded && row.result !== 'failed' ? 1 : 0,
+    out: recorded && !['failed', 'waiting', 'rejected'].includes(row.result) ? 1 : 0,
   };
 }

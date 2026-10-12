@@ -3,6 +3,14 @@
  * hard-codes user-facing text; record data comes from the studio API.
  */
 export const STUDIO_COPY = {
+  wait: {
+    waiting: 'Waiting for a reply', approve: 'Approve', reject: 'Reject', cancel: 'Cancel',
+    approveTitle: 'Approve this waiting step?', rejectTitle: 'Reject this waiting step?',
+    approveBody: 'Approve {step} and continue this run using its recorded version and inputs.',
+    rejectBody: 'Reject {step} and stop this run. Recorded steps will remain in the receipt.',
+    approved: 'Approval recorded. The run continued.', rejected: 'Rejection recorded. The run stopped.',
+    cancelled: 'Run stopped by rejection',
+  },
   assistantTitle: 'Assistant',
   notInPrototype: '{name} is not part of this prototype yet.',
   projectTabsLabel: 'Project',
@@ -42,6 +50,7 @@ export const STUDIO_COPY = {
   },
 
   runs: {
+    statusFilter: 'Run status', modeFilter: 'Run mode', kpiWaiting: 'Waiting for a reply',
     title: 'Runs',
     kpiRunning: 'Running now',
     kpiSucceeded: 'Succeeded, 7 days',
@@ -73,6 +82,7 @@ export const STUDIO_COPY = {
   },
 
   run: {
+    decisionAttempt: 'Decision',
     crumbsRuns: 'Runs',
     compare: 'Compare runs',
     export: 'Export receipt',
@@ -108,6 +118,7 @@ export const STUDIO_COPY = {
   },
 
   connections: {
+    statusFilter: 'Connection status', groupingFilter: 'Group connections',
     title: 'Connections',
     sampleData: 'Sample data',
     vaultTitle: 'Secrets never leave the vault',
@@ -250,6 +261,7 @@ export const STUDIO_COPY = {
     noProblems: 'No problems found.',
     ledgerCols: { step: 'Step', attempt: 'Try', result: 'Result', in: 'In', out: 'Out', time: 'Time' },
     runStarted: 'Test run started.',
+    runPaused: 'Run paused while it waits for a reply.',
     runFinished: 'Run finished: {status}.',
     publishTitle: 'Publish version {v}',
     publishBody: 'Runs in production use the published version. The draft stays editable.',

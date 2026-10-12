@@ -12,12 +12,13 @@ import { template, formatDateTime, formatDuration, formatNumber } from '../../..
 import { STUDIO_LAYOUT_ID, STUDIO_ROUTES } from '../studio.routes.js';
 import { statusEl, downloadText } from '../shared/studio-ui.js';
 import { XWFRunTimeline } from '../../../components/XWFRunTimeline/XWFRunTimeline.js';
+import { waitControls } from '../shared/wait-controls.js';
 
 const LIVE_POLL_MS = 450;
 const RETENTION_DAYS = 30;
 
 /** Ledger result -> timeline tone. */
-const RESULT_TONE = { pinned: 'pin', failed: 'err', succeeded: 'ok', took_yes: 'muted', took_no: 'muted', running: 'run' };
+const RESULT_TONE = { pinned: 'pin', failed: 'err', rejected: 'err', approved: 'ok', waiting: 'run', succeeded: 'ok', took_yes: 'muted', took_no: 'muted', running: 'run' };
 
 function attemptLabel(row) {
   return (row.maxAttempts ?? 1) > 1 ? `${row.stepName}, ${row.attempt}` : row.stepName;
@@ -99,8 +100,8 @@ export default {
         scope.mount(XWUITable, host, {
           columns: [
             { key: 'stepName', title: C.compareCols.step },
-            { key: 'aMs', title: C.compareCols.a, align: 'end', render: (v) => h('span', { class: 'mono' }, v ? formatDuration(v) : STUDIO_COPY.never) },
-            { key: 'bMs', title: C.compareCols.b, align: 'end', render: (v) => h('span', { class: 'mono' }, v ? formatDuration(v) : STUDIO_COPY.never) },
+            { key: 'aMs', title: C.compareCols.a, align: 'end', render: (v) => h('span', { class: 'mono' }, v == null ? STUDIO_COPY.never : formatDuration(v)) },
+            { key: 'bMs', title: C.compareCols.b, align: 'end', render: (v) => h('span', { class: 'mono' }, v == null ? STUDIO_COPY.never : formatDuration(v)) },
             { key: 'diff', title: C.compareCols.diff, align: 'end', render: (_v, r) => {
               const d = (r.aMs ?? 0) - (r.bMs ?? 0);
               return h('span', { class: ['mono', d > 0 ? 'run-diff--slower' : d < 0 ? 'run-diff--faster' : 'ter'] }, `${d > 0 ? '+' : ''}${formatNumber(d)} ms`);
@@ -134,7 +135,7 @@ export default {
       const row = run.ledger[selectedIndex];
       if (!row) { detailHost.replaceChildren(); return; }
       const failed = row.result === 'failed';
-      const tryLabel = row.attempt > 0 ? `${STUDIO_COPY.run.columns.attempt} ${template(C.tryOf, { n: row.attempt, max: row.maxAttempts ?? 1 })}` : catalog.stepResults[row.result].label;
+      const tryLabel = row.event === 'wait_decision' ? C.decisionAttempt : row.attempt > 0 ? `${STUDIO_COPY.run.columns.attempt} ${template(C.tryOf, { n: row.attempt, max: row.maxAttempts ?? 1 })}` : catalog.stepResults[row.result].label;
       const sections = [
         { id: 'input', label: C.detailTabs.input, value: row.input },
         { id: 'output', label: C.detailTabs.output, value: row.output },
@@ -223,14 +224,14 @@ export default {
         columns: [
           { key: 'index', title: C.columns.index, render: (v) => h('span', { class: 'mono ter' }, String(v)) },
           { key: 'stepName', title: C.columns.step, render: (v, r) => viewKit.ui.button(v, { className: 'run-ledger__step', variant: 'ghost', size: 'sm', onClick: () => { selectedIndex = r.index - 1; renderDetail(); highlightLedger(); timeline.select(String(selectedIndex), { silent: true }); } }) },
-          { key: 'attempt', title: C.columns.attempt, render: (v, r) => (v > 0 ? ((r.maxAttempts ?? 1) > 1 ? template(C.tryOf, { n: v, max: r.maxAttempts }) : String(v)) : C.tryNone) },
+          { key: 'attempt', title: C.columns.attempt, render: (v, r) => r.event === 'wait_decision' ? C.decisionAttempt : (v > 0 ? ((r.maxAttempts ?? 1) > 1 ? template(C.tryOf, { n: v, max: r.maxAttempts }) : String(v)) : C.tryNone) },
           { key: 'result', title: C.columns.result, render: (v, r) => {
             const res = catalog.stepResults[v] ?? catalog.stepResults.not_run;
             const label = v === 'failed' && r.error?.status ? `${res.label}, ${r.error.status}` : res.label;
             return statusEl(viewKit.scope, label, res.st);
           } },
           { key: 'payload', title: C.columns.payload, render: (v) => catalog.payloadLabels[v] ?? v },
-          { key: 'durationMs', title: C.columns.time, align: 'end', render: (v) => h('span', { class: ['mono', v ? '' : 'ter'] }, v ? formatDuration(v) : STUDIO_COPY.never) },
+          { key: 'durationMs', title: C.columns.time, align: 'end', render: (v) => h('span', { class: ['mono', v ? '' : 'ter'] }, v == null ? STUDIO_COPY.never : formatDuration(v)) },
         ],
         data: run.ledger,
       }, { hoverable: true });
@@ -241,7 +242,7 @@ export default {
       requestAnimationFrame(highlightLedger);
 
       el.replaceChildren(h('div', { class: 'pg' },
-        hero, alertEl, timelineSection,
+        hero, waitControls(viewKit, ctx, run, STUDIO_COPY.wait, (next) => { run = next; selectedIndex = null; renderTopbar(); render(); }), alertEl, timelineSection,
         h('div', { class: 'wrapf gap16 run-split' }, ledgerSection, detailHost)));
       renderDetail();
     }

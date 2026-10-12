@@ -59,13 +59,13 @@ export default {
       host.addEventListener('click', (e) => { if (e.target.closest('[class*="close"]')) clear(); });
     }
 
-    const statusOptions = [{ value: 'all', label: C.statusAll }, ...['running', 'succeeded', 'failed'].map((v) => ({ value: v, label: catalog.runStatuses[v].label }))];
+    const statusOptions = [{ value: 'all', label: C.statusAll }, ...Object.entries(catalog.runStatuses).filter(([id]) => id !== 'succeeded_after_retry').map(([value, item]) => ({ value, label: item.label }))];
     const modeOptions = [{ value: 'all', label: C.modeAll }, ...Object.entries(catalog.runModes).map(([value, m]) => ({ value, label: m.label }))];
 
     const filtersRow = h('div', { class: 'studio-filters' },
       searchEl(page.scope, { placeholder: C.searchPlaceholder, onChange: (q) => { filters.q = q; reload(); } }),
-      selectEl(page.scope, { label: catalog.runStatuses.running.label, options: statusOptions, value: 'all', onChange: (v) => { filters.status = v || 'all'; reload(); } }),
-      selectEl(page.scope, { label: C.modeAll, options: modeOptions, value: 'all', onChange: (v) => { filters.mode = v || 'all'; reload(); } }),
+      selectEl(page.scope, { label: C.statusFilter, options: statusOptions, value: 'all', onChange: (v) => { filters.status = v || 'all'; reload(); } }),
+      selectEl(page.scope, { label: C.modeFilter, options: modeOptions, value: 'all', onChange: (v) => { filters.mode = v || 'all'; reload(); } }),
       chipHost);
 
     async function bulk(action) {
@@ -111,6 +111,7 @@ export default {
       const sparkHost = h('div');
       kpiRow.replaceChildren(
         kpiEl(listKit.scope, { title: C.kpiRunning, value: kpis.runningNow, tone: 'cyan', valueTone: 'run', footnote: template(C.asOf, { when: formatRelative(kpis.asOf) }) }),
+        kpiEl(listKit.scope, { title: C.kpiWaiting, value: kpis.waitingNow, tone: 'amber' }),
         kpiEl(listKit.scope, { title: C.kpiSucceeded, value: kpis.succeeded7d, tone: 'green' }),
         kpiEl(listKit.scope, { title: C.kpiFailed, value: kpis.failed7d, tone: 'red', valueTone: 'err' }),
         h('div', { class: 'glass pad-s stack gap8 studio-runs__spark' },

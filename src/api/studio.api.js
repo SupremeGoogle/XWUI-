@@ -78,9 +78,10 @@ function materializeRun(run) {
   if (!run.live) return run;
   const elapsed = Date.now() - new Date(run.startedAt).getTime();
   if (elapsed >= run.plannedDurationMs) {
-    const done = { ...run, live: false, status: run.plannedStatus, durationMs: run.plannedDurationMs };
+    const done = { ...run, live: false, status: run.plannedStatus, durationMs: run.plannedRecordedMs ?? run.plannedDurationMs };
     delete done.plannedStatus;
     delete done.plannedDurationMs;
+    delete done.plannedRecordedMs;
     runs.update(run.id, done);
     return done;
   }
@@ -121,6 +122,7 @@ function shapeRun(run) {
     ledger: live.ledger.map((row, index) => ({ ...row, index: index + 1, stepName: nodeName(row.nodeId), nodeType: graph?.nodes.find((n) => n.id === row.nodeId)?.type })),
     stepsTotal: stepIds.size,
     stepsRecorded: recorded.size,
+    previousRunId: runsOfFlow(run.flowId).find(other => other.id !== run.id && other.startedAt < run.startedAt)?.id ?? null,
   };
 }
 
@@ -275,6 +277,7 @@ export const studioApi = {
       ...paginate(filtered.map(({ ledger, ...r }) => r), { page, pageSize }),
       kpis: {
         runningNow: all.filter((r) => r.status === 'running').length,
+        waitingNow: all.filter((r) => r.status === 'waiting').length,
         liveNow: all.filter((r) => r.live).length,
         succeeded7d: week.filter((r) => r.status.startsWith('succeeded')).length,
         failed7d: week.filter((r) => r.status === 'failed').length,
@@ -298,31 +301,62 @@ export const studioApi = {
     const flow = flows.require(flowId);
     if (mode === 'production' && !flow.publishedVersion) throw new ApiError('not_published', 'Publish the flow before running it in production.');
     const graph = mode === 'production' ? versions.require(`${flowId}@${flow.publishedVersion}`).graph : flow.graph;
-    const plan = simulateRun({ graph, types: typeIndex, payload: flow.samplePayload ?? {}, stopAtNodeId, subFlows: subFlowSnapshots() });
+    const snapshots = subFlowSnapshots();
+    const inputPayload = clone(flow.samplePayload ?? {});
+    const plan = simulateRun({ graph, types: typeIndex, payload: inputPayload, stopAtNodeId, subFlows: snapshots });
     const sequence = runsOfFlow(flowId).reduce((max, r) => Math.max(max, r.sequence ?? 0), 0) + 1;
     const run = runs.create({
       id: newId(`run_${flowId.replace(/^flow_/, '')}`),
       shortId: `r_${Math.random().toString(16).slice(2, 6)}`,
       flowId, flowName: flow.name, graph: clone(graph), version: flow.publishedVersion, mode, retryOf, sequence,
       startedAt: nowIso(), live: true, status: 'running', durationMs: null,
-      plannedStatus: plan.status, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger,
+      plannedStatus: plan.status, plannedRecordedMs: plan.durationMs, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger,
       sampleData: mode === 'test',
+      inputPayload, subFlows: snapshots, stopAtNodeId, pendingWait: plan.pendingWait, waitDecisions: {},
     });
     return { id: run.id };
   }, { latency: [250, 450] }),
+
+  /** Resolve exactly one pending reply; identical repeats are idempotent. */
+  resolveWait: (runId, stepId, decision) => respond(() => {
+    if (!['approve', 'reject'].includes(decision)) throw new ApiError('validation', 'Choose approve or reject.');
+    const source = materializeRun(runs.require(runId));
+    const existing = source.waitDecisions?.[stepId];
+    if (existing) {
+      if (existing.decision !== decision) throw new ApiError('already_resolved', 'This wait already has a different decision.');
+      return shapeRun(source);
+    }
+    if (source.status !== 'waiting' || source.pendingWait?.stepId !== stepId) throw new ApiError('not_waiting', 'This step is not waiting for a reply.');
+    const actor = userById(db.currentUserId);
+    const waitDecisions = { ...source.waitDecisions, [stepId]: {
+      decision, actorId: actor.id, actorName: actor.name, resolvedAt: nowIso(),
+      offsetMs: Math.max(source.durationMs ?? 0, Date.now() - new Date(source.startedAt).getTime()),
+    } };
+    const plan = simulateRun({ graph: source.graph, types: typeIndex,
+      payload: source.inputPayload ?? flows.get(source.flowId)?.samplePayload ?? {},
+      subFlows: source.subFlows ?? subFlowSnapshots(), historyRows: source.ledger,
+      waitDecisions, stopAtNodeId: source.stopAtNodeId,
+    });
+    const next = runs.update(runId, { ledger: plan.ledger, status: plan.status, durationMs: plan.durationMs,
+      live: false, pendingWait: plan.pendingWait, waitDecisions });
+    return shapeRun(next);
+  }, { latency: [200, 400], failRate: 0.03 }),
 
   /** Retry runs (each becomes a new run in "retry" mode). */
   retryRuns: (ids) => respond(() => ids.map((id) => {
     const source = runs.require(id);
     const flow = flows.require(source.flowId);
     const graph = source.graph ?? versions.get(`${source.flowId}@${source.version}`)?.graph ?? flow.graph;
-    const plan = simulateRun({ graph, types: typeIndex, payload: flow.samplePayload ?? {}, subFlows: subFlowSnapshots() });
+    const inputPayload = clone(source.inputPayload ?? flow.samplePayload ?? {});
+    const snapshots = clone(source.subFlows ?? subFlowSnapshots());
+    const plan = simulateRun({ graph, types: typeIndex, payload: inputPayload, subFlows: snapshots });
     return runs.create({
       id: newId(`run_${source.flowId.replace(/^flow_/, '')}`),
       shortId: `r_${Math.random().toString(16).slice(2, 6)}`,
       flowId: source.flowId, flowName: source.flowName ?? flow.name, graph: clone(graph), version: source.version, mode: 'retry', retryOf: id,
       sequence: runsOfFlow(source.flowId).reduce((max, r) => Math.max(max, r.sequence ?? 0), 0) + 1, startedAt: nowIso(), live: true, status: 'running', durationMs: null,
-      plannedStatus: plan.status, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger,
+      plannedStatus: plan.status, plannedRecordedMs: plan.durationMs, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger, pendingWait: plan.pendingWait,
+      inputPayload, subFlows: snapshots, waitDecisions: {},
     }).id;
   }), { latency: [400, 800], failRate: 0.03 }),
 
@@ -335,13 +369,16 @@ export const studioApi = {
     if (start < 0) throw new ApiError('not_found', 'This step is not in the receipt.');
     const reusedRows = Object.fromEntries(source.ledger.slice(0, start).filter((row) => ['succeeded', 'pinned'].includes(row.result) || row.result.startsWith('took_')).map((row) => [row.nodeId, row]));
     const retryGraph = { ...graph, nodes: graph.nodes.map((n) => n.id === nodeId ? { ...n, sim: { ...n.sim, failAttempts: 0 } } : n) };
-    const plan = simulateRun({ graph: retryGraph, types: typeIndex, payload: flow.samplePayload ?? {}, reusedRows, subFlows: subFlowSnapshots() });
+    const inputPayload = clone(source.inputPayload ?? flow.samplePayload ?? {});
+    const snapshots = clone(source.subFlows ?? subFlowSnapshots());
+    const plan = simulateRun({ graph: retryGraph, types: typeIndex, payload: inputPayload, reusedRows, subFlows: snapshots });
     const run = runs.create({
       id: newId(`run_${source.flowId.replace(/^flow_/, '')}`),
       shortId: `r_${Math.random().toString(16).slice(2, 6)}`,
       flowId: source.flowId, flowName: source.flowName ?? flow.name, graph: clone(graph), version: source.version, mode: 'retry', retryOf: runId, retryFromNodeId: nodeId,
       sequence: runsOfFlow(source.flowId).reduce((max, r) => Math.max(max, r.sequence ?? 0), 0) + 1, startedAt: nowIso(), live: true, status: 'running', durationMs: null,
-      plannedStatus: plan.status, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger,
+      plannedStatus: plan.status, plannedRecordedMs: plan.durationMs, plannedDurationMs: Math.max(plan.durationMs, 600), ledger: plan.ledger, pendingWait: plan.pendingWait,
+      inputPayload, subFlows: snapshots, waitDecisions: {},
     });
     return { id: run.id };
   }, { latency: [400, 800] }),
@@ -360,7 +397,7 @@ export const studioApi = {
       content: JSON.stringify({
         receipt: run.shortId, flow: run.flowName, version: run.version, mode: run.mode, status: run.status,
         startedAt: run.startedAt, durationMs: run.durationMs,
-        steps: run.ledger.map(({ index, stepName, attempt, maxAttempts, result, payload, durationMs, error }) => ({ index, stepName, attempt, maxAttempts, result, payload, durationMs, error })),
+        steps: run.ledger.map(({ index, stepName, attempt, maxAttempts, result, payload, durationMs, error, input, output, decision, actorId, actorName, resolvedAt }) => ({ index, stepName, attempt, maxAttempts, result, payload, durationMs, error, input, output, decision, actorId, actorName, resolvedAt })),
         note: 'Credentials appear by name only. Values are never stored in a receipt.',
       }, null, 2),
     };

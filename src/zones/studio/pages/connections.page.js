@@ -154,8 +154,8 @@ export default {
         ui.button(C.addConnection, { variant: 'primary', icon: 'plus', onClick: addConnection })),
       h('div', { class: 'studio-filters' },
         searchEl(scope, { placeholder: C.searchPlaceholder, onChange: (q) => { filters.q = q; reload(); } }),
-        selectEl(scope, { label: C.statusAll, options: statusOptions, value: 'all', onChange: (v) => { filters.status = v || 'all'; reload(); } }),
-        selectEl(scope, { label: C.groups.connection, options: groupOptions, value: 'connection', onChange: (v) => { filters.group = v || 'connection'; render(); } })),
+        selectEl(scope, { label: C.statusFilter, options: statusOptions, value: 'all', onChange: (v) => { filters.status = v || 'all'; reload(); } }),
+        selectEl(scope, { label: C.groupingFilter, options: groupOptions, value: 'connection', onChange: (v) => { filters.group = v || 'connection'; render(); } })),
       grid));
     render();
 

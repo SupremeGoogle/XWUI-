@@ -9,8 +9,9 @@ import { createKit } from '../../../../core/ui.js';
 import { template, formatDuration } from '../../../../core/format.js';
 import { statusEl } from '../../shared/studio-ui.js';
 import { runSummary, ledgerItems } from './editor.logic.js';
+import { waitControls } from '../../shared/wait-controls.js';
 
-export function createRunPanel({ ctx, catalog, copy }) {
+export function createRunPanel({ ctx, catalog, copy, onWaitResolved }) {
   const STUDIO_COPY = catalog.copy;
   let kit = createKit();
   let tab = 'ledger';
@@ -37,7 +38,7 @@ export function createRunPanel({ ctx, catalog, copy }) {
     scope.mount(XWUITable, host, {
       columns: [
         { key: 'stepName', title: copy.ledgerCols.step, render: (v) => h('b', {}, v) },
-        { key: 'attempt', title: copy.ledgerCols.attempt, render: (v, r) => (v > 0 ? ((r.maxAttempts ?? 1) > 1 ? template(STUDIO_COPY.run.tryOf, { n: v, max: r.maxAttempts }) : String(v)) : STUDIO_COPY.run.tryNone) },
+        { key: 'attempt', title: copy.ledgerCols.attempt, render: (v, r) => r.event === 'wait_decision' ? STUDIO_COPY.run.decisionAttempt : (v > 0 ? ((r.maxAttempts ?? 1) > 1 ? template(STUDIO_COPY.run.tryOf, { n: v, max: r.maxAttempts }) : String(v)) : STUDIO_COPY.run.tryNone) },
         { key: 'result', title: copy.ledgerCols.result, render: (v, r) => {
           const res = catalog.stepResults[v] ?? catalog.stepResults.not_run;
           const label = v === 'pinned' ? res.editorLabel ?? res.label : v === 'failed' && r.detail ? `${res.label}, ${r.detail.replace(/^the /, '')}` : res.label;
@@ -45,7 +46,7 @@ export function createRunPanel({ ctx, catalog, copy }) {
         } },
         { key: 'in', title: copy.ledgerCols.in, align: 'end', render: (_v, r) => String(ledgerItems(r).in) },
         { key: 'out', title: copy.ledgerCols.out, align: 'end', render: (_v, r) => String(ledgerItems(r).out) },
-        { key: 'durationMs', title: copy.ledgerCols.time, align: 'end', render: (v) => h('span', { class: ['mono', v ? '' : 'ter'] }, v ? formatDuration(v) : STUDIO_COPY.never) },
+        { key: 'durationMs', title: copy.ledgerCols.time, align: 'end', render: (v) => h('span', { class: ['mono', v ? '' : 'ter'] }, v == null ? STUDIO_COPY.never : formatDuration(v)) },
       ],
       data: run.ledger.filter((r) => r.attempt > 0 || r.result === 'running'),
     }, { size: 'sm', className: 'editor-ledger' });
@@ -72,6 +73,8 @@ export function createRunPanel({ ctx, catalog, copy }) {
     const summary = runSummary(state.run);
     const chips = [];
     if (summary?.running) chips.push(statusEl(scope, copy.runningNow, 'run'));
+    if (summary?.waiting) chips.push(statusEl(scope, STUDIO_COPY.wait.waiting, 'warn'));
+    if (summary?.cancelled) chips.push(statusEl(scope, STUDIO_COPY.wait.cancelled, 'idle'));
     if (summary?.finished) chips.push(statusEl(scope, template(copy.finished, { n: summary.finished }), 'ok'));
     if (summary?.failed) chips.push(statusEl(scope, template(copy.failedCount, { n: summary.failed }), 'err'));
     if (summary?.disabled) chips.push(statusEl(scope, template(copy.disabledCount, { n: summary.disabled }), 'dis'));
@@ -79,7 +82,7 @@ export function createRunPanel({ ctx, catalog, copy }) {
     el.replaceChildren(
       h('div', { class: 'rowf gap12 editor-runpanel__head' }, tabsHost, chips,
         state.run && ui.button(copy.openReceipt, { variant: 'secondary', size: 'sm', className: 'sp', onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.run, { runId: state.run.id }).slice(1)) })),
-      h('div', { class: 'editor-runpanel__body' }, body(state)));
+      h('div', { class: 'editor-runpanel__body stack gap8' }, state.run && waitControls(kit, ctx, state.run, STUDIO_COPY.wait, onWaitResolved), body(state)));
   }
 
   return {

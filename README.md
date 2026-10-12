@@ -37,6 +37,9 @@ The website directory and Studio palette use one shared step registry. Switch ro
 to two cases or its default output; AI condition records a configurable demo verdict
 (`yes`, `no`, `unsure`), model and token count. Sub-flow runs a selected local flow's
 published version or draft and records its nested result; recursive calls are rejected.
+Reply-based Wait pauses execution until Approve or Reject is confirmed. Decisions
+record the actor and time without changing earlier attempts; repeated decisions
+are idempotent. Fixed-time waits remain simulated.
 
 ## Structure
 
@@ -93,7 +96,7 @@ With Node.js installed, run the local regression suite:
 node --test src/core/router.test.mjs src/api/studio.test.mjs src/api/website-admin.test.mjs
 ```
 
-The regression suite has 19 passing tests. Browser checks cover navigation,
+The regression suite has 26 passing tests. Browser checks cover navigation,
 responsive pages, editor/publish/run/retry, connections, branding, audit, health,
 errors and empty states: 468 route checks, plus hero checks at 17 widths from
 320 to 3440 px. Scope and limits are documented in `docs/mobile-qa.md`.

@@ -317,6 +317,7 @@ export const runsPerHour = [
 
 export const runStatuses = {
   running: { label: 'Running', st: 'run' },
+  waiting: { label: 'Waiting for a reply', st: 'warn' },
   succeeded: { label: 'Succeeded', st: 'ok' },
   succeeded_after_retry: { label: 'Succeeded after a retry', st: 'ok' },
   failed: { label: 'Failed', st: 'err' },
@@ -332,6 +333,9 @@ export const runModes = {
 };
 
 export const stepResults = {
+  waiting: { label: 'Waiting for a reply', st: 'warn' },
+  approved: { label: 'Approved', st: 'ok' },
+  rejected: { label: 'Rejected', st: 'err' },
   pinned: { label: 'Pinned data', editorLabel: 'Pinned data used', st: 'pin' },
   succeeded: { label: 'Succeeded', st: 'ok' },
   failed: { label: 'Failed', st: 'err' },

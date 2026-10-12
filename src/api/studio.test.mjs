@@ -9,6 +9,22 @@ globalThis.fetch = async (url) => ({ ok: true, json: async () => JSON.parse(awai
 const { studioApi } = await import('./studio.api.js');
 const { MOCK_CONFIG } = await import('../core/mock.config.js');
 
+async function waitingFlow(name, until = 'A reply arrives', extraWait = false) {
+  const { id } = await studioApi.createFlow({ name });
+  const flow = await studioApi.getFlow(id);
+  const trigger = flow.graph.nodes[0];
+  const wait = { id: 'approval', type: 'wait', name: 'Approval', x: 350, y: 200, params: { until } };
+  const next = { id: 'after', type: 'code', name: 'After approval', x: 600, y: 200, params: {} };
+  const nodes = [trigger, wait, next];
+  const edges = [{ id: 'to-wait', from: trigger.id, to: wait.id, port: 'out' }, { id: 'after-wait', from: wait.id, to: next.id, port: 'out' }];
+  if (extraWait) {
+    nodes.push({ ...wait, id: 'second', name: 'Second approval', x: 850 });
+    edges.push({ id: 'second-wait', from: next.id, to: 'second', port: 'out' });
+  }
+  await studioApi.saveDraft(id, { ...flow.graph, nodes, edges });
+  return id;
+}
+
 async function complete(id) {
   const now = Date.now;
   Date.now = () => now() + 60000;
@@ -71,6 +87,117 @@ test('catalog copy and assets come through the API; response mutation cannot cha
   catalog.copy.flows.title = 'Caller mutation';
   assert.equal((await studioApi.getCatalog()).copy.flows.title, 'Flows');
   assert.equal((await studioApi.getNotationGallery()).items.length, 24);
+});
+
+test('reply Wait pauses the run, skips downstream steps and appears in filters and KPIs', async () => {
+  const id = await waitingFlow('Wait test');
+  const run = await studioApi.startRun(id);
+  const receipt = await complete(run.id);
+  assert.equal(receipt.status, 'waiting');
+  assert.equal(receipt.pendingWait.stepId, 'approval');
+  assert.equal(receipt.ledger.find(row => row.nodeId === 'approval').result, 'waiting');
+  assert.equal(receipt.ledger.find(row => row.nodeId === 'after').result, 'not_run');
+  const list = await studioApi.listRuns({ status: 'waiting', days: null });
+  assert.ok(list.items.some(item => item.id === run.id));
+  assert.ok(list.kpis.waitingNow > 0);
+  assert.equal((await studioApi.getCatalog()).runStatuses.waiting.st, 'warn');
+  await assert.rejects(studioApi.resolveWait(run.id, 'missing', 'approve'), { code: 'not_waiting' });
+  await assert.rejects(studioApi.resolveWait(run.id, 'approval', 'invalid'), { code: 'validation' });
+});
+
+test('approval preserves recorded attempts and the graph snapshot even after flow deletion', async () => {
+  const id = await waitingFlow('Immutable approval');
+  const run = await studioApi.startRun(id);
+  const before = await complete(run.id);
+  await studioApi.deleteFlow(id);
+  const resolved = await studioApi.resolveWait(run.id, 'approval', 'approve');
+  assert.equal(resolved.status, 'succeeded');
+  assert.deepEqual(resolved.ledger.slice(0, 2), before.ledger.slice(0, 2));
+  assert.equal(resolved.ledger.at(-1).result, 'succeeded');
+  const decision = resolved.ledger.find(row => row.event === 'wait_decision');
+  assert.equal(decision.result, 'approved');
+  assert.ok(decision.actorName && decision.actorId && decision.resolvedAt);
+  assert.deepEqual((await studioApi.resolveWait(run.id, 'approval', 'approve')).ledger, resolved.ledger);
+  await assert.rejects(studioApi.resolveWait(run.id, 'approval', 'reject'), { code: 'already_resolved' });
+  assert.deepEqual((await studioApi.getRun(run.id)).ledger, resolved.ledger);
+  const exported = JSON.parse((await studioApi.exportReceipt(run.id)).content);
+  assert.equal(exported.steps.find(row => row.decision).actorName, decision.actorName);
+});
+
+test('rejection stops downstream execution and repeated rejection is idempotent', async () => {
+  const id = await waitingFlow('Rejected approval');
+  const run = await studioApi.startRun(id);
+  const before = await complete(run.id);
+  const resolved = await studioApi.resolveWait(run.id, 'approval', 'reject');
+  assert.equal(resolved.status, 'cancelled');
+  assert.equal(resolved.ledger.find(row => row.nodeId === 'after').result, 'not_run');
+  assert.deepEqual(resolved.ledger.slice(0, 2), before.ledger.slice(0, 2));
+  assert.equal(resolved.ledger.filter(row => row.event === 'wait_decision').length, 1);
+  assert.deepEqual((await studioApi.resolveWait(run.id, 'approval', 'reject')).ledger, resolved.ledger);
+});
+
+test('fixed-time Wait retains its simulated time behavior', async () => {
+  const id = await waitingFlow('Timed wait', 'A fixed time passes');
+  const run = await studioApi.startRun(id);
+  const receipt = await complete(run.id);
+  assert.equal(receipt.status, 'succeeded');
+  assert.equal(receipt.pendingWait, null);
+  assert.equal(receipt.ledger.find(row => row.nodeId === 'approval').durationMs, 1500);
+});
+
+test('failed wait resolution leaves the receipt and pending decision unchanged', async () => {
+  const id = await waitingFlow('Failure during approval');
+  const run = await studioApi.startRun(id);
+  const before = await complete(run.id);
+  const random = Math.random;
+  const enabled = MOCK_CONFIG.enabled;
+  MOCK_CONFIG.enabled = true;
+  Math.random = () => 0;
+  try {
+    await assert.rejects(studioApi.resolveWait(run.id, 'approval', 'approve'), { code: 'unavailable' });
+  } finally { MOCK_CONFIG.enabled = enabled; Math.random = random; }
+  const after = await studioApi.getRun(run.id);
+  assert.deepEqual(after.ledger, before.ledger);
+  assert.deepEqual(after.pendingWait, before.pendingWait);
+  assert.equal(after.status, 'waiting');
+});
+
+test('repeating an earlier decision cannot resolve a later Wait', async () => {
+  const id = await waitingFlow('Two approvals', 'A reply arrives', true);
+  const run = await studioApi.startRun(id);
+  await complete(run.id);
+  const first = await studioApi.resolveWait(run.id, 'approval', 'approve');
+  assert.equal(first.pendingWait.stepId, 'second');
+  const repeated = await studioApi.resolveWait(run.id, 'approval', 'approve');
+  assert.equal(repeated.pendingWait.stepId, 'second');
+  assert.deepEqual(repeated.ledger, first.ledger);
+  const final = await studioApi.resolveWait(run.id, 'second', 'approve');
+  assert.equal(final.status, 'succeeded');
+  assert.equal(final.ledger.filter(row => row.event === 'wait_decision').length, 2);
+});
+
+test('a nested Wait pauses the parent and resumes the recorded child version', async () => {
+  const childId = await waitingFlow('Child approval');
+  await studioApi.publishFlow(childId);
+  const { id } = await studioApi.createFlow({ name: 'Parent approval' });
+  const parent = await studioApi.getFlow(id);
+  const trigger = parent.graph.nodes[0];
+  await studioApi.saveDraft(id, { ...parent.graph,
+    nodes: [trigger, { id: 'call', type: 'sub_flow', name: 'Child', x: 350, y: 200, params: { flowId: childId, mode: 'Published version' } },
+      { id: 'finish', type: 'code', name: 'Finish', x: 600, y: 200, params: {} }],
+    edges: [{ id: 'call-child', from: trigger.id, to: 'call', port: 'out' }, { id: 'finish-child', from: 'call', to: 'finish', port: 'out' }],
+  });
+  const run = await studioApi.startRun(id);
+  const waiting = await complete(run.id);
+  assert.equal(waiting.status, 'waiting');
+  assert.equal(waiting.pendingWait.stepId, 'call/approval');
+  await studioApi.deleteFlow(childId);
+  const resolved = await studioApi.resolveWait(run.id, waiting.pendingWait.stepId, 'approve');
+  assert.equal(resolved.status, 'succeeded');
+  const nested = resolved.ledger.filter(row => row.nodeId === 'call').at(-1).output;
+  assert.equal(nested.status, 'succeeded');
+  assert.ok(nested.ledger.some(row => row.result === 'approved'));
+  assert.equal(resolved.ledger.find(row => row.nodeId === 'finish').result, 'succeeded');
 });
 
 test('simulated failure leaves an unpublished draft unchanged', async () => {

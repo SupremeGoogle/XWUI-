@@ -38,7 +38,7 @@ graph within the space between panels.
 node --test src/core/router.test.mjs src/api/studio.test.mjs src/api/website-admin.test.mjs
 ```
 
-19 tests cover immutable publication/receipts, retry payloads, catalog consistency,
+26 tests cover immutable publication/receipts, retry payloads, catalog consistency,
 branch routing, nested flows, persistence, validation, exports and stale navigation.
 JavaScript syntax and asset manifest paths/IDs/SVG structure were also checked.
 The delivery contains 123 JavaScript modules and 69 manifest assets; all local

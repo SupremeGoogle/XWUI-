@@ -79,7 +79,12 @@ export default {
       onExecuteTo: (id) => startRun({ stopAtNodeId: id }),
       onDelete: (id) => deleteSelection(id),
     } });
-    const runPanel = createRunPanel({ ctx, catalog, copy: C });
+    const runPanel = createRunPanel({ ctx, catalog, copy: C, onWaitResolved: (next) => {
+      state.run = next;
+      state.running = false;
+      canvas.setNodeStates(nodeStatesFromRun(state.graph, next, catalog, C.nodeStates));
+      refreshPanels();
+    } });
 
     el.append(h('div', { class: 'editor' }, canvasHost, header.el, palette.el, inspector.el, runPanel.el));
 
@@ -203,7 +208,7 @@ export default {
             state.running = false;
             refreshPanels({ inspector: false });
             const status = catalog.runStatuses[run.status];
-            ctx.notify[run.status === 'failed' ? 'error' : 'success'](template(C.runFinished, { status: status.label.toLowerCase() }), {
+            ctx.notify[run.status === 'waiting' ? 'info' : run.status === 'failed' ? 'error' : 'success'](run.status === 'waiting' ? C.runPaused : template(C.runFinished, { status: status.label.toLowerCase() }), {
               action: { label: C.openReceipt, onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.run, { runId: run.id }).slice(1)) },
             });
           } catch (error) {

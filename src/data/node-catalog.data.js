@@ -47,6 +47,7 @@ export const nodeTypes = [
   },
   {
     id: 'wait', label: 'Wait', group: 'control', tone: 'orange', icon: 'hourglass', palette: true,
+    wait: { replyValue: 'A reply arrives', fixedValue: 'A fixed time passes' },
     description: 'Pauses the run for a time or until someone answers.',
     notation: { flowchart: 'delay', bpmn: 'intermediate-timer', sequence: 'self' }, lane: 'engine',
     ports: ['out'],

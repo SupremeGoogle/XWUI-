@@ -70,7 +70,7 @@ export function orderNodes(graph, types) {
  * @param {{ graph: object, types: Record<string, object>, payload: object, mode: string, stopAtNodeId?: string }} input
  * @returns {{ ledger: object[], status: string, durationMs: number }}
  */
-export function simulateRun({ graph, types, payload, stopAtNodeId = null, reusedRows = {}, subFlows = {}, callStack = [] }) {
+export function simulateRun({ graph, types, payload, stopAtNodeId = null, reusedRows = {}, subFlows = {}, callStack = [], historyRows = [], waitDecisions = {}, stepPath = [] }) {
   const ledger = [];
   const reached = new Set();
   const ordered = orderNodes(graph, types);
@@ -81,10 +81,12 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null, reused
   let failed = false;
   let retried = false;
   let stopped = false;
+  let cancelled = false;
+  let pendingWait = null;
 
   for (const node of ordered) {
     const type = types[node.type] ?? {};
-    if (stopped || failed || !reached.has(node.id)) {
+    if (stopped || failed || pendingWait || !reached.has(node.id)) {
       ledger.push({ nodeId: node.id, attempt: 0, result: node.disabled ? 'disabled' : 'not_run', payload: 'none', offsetMs: null, durationMs: null });
       continue;
     }
@@ -93,7 +95,15 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null, reused
       continue;
     }
 
-    if (reusedRows[node.id]) {
+    const past = historyRows.filter(row => row.nodeId === node.id && row.attempt > 0);
+    const previous = past.at(-1);
+    const completed = previous && (['succeeded', 'pinned', 'approved'].includes(previous.result) || previous.result.startsWith('took_'));
+    if (completed) {
+      ledger.push(...structuredClone(past));
+      clock = Math.max(clock, ...past.map(row => (row.offsetMs ?? 0) + (row.durationMs ?? 0)));
+      if (past.some(row => row.result === 'failed')) retried = true;
+      outgoing(graph, node.id).filter(edge => !previous.output?.branch || edge.port === previous.output.branch).forEach(edge => reached.add(edge.to));
+    } else if (reusedRows[node.id]) {
       const previous = reusedRows[node.id];
       ledger.push({ ...structuredClone(previous), attempt: 1, result: 'pinned', offsetMs: clock, durationMs: null });
       clock += 12;
@@ -106,6 +116,24 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null, reused
       ledger.push({ nodeId: node.id, attempt: 1, result: 'succeeded', payload: 'stored', offsetMs: clock, durationMs: 2, output: payload });
       clock += 2;
       outgoing(graph, node.id).forEach((e) => reached.add(e.to));
+    } else if (type.id === 'wait' && (node.params?.until ?? type.wait?.replyValue) === type.wait?.replyValue) {
+      const stepId = [...stepPath, node.id].join('/');
+      const decision = waitDecisions[stepId];
+      const waitingRow = previous?.result === 'waiting' ? previous : {
+        nodeId: node.id, attempt: 1, result: 'waiting', payload: 'stored', offsetMs: clock,
+        durationMs: null, input: payload,
+      };
+      ledger.push(structuredClone(waitingRow));
+      if (decision) {
+        clock = Math.max(clock, decision.offsetMs);
+        ledger.push({ nodeId: node.id, attempt: 1, result: decision.decision === 'approve' ? 'approved' : 'rejected',
+          event: 'wait_decision', payload: 'stored', offsetMs: clock, durationMs: 0,
+          decision: decision.decision, actorId: decision.actorId, actorName: decision.actorName, resolvedAt: decision.resolvedAt,
+          output: { decision: decision.decision, actor: decision.actorName, resolvedAt: decision.resolvedAt },
+        });
+        if (decision.decision === 'approve') outgoing(graph, node.id).forEach(edge => reached.add(edge.to));
+        else { cancelled = true; stopped = true; }
+      } else pendingWait = { nodeId: node.id, stepId, stepName: node.name, offsetMs: clock };
     } else if (type.id === 'sub_flow') {
       const flowId = node.params?.flowId;
       const target = subFlows[flowId];
@@ -115,12 +143,16 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null, reused
         ledger.push({ nodeId: node.id, attempt: 1, result: 'failed', detail: error, payload: 'none', offsetMs: clock, durationMs: 0, error: { message: error } });
         failed = true;
       } else {
-        const nested = simulateRun({ graph: nestedGraph, types, payload, subFlows, callStack: [...callStack, flowId] });
-        const succeeded = nested.status !== 'failed';
-        ledger.push({ nodeId: node.id, attempt: 1, result: succeeded ? 'succeeded' : 'failed', payload: 'stored', offsetMs: clock, durationMs: nested.durationMs,
-          output: { flowId, status: nested.status, ledger: nested.ledger }, ...(succeeded ? {} : { error: { message: 'The called flow failed.' } }) });
+        const nested = simulateRun({ graph: nestedGraph, types, payload, subFlows, callStack: [...callStack, flowId],
+          historyRows: previous?.output?.ledger ?? [], waitDecisions, stepPath: [...stepPath, node.id] });
+        const succeeded = nested.status.startsWith('succeeded');
+        if (previous?.result === 'waiting') ledger.push(...structuredClone(past));
+        ledger.push({ nodeId: node.id, attempt: 1, result: nested.status === 'waiting' ? 'waiting' : nested.status === 'cancelled' ? 'rejected' : succeeded ? 'succeeded' : 'failed', payload: 'stored', offsetMs: clock, durationMs: nested.status === 'waiting' ? null : nested.durationMs,
+          output: { flowId, status: nested.status, ledger: nested.ledger }, ...(nested.status === 'failed' ? { error: { message: 'The called flow failed.' } } : {}) });
         clock += nested.durationMs;
         if (succeeded) outgoing(graph, node.id).forEach(e => reached.add(e.to));
+        else if (nested.status === 'waiting') pendingWait = { ...nested.pendingWait, nodeId: node.id };
+        else if (nested.status === 'cancelled') { cancelled = true; stopped = true; }
         else failed = true;
         if (nested.status === 'succeeded_after_retry') retried = true;
       }
@@ -180,8 +212,8 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null, reused
     if (stopAtNodeId && node.id === stopAtNodeId) stopped = true;
   }
 
-  const status = failed ? 'failed' : retried ? 'succeeded_after_retry' : 'succeeded';
-  return { ledger, status, durationMs: clock };
+  const status = failed ? 'failed' : cancelled ? 'cancelled' : pendingWait ? 'waiting' : retried ? 'succeeded_after_retry' : 'succeeded';
+  return { ledger, status, durationMs: clock, pendingWait };
 }
 
 /** How many ledger rows are visible `elapsedMs` after the start (for a live run). */
