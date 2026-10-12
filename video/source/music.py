@@ -153,6 +153,23 @@ fin *= np.exp(-tt(6.0) * .55)[:, None]
 add(stab, fin, C['final'] + 1.0, 1.3)
 
 # ---------- SFX ----------
+def wind(d=1.2, lo=150, hi=2600, g=1.0, pan_dir=1):
+    """Soft gust of wind: band-limited noise whose resonant band rises and falls, gusting amplitude, panned across."""
+    t = tt(d); u = t / d
+    n = rng.standard_normal((len(t), 2))
+    bands = np.geomspace(lo, hi, 10); centre = .15 + .7 * np.sin(np.pi * np.clip(u * 1.05, 0, 1)) ** 1.5
+    out = np.zeros_like(n)
+    for i in range(len(bands) - 1):
+        pos = i / (len(bands) - 2)
+        w = np.exp(-((pos - centre) ** 2) / .06)
+        out += filt(n, lo=bands[i], hi=bands[i + 1], order=2) * w[:, None]
+    ph = rng.uniform(0, 6, 3)
+    gust = np.sin(np.pi * u) ** 2 * (1 + .25 * np.sin(2 * np.pi * 2.3 * t + ph[0]) + .15 * np.sin(2 * np.pi * 4.1 * t + ph[1]))
+    pan = np.clip(.5 + .45 * pan_dir * (u - .5) * 2, 0, 1)
+    out[:, 0] *= np.sqrt(1 - pan) * 1.2; out[:, 1] *= np.sqrt(pan) * 1.2
+    return out * gust[:, None] * g * 1.6
+def wind_at(peak, d, gain, lo=150, hi=2600):
+    add(sfx, wind(d, lo, hi, 1.0, 1 if rng.random() > .5 else -1), peak - d / 2, gain * .5 * .88)  # transitions 50% quieter than the old whooshes
 def whoosh(d=.7, up=True, lo=300, hi=9000, g=1.0):
     t = tt(d); n = rng.standard_normal((len(t), 2)); out = np.zeros_like(n)
     bands = np.geomspace(lo, hi, 9)
@@ -218,7 +235,7 @@ add(sfx, click(), 17.55, .7)  # Send
 # editor: pick up, drop, connect
 for tp, td in [(20.45, 21.35), (22.1, 22.9)]:
     add(sfx, click(), tp, .6, -.3)
-    add(sfx, whoosh(.5, True, 1500, 9000), td - .45, .18, .2)
+    wind_at(td - .15, .8, .18, 250, 3500)
     add(sfx, pop(520, 260, .14, .55), td, 1, .1)
     add(sfx, blip(84, .12), td + .03, 1, .1)
 def zip_(d):
@@ -240,9 +257,9 @@ add(sfx, click(), C['oneclick'] + .05, 1, .5)
 add(sfx, shimmer(.35), C['oneclick'] + .08, 1, .5)
 add(sfx, thud(), C['immutable'], .9)
 # whooshes on scene changes
-for x in SCN: add(sfx, whoosh(.8, True), x - .45, .55, rng.uniform(-.3, .3))
-add(sfx, whoosh(.9, True, g=1.0), C['want'] - .4, .5)
-for k in ['flowchart', 'swimlanes', 'bpmn', 'sequence', 'simulation', 'd3']: add(sfx, whoosh(.5, True, 800, 10000), C[k] - .4, .35, .4)
+for x in SCN: wind_at(x - .05, 1.3, .55)
+wind_at(C['want'] - .05, 1.4, .5)
+for k in ['flowchart', 'swimlanes', 'bpmn', 'sequence', 'simulation', 'd3']: wind_at(C[k] - .1, .8, .35, 250, 3500)
 # risers & impacts
 def swell(d=1.0):
     t = tt(d); n = filt(rng.standard_normal((len(t), 2)), lo=1500, hi=9000)
@@ -265,7 +282,7 @@ add(sfx, shimmer(.6), 59.85, 1)
 add(sfx, riser(1.6, .5), C['final'] + 1.0 - 1.6, .6)
 add(sfx, impact(1.2, 3.5), C['final'] + 1.0, .9)
 add(sfx, shimmer(.8), C['final'] + 1.1, 1)
-add(sfx, whoosh(1.2, False, 200, 6000, 1.0), C['final'] + 2.4, .35)
+wind_at(C['final'] + 2.9, 1.6, .35)
 add(sfx, shimmer(.5), C['final'] + 2.5, 1)
 
 # ---------- mix ----------
