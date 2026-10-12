@@ -104,7 +104,7 @@ function summarizeFlow(flow) {
     chain: flow.graph.nodes.map((n) => typeIndex[n.type]?.tone ?? 'violet'),
     steps: flow.graph.nodes.length,
     lastRun: latest ? { id: latest.id, status: latest.status, startedAt: latest.startedAt } : null,
-    nextRun: statusKey === 'draft' ? null : flow.trigger,
+    nextRun: statusKey === 'draft' || flow.scheduleEnabled === false ? null : flow.trigger,
     owner: { id: owner.id, name: owner.name, gradient: owner.gradient },
     updatedAt: flow.updatedAt,
     publishedVersion: flow.publishedVersion,
@@ -210,6 +210,15 @@ export const studioApi = {
         drafts: all.filter((f) => f.statusKey === 'draft').length,
       },
     };
+  }),
+
+  getBackupSnapshot: () => respond(() => ({ flows: flows.all(), versions: versions.all(), runs: runs.all().map(shapeRun) })),
+
+  setScheduleEnabled: (id, enabled) => respond(() => {
+    const flow = flows.require(id);
+    if (typeof enabled !== 'boolean' || !flow.graph.nodes.some(node => node.type === 'schedule')) throw new ApiError('invalid', STUDIO_COPY.runs.modeFilter);
+    flows.update(id, { scheduleEnabled: enabled, updatedAt: nowIso() });
+    return { id, enabled };
   }),
 
   getFlow: (id) => respond(() => {

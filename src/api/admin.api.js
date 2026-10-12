@@ -1,3 +1,9 @@
+import { createResourceApi } from './resources.api.js';
+import { ADMIN_RESOURCES, ADMIN_RESOURCE_RULES } from '../data/admin/resources.data.js';
+import { nodeTypes, nodeGroups } from '../data/node-catalog.data.js';
+import { usage, project } from '../data/studio/project.data.js';
+import { studioApi } from './studio.api.js';
+import { STUDIO_ROUTES, ADMIN_ROUTES } from '../core/routes.js';
 import { respond, paginate, createCollection, ApiError } from '../core/mock.js';
 import { adminData, ADMIN_RULES } from '../data/admin.data.js';
 import { resolveAssets } from './assets.api.js';
@@ -52,7 +58,57 @@ function filteredEvents({
     )
     .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
 }
+const resourceApi = createResourceApi({
+  namespace: 'admin_resources', definitions: ADMIN_RESOURCES,
+  derive: async (id) => {
+    if (id === 'node-registry') return nodeTypes.map(type => ({ id: type.id, name: type.label, group: nodeGroups.find(group => group.id === type.group)?.label ?? type.group, ports: JSON.stringify(type.ports ?? []), note: '', enabled: false }));
+    if (id === 'usage') return [{ id: project.id, name: project.name, used: String(usage.usedRuns), included: String(usage.includedRuns), alertPercent: String(ADMIN_RESOURCE_RULES.alertPercent) }];
+    if (id === 'schedules') {
+      const all = await studioApi.listFlows();
+      const scheduled = await Promise.all(all.items.map(flow => studioApi.getFlow(flow.id)));
+      return scheduled.filter(flow => flow.graph.nodes.some(node => node.type === 'schedule')).map(flow => ({
+        id: flow.id, name: flow.name, schedule: flow.trigger, nextRun: flow.scheduleEnabled === false || health.get('system').schedulesPaused ? adminData.health.actions.paused : flow.trigger,
+        enabled: flow.scheduleEnabled !== false && !health.get('system').schedulesPaused, note: '', path: STUDIO_ROUTES.editor.replace(':flowId', encodeURIComponent(flow.id)),
+      }));
+    }
+    if (id === 'workers') return ADMIN_RESOURCE_RULES.workerNames.map(name => {
+      const admitted = !health.get('system').drainedWorkers.includes(name);
+      return { id: name, name, health: admitted ? adminData.healthSeed.checks.find(check => check.id === 'workers').status : adminData.healthResults.drainedWorkers.status,
+        enabled: admitted, note: '', path: ADMIN_ROUTES.health };
+    });
+    if (id === 'executions') {
+      const all = await studioApi.listRuns({ days: null, pageSize: ADMIN_RESOURCE_RULES.maxRows });
+      const catalog = await studioApi.getCatalog();
+      return all.items.map(run => ({ id: run.id, name: run.flowName, result: catalog.runStatuses[run.status].label, mode: catalog.runModes[run.mode].label, note: '', enabled: false, runId: run.id,
+        path: STUDIO_ROUTES.run.replace(':runId', encodeURIComponent(run.id)), updatedAt: run.startedAt }));
+    }
+    if (id === 'config') return [{ id: 'scheduler', name: adminData.health.topology.schedulerLabel, value: String(!health.get('system').schedulesPaused), description: ADMIN_RESOURCES.config.description, path: ADMIN_ROUTES.health }];
+    return null;
+  },
+  mutate: async (id, record, patch) => {
+    if (id === 'usage' && Number(patch.alertPercent ?? record.alertPercent) > 100) throw new ApiError('invalid', ADMIN_RESOURCES.usage.fields.at(-1).label);
+    if (id === 'schedules' && 'enabled' in patch) {
+      await studioApi.setScheduleEnabled(record.id, patch.enabled);
+      if (patch.enabled) health.update('system', { schedulesPaused: false });
+    }
+    if (id === 'workers' && 'enabled' in patch) {
+      const state = health.get('system');
+      const drainedWorkers = patch.enabled ? state.drainedWorkers.filter(name => name !== record.id) : [...new Set([...state.drainedWorkers, record.id])];
+      health.update('system', { drainedWorkers, checks: state.checks.map(check => check.id === 'workers' ? { ...check, ...(drainedWorkers.length ? adminData.healthResults.drainedWorkers : adminData.healthResults.workers) } : check) });
+    }
+    if (id === 'config' && 'value' in patch) health.update('system', { schedulesPaused: patch.value === 'false' });
+    log('Configuration changed', `${id}: ${record.name}`);
+  },
+  decorate: async id => id === 'backups' ? { snapshot: { createdAt: new Date().toISOString(), studio: await studioApi.getBackupSnapshot(), health: health.get('system') } } : {},
+  action: async (id, record) => {
+    if (id !== 'executions') throw new ApiError('invalid', ADMIN_RESOURCES.executions.description);
+    const [retry] = await studioApi.retryRuns([record.runId]);
+    return retry;
+  },
+});
+
 export const adminApi = {
+  ...resourceApi,
   /** @returns {Promise<object>} Fictional sample logo and favicon loaded by manifest ID. */
   getBrandingSample: (index) =>
     respond(async () => {

@@ -15,7 +15,7 @@ export function createResourcePage({ id, path, layout, resource, domain }) {
     const api = ctx.api[domain];
     const definition = await api.getResourceDefinition(resource);
     if (!session.active) return session.handle;
-    const C = definition.copy;
+    const C = { ...definition.copy, enabled: definition.enabledLabel ?? definition.copy.enabled, disabled: definition.disabledLabel ?? definition.copy.disabled, status: definition.statusLabel ?? definition.copy.status, active: definition.activeLabel ?? definition.copy.active };
     ctx.setTitle(definition.title);
     const filters = { q: '', status: 'all', page: 1, pageSize: definition.pageSize };
     const list = h('div', { class: 'resource-list studio-table' });

@@ -15,7 +15,8 @@ export function createResourceApi({ namespace, definitions, derive = () => null,
     const source = await derive(id);
     if (!source) return tables[id].all();
     return source.map(row => ({ enabled: true, archived: false, ...row, ...tables[id].get(row.id),
-      ...Object.fromEntries(definition(id).fields.filter(field => field.readOnly).map(field => [field.key, row[field.key]])),
+      ...Object.fromEntries(definition(id).fields.filter(field => field.readOnly || definition(id).liveFields?.includes(field.key)).map(field => [field.key, row[field.key]])),
+      ...(definition(id).liveEnabled ? { enabled: row.enabled } : {}),
     }));
   };
   const requireRecord = async (id, recordId) => {
@@ -35,6 +36,7 @@ export function createResourceApi({ namespace, definitions, derive = () => null,
       if (field.kind === 'json') {
         try { if (!Array.isArray(JSON.parse(text))) throw new Error(); } catch { throw error(RESOURCE_COPY.invalid); }
       }
+      if (field.kind === 'boolean' && !['true', 'false'].includes(text)) throw error(RESOURCE_COPY.invalid);
       if (field.kind === 'number' && (!Number.isFinite(Number(text)) || Number(text) < 0)) throw error(RESOURCE_COPY.invalid);
       if (field.kind === 'https') {
         try { const url = new URL(text); if (url.protocol !== 'https:' || url.username || url.password) throw new Error(); } catch { throw error(RESOURCE_COPY.invalid); }

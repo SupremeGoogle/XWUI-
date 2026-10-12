@@ -1,5 +1,5 @@
 /** XWUI form projection for schema-backed resource records; validation is owned by the API. */
-import { XWUIInputText, XWUIInputTextarea, XWUIInputNumber } from '@exonware/xwui/basic';
+import { XWUIInputText, XWUIInputTextarea, XWUIInputNumber, XWUIInputSelect } from '@exonware/xwui/basic';
 import { h } from '../../core/dom.js';
 import { createXwfKit } from '../../components/xwf-ui.js';
 import { template } from '../../core/format.js';
@@ -12,8 +12,8 @@ export async function editResource({ definition, record, ui }) {
     values[field.key] = record?.[field.key] ?? field.default ?? '';
     if (field.readOnly && !definition.allowCreate) continue;
     const host = h('div'); content.append(host);
-    const Component = ['json', 'textarea'].includes(field.kind) ? XWUIInputTextarea : field.kind === 'number' ? XWUIInputNumber : XWUIInputText;
-    const input = kit.scope.mountField(Component, host, { label: field.label, value: values[field.key] }, {
+    const Component = ['json', 'textarea'].includes(field.kind) ? XWUIInputTextarea : field.kind === 'number' ? XWUIInputNumber : field.kind === 'boolean' ? XWUIInputSelect : XWUIInputText;
+    const input = kit.scope.mountField(Component, host, { label: field.label, value: values[field.key], ...(field.kind === 'boolean' ? { options: [{ value: 'true', label: definition.copy.enabled }, { value: 'false', label: definition.copy.disabled }] } : {}) }, {
       fullWidth: true, disabled: Boolean(record && field.readOnly), ariaLabel: field.label,
     });
     input.onChange(value => { values[field.key] = value; });

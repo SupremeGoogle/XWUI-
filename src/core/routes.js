@@ -11,6 +11,9 @@ export const STUDIO_ROUTES = Object.freeze({
 });
 export const ADMIN_ROUTES = Object.freeze({
   overview: '/admin', branding: '/admin/branding', audit: '/admin/audit', health: '/system/health',
+  tenants: '/admin/tenants', credentialsPolicy: '/admin/credentials-policy', nodeRegistry: '/admin/node-registry',
+  adapters: '/admin/adapters', usage: '/admin/usage', aiGovernance: '/admin/ai-governance', schedules: '/admin/schedules',
+  workers: '/admin/workers', executions: '/admin/executions', config: '/admin/config', backups: '/admin/backups',
   quotas: '/admin/quotas', section: '/admin/:section',
 });
 export const APP_ROUTES = Object.freeze({ notFound: '/__not-found__' });
