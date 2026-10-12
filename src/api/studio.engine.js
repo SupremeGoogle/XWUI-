@@ -70,7 +70,7 @@ export function orderNodes(graph, types) {
  * @param {{ graph: object, types: Record<string, object>, payload: object, mode: string, stopAtNodeId?: string }} input
  * @returns {{ ledger: object[], status: string, durationMs: number }}
  */
-export function simulateRun({ graph, types, payload, stopAtNodeId = null, reusedRows = {} }) {
+export function simulateRun({ graph, types, payload, stopAtNodeId = null, reusedRows = {}, subFlows = {}, callStack = [] }) {
   const ledger = [];
   const reached = new Set();
   const ordered = orderNodes(graph, types);
@@ -106,7 +106,25 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null, reused
       ledger.push({ nodeId: node.id, attempt: 1, result: 'succeeded', payload: 'stored', offsetMs: clock, durationMs: 2, output: payload });
       clock += 2;
       outgoing(graph, node.id).forEach((e) => reached.add(e.to));
-    } else if (type.ports?.includes('yes')) {
+    } else if (type.id === 'sub_flow') {
+      const flowId = node.params?.flowId;
+      const target = subFlows[flowId];
+      const nestedGraph = node.params?.mode === 'Current draft' ? target?.graph : target?.publishedGraph;
+      const error = !target ? 'Select an existing flow.' : !nestedGraph ? 'Publish the called flow first.' : callStack.includes(flowId) || callStack.length >= 8 ? 'Recursive sub-flow calls are not supported.' : null;
+      if (error) {
+        ledger.push({ nodeId: node.id, attempt: 1, result: 'failed', detail: error, payload: 'none', offsetMs: clock, durationMs: 0, error: { message: error } });
+        failed = true;
+      } else {
+        const nested = simulateRun({ graph: nestedGraph, types, payload, subFlows, callStack: [...callStack, flowId] });
+        const succeeded = nested.status !== 'failed';
+        ledger.push({ nodeId: node.id, attempt: 1, result: succeeded ? 'succeeded' : 'failed', payload: 'stored', offsetMs: clock, durationMs: nested.durationMs,
+          output: { flowId, status: nested.status, ledger: nested.ledger }, ...(succeeded ? {} : { error: { message: 'The called flow failed.' } }) });
+        clock += nested.durationMs;
+        if (succeeded) outgoing(graph, node.id).forEach(e => reached.add(e.to));
+        else failed = true;
+        if (nested.status === 'succeeded_after_retry') retried = true;
+      }
+    } else if ((type.ports?.length ?? 0) > 1) {
       const evaluation = type.id === 'condition'
         ? evaluateCondition(node.params?.expression, payload)
         : { ok: true, value: true, keys: Object.keys(payload) };
@@ -115,8 +133,17 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null, reused
         ledger.push({ nodeId: node.id, attempt: 1, result: 'failed', detail: evaluation.error, payload: 'keys', offsetMs: clock, durationMs: duration, error: { message: evaluation.error } });
         failed = true;
       } else {
-        const port = evaluation.value ? 'yes' : 'no';
-        ledger.push({ nodeId: node.id, attempt: 1, result: `took_${port}`, payload: 'keys', offsetMs: clock, durationMs: duration, input: { keys: evaluation.keys }, output: { branch: port } });
+        let port = evaluation.value ? 'yes' : 'no';
+        if (type.id === 'ai_condition') {
+          const verdict = node.sim?.verdict ?? node.params?.demoVerdict ?? 'yes';
+          port = type.ports.includes(verdict) ? verdict : 'unsure';
+        } else if (type.id === 'switch') {
+          const value = getPath(payload, node.params?.path);
+          port = type.ports.find(id => id !== 'default' && value !== undefined && String(value) === String(node.params?.[id])) ?? 'default';
+        }
+        const output = { branch: port };
+        if (type.id === 'ai_condition') Object.assign(output, { verdict: port, model: node.params?.model ?? type.fields.find(field => field.key === 'model')?.default, tokenCount: node.sim?.tokenCount ?? type.sim?.tokenCount ?? 64 });
+        ledger.push({ nodeId: node.id, attempt: 1, result: `took_${port}`, payload: 'keys', offsetMs: clock, durationMs: duration, input: { keys: evaluation.keys }, output });
         outgoing(graph, node.id).filter((e) => e.port === port).forEach((e) => reached.add(e.to));
       }
       clock += duration;
@@ -140,7 +167,8 @@ export function simulateRun({ graph, types, payload, stopAtNodeId = null, reused
           offsetMs: clock,
           durationMs: duration,
           error: fails ? { status: node.sim?.failStatus ?? 500 } : undefined,
-          output: fails ? undefined : node.sim?.output,
+          input: payload,
+          output: fails ? undefined : node.sim?.output ?? payload,
         });
         clock += duration;
         if (!fails) succeeded = true;

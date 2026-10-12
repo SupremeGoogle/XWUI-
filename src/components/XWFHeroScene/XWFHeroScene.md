@@ -8,6 +8,9 @@ A Neon Depth hero scene visual. Extends `XWUIComponent`; uses the same construct
 - Event: `xwf-action`, bubbles with a structured `detail` describing the activated action (interactive components only).
 - Custom element: `<xwf-hero-scene>`.
 - Model owns defaults/constants, logic owns derived state, view owns projection, CSS owns token-based styling.
+- The reference ring, wires and nodes share one plane. `ResizeObserver` recalculates
+  its scale and scene height from the actual container width, including intermediate
+  sizes. The observer disconnects on destroy. Reduced motion disables decorative animation.
 
 ```js
 new XWFHeroScene(container, data, {});

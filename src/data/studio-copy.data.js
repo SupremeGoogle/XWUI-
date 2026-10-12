@@ -180,7 +180,7 @@ export const STUDIO_COPY = {
     resetView: 'Reset view',
     notInPrototype: '{name} is not part of this prototype yet.',
     diagram: {
-      start: 'Start', end: 'End', yes: 'Yes', no: 'No', found: 'Found?', tryWord: 'try', wait: 'Wait', thenRetry: 'then retry',
+      start: 'Start', end: 'End', yes: 'Yes', no: 'No', unsure: 'Unsure', case_1: 'Case 1', case_2: 'Case 2', default: 'Default', found: 'Found?', tryWord: 'try', wait: 'Wait', thenRetry: 'then retry',
       tryAgain: 'try again', step: 'step', disabled: 'disabled, skipped', unavailable: 'unavailable',
       handoff: 'hand-off', automation: 'Automation', blackBox: 'black-box pool', message: 'order message',
       notFoundAfter: 'Not found after', tries: 'tries', errorEnd: 'error end event', dataStore: 'data store',
@@ -277,7 +277,7 @@ export const STUDIO_COPY = {
     stepAdded: 'Added {name}.',
     stepDeleted: 'Step deleted.',
     nodeStates: { pinned: 'Pinned', tryOf: 'Try {n} of {max}' },
-    ports: { yes: 'yes', no: 'no' },
+    ports: { yes: 'yes', no: 'no', unsure: 'unsure', case_1: 'case 1', case_2: 'case 2', default: 'default' },
     tools: { canvas: 'Flow canvas', tools: 'Canvas tools', zoomIn: 'Zoom in', zoomOut: 'Zoom out', fit: 'Fit view', tidy: 'Tidy up', minimap: 'Minimap', empty: 'Add a trigger from the palette to start.' },
     problems: {
       noTrigger: 'The flow has no trigger, so it can never start.',

@@ -1,6 +1,7 @@
 import { respond, paginate, createCollection, ApiError } from '../core/mock.js';
 import { websiteData, WEBSITE_RULES } from '../data/website.data.js';
 import { resolveAssets } from './assets.api.js';
+import { getDemoFlowId } from './studio.api.js';
 
 const quotes = createCollection('website_quotes', []);
 const mutation = (options = {}) => ({
@@ -20,6 +21,10 @@ export const websiteApi = {
   getLanding: () =>
     respond(async () => ({
       ...websiteData.landing,
+      stats: websiteData.landing.stats.map((stat) => ({
+        ...stat,
+        value: stat.countSource ? websiteData[stat.countSource].length : stat.value,
+      })),
       steps: websiteData.integrations.map(enrich),
       dialects: websiteData.dialects,
       notationItems: websiteData.notationItems,
@@ -31,6 +36,7 @@ export const websiteApi = {
   getDirectory: () =>
     respond(async () => ({
       ...websiteData.directory,
+      description: websiteData.directory.description.replace('{count}', websiteData.integrations.length),
       categories: websiteData.categories,
       labels: websiteData.labels,
       featured: enrich(websiteData.integrations.find((item) => item.featured)),
@@ -124,6 +130,7 @@ function enrich(item) {
   );
   return {
     ...item,
+    path: getDemoFlowId() ? `${websiteData.directory.editorPath.replace(':flowId', encodeURIComponent(getDemoFlowId()))}?nodeType=${encodeURIComponent(item.nodeType)}` : websiteData.directory.emptyStudioPath,
     categoryLabel: group.singular ?? group.label,
     tone: group.tone,
   };

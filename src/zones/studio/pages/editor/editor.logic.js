@@ -60,7 +60,7 @@ export function runSummary(run) {
   run.ledger.forEach((r) => finalPerNode.set(r.nodeId, r));
   const finals = [...finalPerNode.values()];
   return {
-    finished: finals.filter((r) => ['succeeded', 'took_yes', 'took_no', 'pinned'].includes(r.result)).length,
+    finished: finals.filter((r) => ['succeeded', 'pinned'].includes(r.result) || r.result.startsWith('took_')).length,
     failed: finals.filter((r) => r.result === 'failed').length,
     disabled: finals.filter((r) => r.result === 'disabled').length,
     running: run.status === 'running',

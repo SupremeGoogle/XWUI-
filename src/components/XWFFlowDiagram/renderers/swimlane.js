@@ -76,7 +76,7 @@ export function renderSwimlane({ flow, types, run, labels, uid, systemsModel }) 
     if (crosses) handoff += 1;
     const d = Math.abs(ay - by) < 2 ? `M${ax} ${ay} H${bx - 6}` : `M${ax} ${ay} H${(ax + bx) / 2} V${by} H${bx - 6}`;
     arrows.push(h('path', { d, stroke: byId.get(e.to)?.disabled ? MUTED : LINE, 'stroke-width': '2.4', fill: 'none', 'stroke-dasharray': byId.get(e.to)?.disabled ? '7 6' : null, 'marker-end': marker(uid) }));
-    if (e.port === 'yes' || e.port === 'no') arrows.push(h('text', { x: (ax + bx) / 2 + 8, y: Math.min(ay, by) + (by > ay ? 30 : -8), fill: e.port === 'yes' ? '#c8ff3d' : '#a9a9c2', 'font-size': '13' }, labels[e.port]));
+    if (e.port !== 'out') arrows.push(h('text', { x: (ax + bx) / 2 + 8, y: Math.min(ay, by) + (by > ay ? 30 : -8), fill: e.port === 'yes' ? '#c8ff3d' : '#a9a9c2', 'font-size': '13' }, labels[e.port] ?? e.port));
     if (crosses) arrows.push(h('text', { x: (ax + bx) / 2, y: (ay + by) / 2 - 6, fill: toneVar(systems[b.lane]?.tone), 'font-size': '11', 'font-family': 'JetBrains Mono', 'text-anchor': 'middle' }, `${labels.handoff} ${handoff}`));
   });
 

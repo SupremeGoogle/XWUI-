@@ -24,7 +24,9 @@ export function layoutColumns(graph, types) {
     if (info.has(cur.id)) continue;
     info.set(cur.id, cur);
     graph.edges.filter((e) => e.from === cur.id).forEach((e) => {
-      const row = e.port === 'yes' ? cur.row - 1 : e.port === 'no' ? cur.row + 1 : cur.row;
+      const ports = types[graph.nodes.find(node => node.id === cur.id)?.type]?.ports ?? [];
+      const index = ports.indexOf(e.port);
+      const row = ports.length > 1 ? cur.row + (index === 0 ? -1 : index) : cur.row;
       queue.push({ id: e.to, col: cur.col + 1, row });
     });
   }
@@ -125,20 +127,19 @@ export function deriveSequence(flow, types, run, systemsModel, labels) {
     const type = types[node.type] ?? {};
     const target = systemOf(node);
     const index = row.index ?? i + 1;
-    if (type.ports?.includes('yes')) {
-      const yesTargets = graph.edges.filter((e) => e.from === node.id && e.port === 'yes').map((e) => e.to);
-      const noTargets = graph.edges.filter((e) => e.from === node.id && e.port === 'no').map((e) => e.to);
-      alt = { nodeId: node.id, guard: node.params?.expression ?? node.name, startAt: messages.length, yesTargets, noTargets, took: row.result, ledgerIndex: index };
+    if ((type.ports?.length ?? 0) > 1) {
+      const targets = Object.fromEntries(type.ports.map(port => [port, graph.edges.filter(edge => edge.from === node.id && edge.port === port).map(edge => edge.to)]));
+      alt = { nodeId: node.id, guard: node.params?.expression ?? node.params?.path ?? node.name, startAt: messages.length, targets, took: row.result, ledgerIndex: index };
       fragments.push(alt);
       return;
     }
+    const branch = alt ? Object.entries(alt.targets).find(([, targets]) => targets.includes(node.id))?.[0] : null;
     if (row.result === 'disabled' || row.result === 'not_run' || row.attempt === 0) {
-      if (alt && (alt.yesTargets.includes(node.id) || alt.noTargets.includes(node.id))) {
-        messages.push({ from: engineId, to: target, label: node.call ?? node.name, kind: alt.yesTargets.includes(node.id) ? 'skipped-yes' : 'skipped-no', skipped: true, reason: row.result, nodeId: node.id, branch: alt.yesTargets.includes(node.id) ? 'yes' : 'no', fragment: alt });
+      if (branch) {
+        messages.push({ from: engineId, to: target, label: node.call ?? node.name, kind: `skipped-${branch}`, skipped: true, reason: row.result, nodeId: node.id, branch, fragment: alt });
       }
       return;
     }
-    const branch = alt && (alt.yesTargets.includes(node.id) ? 'yes' : alt.noTargets.includes(node.id) ? 'no' : null);
     if (target === engineId) {
       messages.push({ from: engineId, to: engineId, label: node.name, kind: 'self', nodeId: node.id, ledgerIndex: index, branch, fragment: branch ? alt : null });
       return;
@@ -159,6 +160,7 @@ export function deriveSequence(flow, types, run, systemsModel, labels) {
     f.from = inFrag.length ? Math.min(...inFrag) : f.startAt;
     f.to = inFrag.length ? Math.max(...inFrag) : f.startAt;
     f.elseAt = messages.findIndex((m) => m.fragment === f && m.branch === 'no');
+    f.separators = Object.keys(f.targets).slice(1).map(branch => ({ branch, at: messages.findIndex(message => message.fragment === f && message.branch === branch) })).filter(item => item.at > f.from);
   });
   return { messages, fragments };
 }
@@ -200,9 +202,19 @@ export function stepSim(state, flow, types, minutes, rng = Math.random) {
     const outs = graph.edges.filter((e) => e.from === nodeId);
     if (!outs.length) { next.done += count; return; }
     const type = types[graph.nodes.find((n) => n.id === nodeId)?.type];
-    if (type?.ports?.includes('yes')) {
-      const yes = Math.round(count * (cfg.branchShare?.yes ?? 0.5));
-      outs.forEach((e) => receive(e.to, e.port === 'yes' ? yes : count - yes));
+    if ((type?.ports?.length ?? 0) > 1) {
+      const ports = type.ports;
+      const known = ports.filter(port => cfg.branchShare?.[port] !== undefined);
+      const knownShare = known.reduce((sum, port) => sum + Math.max(0, cfg.branchShare[port]), 0);
+      const fallback = known.length < ports.length ? Math.max(0, 1 - knownShare) / (ports.length - known.length) : 0;
+      const weights = ports.map(port => Math.max(0, cfg.branchShare?.[port] ?? fallback));
+      const total = weights.reduce((sum, share) => sum + share, 0) || 1;
+      let remaining = count;
+      ports.forEach((port, index) => {
+        const items = index === ports.length - 1 ? remaining : Math.min(remaining, Math.round(count * weights[index] / total));
+        remaining -= items;
+        outs.filter(edge => edge.port === port).forEach(edge => receive(edge.to, items));
+      });
     } else outs.forEach((e) => receive(e.to, count));
   };
   const receive = (nodeId, count) => {
@@ -247,7 +259,7 @@ export function flowToMermaid(graph, types) {
   graph.edges.forEach((e) => {
     const a = byId.get(e.from); const b = byId.get(e.to);
     if (!a || !b) return;
-    const label = e.port === 'yes' || e.port === 'no' ? `|${e.port}|` : '';
+    const label = e.port !== 'out' ? `|${e.port}|` : '';
     lines.push(`  ${ref(a)} -->${label} ${ref(b)}`);
   });
   steps.forEach((s) => { if (!declared.has(letter.get(s.node.id))) lines.push(`  ${ref(s)}`); });
@@ -266,7 +278,7 @@ export function flowToList(graph, types) {
   main.forEach((s) => {
     const retry = s.node.params?.retry && s.type.retry ? `, retries ${s.type.retry.tries}` : '';
     rows.push({ n: number.get(s.node.id), name: s.node.name, detail: `${s.type.label ?? s.node.type}${retry}`, indent: 0 });
-    graph.edges.filter((e) => e.from === s.node.id && (e.port === 'yes' || e.port === 'no')).forEach((e) => {
+    graph.edges.filter((e) => e.from === s.node.id && (e.port !== 'out')).forEach((e) => {
       const target = steps.find((x) => x.node.id === e.to);
       rows.push({ port: e.port, name: target?.node.name ?? e.to, goTo: number.get(e.to) ?? null, indent: 1 });
     });

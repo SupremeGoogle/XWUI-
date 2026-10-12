@@ -1,78 +1,48 @@
-# Responsive QA
+# Validation scope
 
-Verified on 11 October 2026 against `main`, using the browser at phone widths
-360 × 780 and 390 × 844, and desktop widths 1024 × 1000 and 1440 × 1000.
-These are browser viewport checks, not physical iOS/Android device tests.
+Reviewed on 12 October 2026. Browser viewport checks do not replace physical
+iOS/Android device testing or a complete pixel comparison of unavailable artboards.
 
-## Route regression
+## Responsive pages
 
-All 23 routes below were opened at all four sizes in both `?mock=fast` and normal
-API mode: **184 successful checks**. No page-load failures, broken image elements,
-horizontal document overflow or new console errors were observed during the final pass.
-Wide tables and notation drawings scroll inside their own surfaces.
+468 route checks passed across 36 destinations. Fast mode covered 360 × 780,
+390 × 844, 768 × 1024, 1024 × 900, 1440 × 1000, 1920 × 1080,
+2560 × 1440 and 2880 × 1647; normal asynchronous API mode covered the first five.
+No failed page loads, broken image elements, document overflow or duplicate
+route surfaces were observed. Wide tables and diagrams scroll inside their panels.
 
-| Screen | Route |
-| --- | --- |
-| Landing | `#/` |
-| Integrations | `#/integrations` |
-| Pricing | `#/pricing` |
-| Self-host | `#/self-host` |
-| Notations | `#/notations` |
-| Assistant | `#/studio` |
-| Saved chat | `#/studio?chat=c1` |
-| Flows | `#/studio/flows` |
-| Editor | `#/studio/flows/flow_order_alert` |
-| Flowchart | `#/studio/flows/flow_order_alert/view/flowchart` |
-| Swimlanes | `#/studio/flows/flow_order_alert/view/swimlane` |
-| BPMN | `#/studio/flows/flow_order_alert/view/bpmn` |
-| Sequence | `#/studio/flows/flow_order_alert/view/sequence` |
-| Simulation | `#/studio/flows/flow_order_alert/view/sim` |
-| 3D | `#/studio/flows/flow_order_alert/view/3d` |
-| Runs | `#/studio/runs` |
-| Receipt | `#/studio/runs/run_order_alert_001` |
-| Connections | `#/studio/connections` |
-| Overview | `#/admin` |
-| Branding | `#/admin/branding` |
-| Audit | `#/admin/audit` |
-| Health | `#/system/health` |
-| Access denied | `#/admin/quotas` |
+The routes include Website, Studio, six diagram views, Admin/System, all eleven
+documented Admin placeholders, an unknown route and a malformed encoded flow ID.
+After removing development-only material, another 74 route checks passed at
+360 and 1440 px, including the removed developer route resolving to Not found.
+The landing scene was additionally checked at 17 widths from 320 to 3440 px,
+including intermediate widths. Its ring and nodes scale together; cards remain
+above the ring. Phone panels and dialogs remain reachable; tablet Fit keeps the
+graph within the space between panels.
 
-## Visual and interaction review
+## Interactions
 
-- Reviewed full-page phone screenshots, including the top, middle and bottom of
-  Website, Studio and Admin pages and all six notation renderers.
-- Studio navigation uses the full phone width and a scrollable compact rail.
-  Editor panels follow the canvas; controls, minimap and fitted graph share the
-  layout's CSS safe-area settings. Existing desktop floating panels are retained.
-- Phone dialogs use 16 px outer spacing; long bodies scroll while the action
-  footer remains reachable. Help, Ask AI, Rename and Versions were exercised.
-- Checked selection and inspector fields, palette layout, receipt timeline,
-  Runs/Flows tables, gallery Code/List switching, pricing inputs and FAQ expansion.
-- Checked filtered empty Flows/Runs with loaded manifest illustrations, the empty
-  integrations state, and Arabic navigation with English content kept LTR.
-- Increased button/tab touch areas, prevented sticky site navigation from taking
-  up the phone viewport, stacked the three sample-brand cards and fitted the
-  branding preview. 2D notation drawings retain readable scale with local scrolling;
-  3D remains an overview with camera/orbit controls.
+- Sandbox run/reset/zoom; integration search, groups, empty state and Studio links.
+- Create a flow; edit parameters/notes; connect AI yes/no/unsure outputs.
+- Publish, restore a draft, run a published version and retry from a recorded step.
+- Read receipt inputs, outputs, attempt history and AI verdict/model/token metadata.
+- Collapse/expand the Studio rail across reloads; select inspector fields by labels.
+- Validate branding/domain inputs, load sample logos and update the live preview.
+- Validate and save a local quote request; filter and export audit events as CSV.
+- Recover health checks; cancel an operational confirmation; request access.
+- Navigate rapidly with delayed API responses; retry an independently failed panel.
 
-Desktop interaction review also covered moving a step, publishing version 4,
-Ctrl Enter run, completed receipt, retry from a step and the new Runs record;
-Ctrl K search, restoring a version, assistant add/explain, palette drag, pin
-connection and Delete; bulk Retry/Delete and Add/Test/Reconnect connection.
+## Automated checks
 
-## Additional checks
+```bash
+node --test src/core/router.test.mjs src/api/studio.test.mjs src/api/website-admin.test.mjs
+```
 
-`node --test src/api/studio.test.mjs src/api/website-admin.test.mjs`: 12 passed.
-All 128 source modules passed ES-module parsing. All 69 manifest entries passed
-file, SVG title/viewBox, duplicate-ID and size-limit checks.
+19 tests cover immutable publication/receipts, retry payloads, catalog consistency,
+branch routing, nested flows, persistence, validation, exports and stale navigation.
+JavaScript syntax and asset manifest paths/IDs/SVG structure were also checked.
+The delivery contains 123 JavaScript modules and 69 manifest assets; all local
+module and stylesheet references resolve.
 
-Review screenshots and the route metrics are kept outside the source repository
-in `../xwflow-preview/`, including `final-route-checks.json`, `final-360-*.jpg`,
-`final-390-*.jpg`, `mobile-dialog-360.jpg` and `final-editor-1024.jpg`.
-
-## Coordination
-
-Mobile changes are isolated in `src/styles/mobile.css`, its stylesheet link and
-the canvas component's responsive safe-area support. Claude's active editor-page,
-Studio layout and README work was not overwritten. Re-run this route matrix after
-integrating subsequent changes from that branch.
+Known limitations and assumptions are listed in the root README. External services
+are simulated by the local API; no live email, model or infrastructure action runs.

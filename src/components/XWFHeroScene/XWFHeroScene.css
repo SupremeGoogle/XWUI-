@@ -1,6 +1,9 @@
 .xwf-hero-scene {
   position: relative;
-  height: 660px;
+  width: 100%;
+  max-width: 1480px;
+  margin-inline: auto;
+  height: var(--xwf-scene-height, 660px);
   perspective: 1700px;
   perspective-origin: 50% 30%;
   overflow: hidden;
@@ -8,11 +11,11 @@
 .xwf-hero-scene__plane {
   position: absolute;
   left: 50%;
-  top: 20px;
+  top: var(--xwf-plane-top, 20px);
   width: 1040px;
   height: 560px;
   margin-left: -520px;
-  transform: rotateX(54deg) rotateZ(-26deg) scale(var(--xwf-zoom));
+  transform: rotateX(54deg) rotateZ(-26deg) scale(calc(var(--xwf-zoom) * var(--xwf-scene-scale, 1)));
   transform-style: preserve-3d;
 }
 .xwf-hero-scene__wires {
@@ -24,7 +27,9 @@
 }
 .xwf-hero-scene__node {
   position: absolute;
+  z-index: 1;
   width: 190px;
+  background: var(--xw-bg3);
   transform: translateZ(var(--xwf-depth));
   animation: xwf-hover 6s ease-in-out infinite;
   --border-color: color-mix(in srgb, var(--xwf-tone) 45%, var(--xw-line));
@@ -49,13 +54,13 @@
 .xwf-hero-scene__prompt {
   position: absolute;
   left: 6%;
-  top: 300px;
+  bottom: 80px;
   width: 300px;
 }
 .xwf-hero-scene__receipt {
   position: absolute;
   right: 5%;
-  bottom: 30px;
+  bottom: 80px;
   width: 340px;
 }
 .xwf-hero-scene__controls {
@@ -83,12 +88,19 @@
   top: 40px;
 }
 .xwf-hero-scene__ring {
+  z-index: 0;
+  pointer-events: none;
   --rw: 6px;
   width: 300px;
   height: 300px;
   left: 500px;
   top: 132px;
   transform: translateZ(1px);
+  animation-name: xwf-ring-spin;
+}
+@keyframes xwf-ring-spin {
+  from { rotate: 0deg; }
+  to { rotate: 360deg; }
 }
 @keyframes xwf-hover {
   0%,
@@ -100,9 +112,6 @@
   }
 }
 @media (max-width: 1100px) {
-  .xwf-hero-scene__plane {
-    transform: rotateX(54deg) rotateZ(-26deg) scale(calc(var(--xwf-zoom) * 0.8));
-  }
   .xwf-hero-scene__prompt {
     left: 2%;
     width: 250px;
@@ -113,26 +122,24 @@
   }
 }
 @media (max-width: 700px) {
-  .xwf-hero-scene {
-    height: 660px;
-  }
-  .xwf-hero-scene__plane {
-    top: -30px;
-    transform: rotateX(50deg) rotateZ(-26deg) scale(calc(var(--xwf-zoom) * 0.5));
-  }
   .xwf-hero-scene__prompt {
-    top: 260px;
+    top: var(--xwf-prompt-top, 260px);
+    bottom: auto;
     left: 5%;
     width: 90%;
   }
   .xwf-hero-scene__receipt {
-    bottom: 70px;
+    bottom: 90px;
     left: 5%;
     width: 90%;
   }
   .xwf-hero-scene__controls {
     white-space: nowrap;
   }
+}
+@media (max-width: 480px) {
+  .xwf-hero-scene__cube { --s: 42px; top: 12px; left: 5%; }
+  .xwf-hero-scene__orb { width: 48px; height: 48px; top: 16px; right: 5%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .xwf-hero-scene * {

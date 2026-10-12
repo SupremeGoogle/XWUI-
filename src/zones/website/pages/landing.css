@@ -5,6 +5,13 @@
 .xwf-landing-hero__copy {
   position: relative;
 }
+.xwf-landing-hero__copy > .h-mega {
+  width: 100%;
+  max-width: 1160px;
+  font-size: clamp(2.3rem, 6.6vw, 6rem);
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
 .xwf-landing-hero__copy > .lead {
   max-width: 720px;
 }

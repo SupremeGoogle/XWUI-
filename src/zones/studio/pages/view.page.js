@@ -26,6 +26,7 @@ export default {
       studioApi.getShell(), studioApi.getCatalog(), studioApi.getFlow(ctx.params.flowId), studioApi.listConnections(),
       studioApi.getNotationGallery?.().catch(() => null) ?? null,
     ]);
+    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.views;
     const notationInfo = catalog.notations.find((n) => n.id === notation);
@@ -142,7 +143,7 @@ export default {
         const camera = { ...DEFAULT_CAMERA };
         const numberField = (label, key, opts) => {
           const host = h('div');
-          const input = scope.mount(XWUIInputNumber, host, { value: camera[key], label }, { size: 'sm', ...opts });
+          const input = scope.mountField(XWUIInputNumber, host, { value: camera[key], label }, { size: 'sm', ...opts });
           input.onChange?.((v) => { camera[key] = Number(v); diagram.setView(camera); });
           return h('div', { class: 'view-3d__field' }, host);
         };

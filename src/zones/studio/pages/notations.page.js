@@ -31,6 +31,7 @@ export default {
       ctx.api.studioApi.getCatalog(),
       ctx.api.studioApi.listConnections(),
     ]);
+    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
     const STUDIO_COPY = catalog.copy;
     ctx.setTitle(gallery.hero.title);
     const typeIndex = Object.fromEntries(

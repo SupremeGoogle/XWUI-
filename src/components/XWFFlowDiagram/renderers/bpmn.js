@@ -120,7 +120,7 @@ export function renderBpmn({ flow, types, labels, uid, systemsModel }) {
     const [sx, sy] = start; const [tx, ty] = b.in;
     const d = Math.abs(sy - ty) < 2 ? `M${sx} ${sy} H${tx}` : (start === a.out ? `M${sx} ${sy} H${(sx + tx) / 2} V${ty} H${tx}` : `M${sx} ${sy} V${ty} H${tx}`);
     flows.push(h('path', { d, stroke: STROKE, 'stroke-width': '2', fill: 'none', 'marker-end': marker(uid) }));
-    if (e.port === 'yes' || e.port === 'no') flows.push(h('text', { x: sx + 14, y: sy + (ty > sy ? 40 : -12), 'font-size': '13', fill: e.port === 'yes' ? '#c8ff3d' : '#a9a9c2' }, labels[e.port]));
+    if (e.port !== 'out') flows.push(h('text', { x: sx + 14, y: sy + (ty > sy ? 40 : -12), 'font-size': '13', fill: e.port === 'yes' ? '#c8ff3d' : '#a9a9c2' }, labels[e.port] ?? e.port));
   });
   // end event after the last automation step
   const ex = 150 + col * COL;

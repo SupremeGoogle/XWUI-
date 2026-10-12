@@ -48,6 +48,7 @@ export function createRouter({ root, services, fallback, onError }) {
   let activeLayoutId = null;
   let activePage = null;
   let token = 0;
+  let pendingController = null;
 
   function addPages(pages) {
     for (const page of pages) routes.push({ page, ...compile(page.path) });
@@ -61,7 +62,9 @@ export function createRouter({ root, services, fallback, onError }) {
     for (const route of routes) {
       const m = route.regex.exec(path.replace(/\/+$/, '') || '/');
       if (m) {
-        const params = Object.fromEntries(route.keys.map((k, i) => [k, decodeURIComponent(m[i + 1])]));
+        let params;
+        try { params = Object.fromEntries(route.keys.map((k, i) => [k, decodeURIComponent(m[i + 1])])); }
+        catch { return null; }
         return { page: route.page, params };
       }
     }
@@ -70,12 +73,13 @@ export function createRouter({ root, services, fallback, onError }) {
 
   async function teardownPage() {
     if (!activePage) return;
+    const previous = activePage;
+    activePage = null;
     try {
-      await activePage.unmount?.();
+      await previous.unmount?.();
     } catch (error) {
       console.error('[router] unmount failed', error);
     }
-    activePage = null;
   }
 
   function useLayout(layoutId, routeInfo) {
@@ -96,6 +100,9 @@ export function createRouter({ root, services, fallback, onError }) {
 
   async function render() {
     const current = ++token;
+    pendingController?.abort();
+    const controller = new AbortController();
+    pendingController = controller;
     const { path, query } = parseHash();
     const found = match(path) ?? { page: fallback, params: {} };
     const route = { path, query, params: found.params, page: found.page };
@@ -105,35 +112,56 @@ export function createRouter({ root, services, fallback, onError }) {
 
     const layout = useLayout(found.page.layout ?? null, route);
     const outlet = layout?.outlet ?? root;
-    outlet.replaceChildren();
+    // A late mount can only write into its own detached surface.
+    const surface = document.createElement('div');
+    surface.className = 'xwf-route-page';
+    surface.dataset.route = path;
+    outlet.replaceChildren(surface);
     layout?.setActive?.(route);
+    const isActive = () => current === token && !controller.signal.aborted && surface.isConnected;
+    const guardedLayout = layout && new Proxy(layout, {
+      get(target, key) {
+        const value = Reflect.get(target, key);
+        return typeof value === 'function' ? (...args) => isActive() ? value.apply(target, args) : undefined : value;
+      },
+    });
 
     const ctx = {
       ...services,
       route,
       params: found.params,
       query,
-      layout,
-      setTitle: (title) => { document.title = title ? `${title} · ${services.appName}` : services.appName; },
+      layout: guardedLayout,
+      signal: controller.signal,
+      isActive,
+      notify: services.notify && new Proxy(services.notify, {
+        get(target, key) {
+          const value = Reflect.get(target, key);
+          return typeof value === 'function' ? (...args) => { if (isActive()) return value.apply(target, args); } : value;
+        },
+      }),
+      navigate: (...args) => { if (isActive()) return services.navigate(...args); },
+      setTitle: (title) => { if (isActive()) document.title = title ? `${title} · ${services.appName}` : services.appName; },
     };
     ctx.setTitle(found.page.title);
 
     try {
-      const handle = await found.page.mount(outlet, ctx);
-      if (current !== token) {
+      const handle = await found.page.mount(surface, ctx);
+      if (!isActive()) {
         await handle?.unmount?.();
         return;
       }
       activePage = handle ?? null;
       bus.emit(BUS_EVENTS.ROUTE_CHANGED, route);
       if (query.section) {
-        requestAnimationFrame(() => document.getElementById(query.section)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+        requestAnimationFrame(() => { if (isActive()) document.getElementById(query.section)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
       } else {
         window.scrollTo({ top: 0 });
       }
     } catch (error) {
+      if (!isActive()) return;
       console.error(`[router] page "${found.page.id}" failed to mount`, error);
-      onError?.(outlet, error, () => render());
+      onError?.(surface, error, () => render());
     }
   }
 

@@ -23,8 +23,12 @@ export class StudioLayout {
     this.shell = null;
     this.disposed = false;
     this.sidebar = null;
+    this.collapsed = this.readCollapsed();
 
     this.railHost = h('div', { class: 'studio-rail' });
+    this.sidebarHost = h('div', { class: 'studio-rail__sidebar' });
+    this.toggleHost = h('span', { class: 'studio-rail__toggle' });
+    this.railHost.append(this.sidebarHost, this.toggleHost);
     this.crumbsHost = h('div', { class: 'studio-topbar__crumbs' });
     this.topActions = h('div', { class: 'studio-topbar__actions' });
     this.topEnd = h('div', { class: 'studio-topbar__end' });
@@ -35,8 +39,9 @@ export class StudioLayout {
         h('header', { class: 'topb studio-topbar' }, this.crumbsHost, h('div', { class: 'rowf gap12 sp' }, this.topActions, this.topEnd)),
         this.outlet));
     root.append(this.root);
+    this.root.classList.toggle('is-rail-collapsed', this.collapsed);
 
-    this.railHost.append(this.kit.ui.skeleton({ preset: 'sidebar' }));
+    this.sidebarHost.append(this.kit.ui.skeleton({ preset: 'sidebar' }));
     this.onKeydown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -64,27 +69,35 @@ export class StudioLayout {
   renderRail() {
     const { nav, project, chats, usage } = this.shell;
     const { ui, scope } = this.kit;
-    this.railHost.replaceChildren();
+    this.sidebarHost.replaceChildren();
+    const toggleLabel = this.collapsed ? nav.expandLabel : nav.collapseLabel;
+    const toggle = ui.button('', {
+      variant: 'ghost', size: 'sm', icon: this.collapsed ? 'layout-sidebar-left-expand' : 'layout-sidebar-left-collapse',
+      title: toggleLabel, ariaLabel: toggleLabel, onClick: () => this.toggleRail(),
+    });
+    this.toggleHost.replaceChildren(toggle);
+    this.toggleButton = toggle.xw;
 
     const createBtn = ui.button(nav.createLabel, { variant: 'primary', icon: 'plus', fullWidth: true, className: 'xw-host--fill' });
     const header = h('div', { class: 'studio-rail__header stack gap8' },
       h('div', { class: 'rowf gap8 studio-rail__brandrow' },
-        h('a', { class: 'brand', href: '#/' }, h('span', { class: 'mark' }), nav.brand),
-        ui.button('', { variant: 'ghost', size: 'sm', icon: 'layout-sidebar-left-collapse', title: nav.collapseLabel, ariaLabel: nav.collapseLabel, className: 'sp', onClick: () => this.toggleRail() })),
+        h('a', { class: 'brand', href: '#/' }, h('span', { class: 'mark' }), nav.brand)),
       h('div', { class: 'studio-rail__search', ref: (el) => {
-        const search = scope.mount(XWUIInputText, el, { placeholder: nav.searchPlaceholder }, {
+        const search = scope.mountField(XWUIInputText, el, { placeholder: nav.searchPlaceholder }, {
           trigger: true, leadingIcon: 'search', shortcut: 'Control+K', fullWidth: true, ariaLabel: nav.searchLabel, size: 'sm',
         });
         search.onActivate?.(() => this.openSearch());
       } }),
       createBtn);
 
-    const menu = scope.mount(XWUINavMenuDropdown, h('div'), {
+    const menuHost = h('div', { class: 'studio-rail__create' });
+    const menu = scope.mount(XWUINavMenuDropdown, menuHost, {
       triggerElement: createBtn.querySelector('button'),
       items: nav.createMenu.map((m) => ({ id: m.id, label: m.label, icon: m.icon })),
     }, { placement: 'bottom', align: 'start' });
     menu.onItemClick?.((item) => this.onCreate(nav.createMenu.find((m) => m.id === (item?.id ?? item))));
-    header.append(menu.getElement?.() ?? h('span'));
+    createBtn.remove();
+    header.append(menuHost);
 
     const usageBar = h('div');
     const usageText = template(usage.label, { used: formatNumber(usage.usedRuns), included: formatNumber(usage.includedRuns) });
@@ -105,8 +118,8 @@ export class StudioLayout {
       ...nav.footer.map((i) => ({ id: i.id, label: i.label, icon: i.icon, href: i.route ? this.ctx.href(i.route) : this.ctx.href('/studio', {}, { soon: i.id }) })),
     ];
 
-    this.sidebar = scope.mount(XWUINavSidebar, this.railHost, { header, footer, items, selected: '' }, {
-      width: '256px', collapsedWidth: '72px', collapsible: true, collapsed: this.readCollapsed(),
+    this.sidebar = scope.mount(XWUINavSidebar, this.sidebarHost, { header, footer, items, selected: '' }, {
+      width: '256px', collapsedWidth: '72px', collapsible: true, collapsed: this.collapsed,
     });
   }
 
@@ -125,9 +138,14 @@ export class StudioLayout {
   }
 
   toggleRail() {
+    if (!this.sidebar) return;
+    this.collapsed = !this.collapsed;
     this.sidebar?.toggle();
-    this.root.classList.toggle('is-rail-collapsed');
-    try { localStorage.setItem(RAIL_STATE_KEY, this.root.classList.contains('is-rail-collapsed') ? '1' : '0'); } catch { /* ignore */ }
+    this.root.classList.toggle('is-rail-collapsed', this.collapsed);
+    const nav = this.shell.nav;
+    const label = this.collapsed ? nav.expandLabel : nav.collapseLabel;
+    this.toggleButton.logic.updateConfig({ icon: this.collapsed ? 'layout-sidebar-left-expand' : 'layout-sidebar-left-collapse', title: label, ariaLabel: label });
+    try { localStorage.setItem(RAIL_STATE_KEY, this.collapsed ? '1' : '0'); } catch { /* ignore */ }
   }
 
   async onCreate(entry) {

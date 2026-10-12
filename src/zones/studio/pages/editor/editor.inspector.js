@@ -1,10 +1,10 @@
 /**
  * Flow editor - step inspector (right floating panel).
  * The form is generated from the step type's `fields` (catalog data) with XWUI inputs:
- * XWUISelect, XWUIInputText, XWUITextarea, XWUIInputNumber, XWUIInputSwitch.
+ * XWUIInputSelect, XWUIInputText, XWUITextarea, XWUIInputNumber, XWUIInputSwitch.
  */
 import {
-  XWUINavTabs, XWUISelect, XWUIInputText, XWUITextarea, XWUIInputNumber, XWUIInputSwitch, XWUIDisplayKbd,
+  XWUINavTabs, XWUIInputSelect, XWUIInputText, XWUITextarea, XWUIInputNumber, XWUIInputSwitch, XWUIDisplayKbd,
 } from '@exonware/xwui/basic';
 import { h } from '../../../../core/dom.js';
 import { createKit } from '../../../../core/ui.js';
@@ -17,8 +17,8 @@ export function createInspector({ catalog, copy, handlers }) {
   const el = h('aside', { class: 'fl stack gap16 editor-inspector', 'aria-label': copy.inspectorLabel });
   const typeIndex = Object.fromEntries(catalog.nodeTypes.map((t) => [t.id, t]));
 
-  function field(label, control, hint) {
-    return h('div', { class: 'editor-field' }, h('label', { class: 'lbl' }, label), control, hint && h('p', { class: 'hint' }, hint));
+  function field(control, hint) {
+    return h('div', { class: 'editor-field' }, control, hint && h('p', { class: 'hint' }, hint));
   }
 
   function paramControl(node, f, ctx) {
@@ -26,44 +26,50 @@ export function createInspector({ catalog, copy, handlers }) {
     const host = h('div');
     const value = node.params?.[f.key] ?? f.default;
     const set = (v) => handlers.onParams(node.id, { [f.key]: v });
+    if (f.kind === 'flow') {
+      const options = ctx.flows.map(flow => ({ value: flow.id, label: flow.name }));
+      const select = scope.mountField(XWUIInputSelect, host, { options, value: value || undefined, label: f.label }, { fullWidth: true, size: 'sm', clearable: true });
+      select.onChange?.(v => set((Array.isArray(v) ? v[0] : v) ?? ''));
+      return field(host);
+    }
     if (f.kind === 'select') {
-      const s = scope.mount(XWUISelect, host, { options: f.options.map((o) => ({ value: o, label: o })), value }, { fullWidth: true, size: 'small' });
+      const s = scope.mountField(XWUIInputSelect, host, { options: f.options.map((o) => ({ value: o, label: o })), value, label: f.label }, { fullWidth: true, size: 'sm' });
       s.onChange?.((v) => set(Array.isArray(v) ? v[0] : v));
-      return field(f.label, host);
+      return field(host);
     }
     if (f.kind === 'number') {
-      const n = scope.mount(XWUIInputNumber, host, { value }, { size: 'sm', min: 0 });
+      const n = scope.mountField(XWUIInputNumber, host, { value, label: f.label }, { size: 'sm', min: 0 });
       n.onChange?.((v) => set(Number(v)));
-      return field(f.label, host);
+      return field(host);
     }
     if (f.kind === 'textarea') {
-      const t = scope.mount(XWUITextarea, host, { value, rows: '3' }, { fullWidth: true, size: 'small', autoResize: true, className: f.mono ? 'editor-mono' : '' });
+      const t = scope.mountField(XWUITextarea, host, { value, label: f.label, rows: '3' }, { fullWidth: true, size: 'sm', autoResize: true, className: f.mono ? 'editor-mono' : '' });
       t.onChange?.((v) => set(v));
-      return field(f.label, host);
+      return field(host);
     }
     if (f.kind === 'switch') {
       const retry = typeIndex[node.type]?.retry ?? {};
-      const sw = scope.mount(XWUIInputSwitch, host, { checked: Boolean(value) }, { size: 'sm' });
+      const sw = scope.mountField(XWUIInputSwitch, host, { checked: Boolean(value), label: f.label }, { size: 'sm' });
       sw.onChange?.((v) => set(Boolean(v?.checked ?? v)));
       return h('div', { class: 'rowf gap12 editor-switch' }, host,
-        h('div', { class: 'grow' }, h('b', { class: 'small' }, f.label), h('div', { class: 'xs sec' }, template(copy.retryHint, retry))));
+        h('div', { class: 'grow' }, h('div', { class: 'xs sec' }, template(copy.retryHint, retry))));
     }
     if (f.kind === 'connection') {
       const options = ctx.connections.map((c) => ({ value: c.id, label: c.name }));
-      const s = scope.mount(XWUISelect, host, { options, value: value || undefined, placeholder: copy.connectionMissing }, { fullWidth: true, size: 'small', clearable: true });
+      const s = scope.mountField(XWUIInputSelect, host, { options, value: value || undefined, label: f.label, placeholder: copy.connectionMissing }, { fullWidth: true, size: 'sm', clearable: true });
       s.onChange?.((v) => set((Array.isArray(v) ? v[0] : v) ?? ''));
       const conn = ctx.connections.find((c) => c.id === value);
       const status = conn ? catalog.connectionStatuses[conn.status] : null;
       const hint = h('p', { class: 'hint rowf gap8' }, status ? statusEl(kit.scope, template(status.label, { days: conn.daysLeft }), status.st, { size: 'sm' }) : h('span', { class: 'ter' }, copy.noConnection), copy.credentialNote);
-      return h('div', { class: 'editor-field' }, h('label', { class: 'lbl' }, f.label), host, hint);
+      return h('div', { class: 'editor-field' }, host, hint);
     }
     if (f.kind === 'expression') {
       if (!value) return null;
       return h('div', { class: 'rowf gap8 wrapf editor-expression' }, kit.ui.tag(copy.expression, 'default', { className: 'xw-tone-violet' }), h('span', { class: 'mono small editor-expression__text' }, value));
     }
-    const t = scope.mount(XWUIInputText, host, { value }, { fullWidth: true, size: 'sm', className: f.mono ? 'editor-mono' : '' });
+    const t = scope.mountField(XWUIInputText, host, { value, label: f.label }, { fullWidth: true, size: 'sm', className: f.mono ? 'editor-mono' : '' });
     t.onChange?.((v) => set(v));
-    return field(f.label, host);
+    return field(host);
   }
 
   function renderNode(node, ctx) {
@@ -90,15 +96,15 @@ export function createInspector({ catalog, copy, handlers }) {
     } else if (section === 'settings') {
       const disabledHost = h('div');
       const pinnedHost = h('div');
-      scope.mount(XWUIInputSwitch, disabledHost, { checked: Boolean(node.disabled) }, { size: 'sm' }).onChange?.((v) => handlers.onNode(node.id, { disabled: Boolean(v?.checked ?? v) }));
-      scope.mount(XWUIInputSwitch, pinnedHost, { checked: Boolean(node.pinned) }, { size: 'sm' }).onChange?.((v) => handlers.onNode(node.id, { pinned: Boolean(v?.checked ?? v) }));
+      scope.mountField(XWUIInputSwitch, disabledHost, { checked: Boolean(node.disabled), label: copy.disabledLabel }, { size: 'sm' }).onChange?.((v) => handlers.onNode(node.id, { disabled: Boolean(v?.checked ?? v) }));
+      scope.mountField(XWUIInputSwitch, pinnedHost, { checked: Boolean(node.pinned), label: copy.pinnedLabel }, { size: 'sm' }).onChange?.((v) => handlers.onNode(node.id, { pinned: Boolean(v?.checked ?? v) }));
       body = [
-        h('div', { class: 'rowf gap12 editor-switch' }, disabledHost, h('div', { class: 'grow' }, h('b', { class: 'small' }, copy.disabledLabel), h('div', { class: 'xs sec' }, copy.disabledHint))),
-        h('div', { class: 'rowf gap12 editor-switch' }, pinnedHost, h('div', { class: 'grow' }, h('b', { class: 'small' }, copy.pinnedLabel), h('div', { class: 'xs sec' }, copy.pinnedHint))),
+        h('div', { class: 'rowf gap12 editor-switch' }, disabledHost, h('div', { class: 'grow' }, h('div', { class: 'xs sec' }, copy.disabledHint))),
+        h('div', { class: 'rowf gap12 editor-switch' }, pinnedHost, h('div', { class: 'grow' }, h('div', { class: 'xs sec' }, copy.pinnedHint))),
       ];
     } else {
       const notesHost = h('div');
-      scope.mount(XWUITextarea, notesHost, { value: node.notes ?? '', placeholder: copy.notesPlaceholder, rows: '6' }, { fullWidth: true, size: 'small' })
+      scope.mountField(XWUITextarea, notesHost, { value: node.notes ?? '', label: copy.sections.notes, placeholder: copy.notesPlaceholder, rows: '6' }, { fullWidth: true, size: 'sm' })
         .onChange?.((v) => handlers.onNode(node.id, { notes: v }));
       body = [notesHost];
     }

@@ -9,6 +9,11 @@
 
 /* ---------- rail ---------- */
 .studio-rail { flex: none; position: sticky; top: 0; height: 100vh; z-index: 30; }
+.studio-rail__toggle { position: absolute; top: 12px; right: 12px; z-index: 2; }
+.studio-shell.is-rail-collapsed .xwui-sidebar-header,
+.studio-shell.is-rail-collapsed .xwui-sidebar-footer { display: none; }
+.studio-shell.is-rail-collapsed .studio-rail .xwui-sidebar-menu { padding-top: 64px; }
+.studio-rail__create .xwui-menu-dropdown { width: 100%; }
 html body .studio-rail .xwui-sidebar {
   height: 100vh;
   background: rgba(8, 8, 16, .7);

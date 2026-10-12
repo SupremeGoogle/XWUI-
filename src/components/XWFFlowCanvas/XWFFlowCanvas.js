@@ -168,13 +168,14 @@ export class XWFFlowCanvas extends XWUIComponent {
 
   fit() {
     const bounds = graphBounds(this.data.graph, this.data.nodeTypes, this.width);
-    this.setTransform(fitTransform(bounds, this.viewportRect(), { padding: FIT_PADDING, min: this.config.minZoom, max: 1 }));
+    // A narrow safe area can need a smaller overview than manual zoom allows.
+    this.setTransform(fitTransform(bounds, this.viewportRect(), { padding: FIT_PADDING, min: 0.05, max: 1 }));
   }
 
   zoomBy(factor, point = null) {
     const vp = this.viewportRect();
     const p = point ?? { x: vp.x + vp.w / 2, y: vp.y + vp.h / 2 };
-    this.setTransform(zoomAround(this.transform, factor, p, this.config.minZoom, this.config.maxZoom));
+    this.setTransform(zoomAround(this.transform, factor, p, Math.min(this.config.minZoom, this.transform.k), this.config.maxZoom));
   }
 
   centerOn(world) {

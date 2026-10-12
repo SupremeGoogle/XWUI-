@@ -76,7 +76,7 @@ export function renderSim({ flow, types, labels, uid, simState, animate }) {
     if (!a || !b) return;
     let [x1, y1] = anchor(a, 'out');
     const [x2, y2] = anchor(b, 'in');
-    if ((e.port === 'yes' || e.port === 'no') && y1 !== y2) { x1 = a.x + 80; y1 = a.y + 45 + (y2 < y1 ? -55 : 55); }
+    if ((e.port !== 'out') && y1 !== y2) { x1 = a.x + 80; y1 = a.y + 45 + (y2 < y1 ? -55 : 55); }
     const d = y1 === y2 ? `M${x1} ${y1} H${x2 - 4}` : `M${x1} ${y1} V${y2} H${x2 - 4}`;
     paths.push({ id: `${uid}-p${i}`, d });
   });

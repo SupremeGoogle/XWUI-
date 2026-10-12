@@ -13,16 +13,20 @@ export function createXWFFlowCanvasLogic(data = {}, conf = {}) {
 /* ------------------------------------------------------------ geometry */
 
 export function isBranching(type) {
-  return Boolean(type?.ports?.includes('yes'));
+  return (type?.ports?.length ?? 0) > 1;
+}
+
+export function outputPorts(type) {
+  return (type?.ports ?? []).map((port, index) => [port, isBranching(type) ? G.branchPortsY.yes + index * (G.branchPortsY.no - G.branchPortsY.yes) : G.portY]);
 }
 
 export function nodeHeight(type) {
-  return isBranching(type) ? G.branchHeight : G.baseHeight;
+  return isBranching(type) ? G.branchHeight + Math.max(0, type.ports.length - 2) * (G.branchPortsY.no - G.branchPortsY.yes) : G.baseHeight;
 }
 
 /** Output port centre in world coordinates. */
 export function outPortPoint(node, type, port, width) {
-  const y = isBranching(type) ? (G.branchPortsY[port] ?? G.portY) : G.portY;
+  const y = outputPorts(type).find(([id]) => id === port)?.[1] ?? G.portY;
   return { x: node.x + width, y: node.y + y };
 }
 

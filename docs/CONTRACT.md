@@ -1,8 +1,7 @@
 # Architecture contract
 
-Shared rules for everyone working on this repo. The kernel (`index.html`, `src/app.js`,
-`src/core/*`, `src/styles/*`, `src/components/_template/*`, `src/api/index.js`) is owned by
-the core maintainer; zones own their folders.
+The kernel (`index.html`, `src/app.js`, `src/core/*`, `src/styles/*`, `src/api/index.js`)
+provides shared services; each zone owns its layouts and pages.
 
 ## Runtime
 
@@ -27,7 +26,8 @@ export default {
 };
 ```
 
-`ctx`: `{ api, bus, notify, navigate, href, route, params, query, layout, setTitle, appName }`.
+`ctx`: `{ api, bus, notify, navigate, href, route, params, query, layout, setTitle, appName,
+signal, isActive }`. Async pages check `isActive()` before updating the active view.
 
 Layout class: `new Layout(root, ctx)`, `.outlet`, `.setActive(route)`, `.destroy()`.
 The router reuses the layout while consecutive pages share its id.
@@ -68,9 +68,10 @@ never import `src/data/*`.
 
 ## Custom components
 
-Copy `src/components/_template/`: `Name.model.js`, `Name.logic.js`, `Name.view.js`, `Name.js`
+Each component separates `Name.model.js`, `Name.logic.js`, `Name.view.js`, `Name.js`
 (`extends XWUIComponent`, registered with `createXWUIElement`), `Name.css`, `Name.md`.
-Prefix `XWF`, tag `xwf-<kebab>`. Link the stylesheet before `super()` (see the template).
+Prefix `XWF`, tag `xwf-<kebab>`. Link the stylesheet before `super()`; see the existing
+components for lifecycle, projection and cleanup examples.
 
 ## Styling
 

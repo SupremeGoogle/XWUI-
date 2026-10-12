@@ -53,6 +53,7 @@ export default {
     let disposed = false;
 
     const [shell, catalog] = await Promise.all([studioApi.getShell(), studioApi.getCatalog()]);
+    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.run;
     let run = await studioApi.getRun(ctx.params.runId);

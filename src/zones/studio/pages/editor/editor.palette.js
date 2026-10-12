@@ -15,7 +15,7 @@ export function createPalette({ catalog, copy, onAdd }) {
   const el = h('aside', { class: 'fl stack editor-palette', 'aria-label': copy.paletteLabel }, searchHost, list,
     h('p', { class: 'xs ter editor-palette__hint' }, copy.paletteHint));
 
-  const input = scope.mount(XWUIInputText, searchHost, { placeholder: copy.paletteSearch }, {
+  const input = scope.mountField(XWUIInputText, searchHost, { placeholder: copy.paletteSearch }, {
     leadingIcon: 'search', fullWidth: true, ariaLabel: copy.paletteSearch, size: 'sm',
     suffix: undefined,
   });

@@ -2,7 +2,7 @@
  * Studio: connections. The vault banner, filters (search, status, grouping), credential
  * cards with masked secrets, and the actions the prototype shows: Reconnect, Test, Add.
  */
-import { XWUIInputText, XWUISelect, XWUICard } from '@exonware/xwui/basic';
+import { XWUIInputText, XWUIInputSelect, XWUICard } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { createKit } from '../../../core/ui.js';
 import { template, formatRelative, formatDateTime, pluralize } from '../../../core/format.js';
@@ -23,6 +23,7 @@ export default {
     const filters = { q: '', status: 'all', group: 'connection' };
     const busy = new Set();
     const [shell, catalog, first] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.listConnections(filters)]);
+    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.connections;
     ctx.setTitle(C.title);
@@ -110,18 +111,19 @@ export default {
     async function addConnection() {
       const { scope } = createKit();
       const form = await studioApi.getConnectionForm();
+      if (ctx.isActive && !ctx.isActive()) { scope.destroy(); return; }
       const fields = {};
       const field = (key, Component, data, conf) => {
         const host = h('div');
-        fields[key] = scope.mount(Component, host, data, { fullWidth: true, ...conf });
+        fields[key] = scope.mountField(Component, host, data, { fullWidth: true, ...conf });
         return host;
       };
       const body = h('div', { class: 'stack gap12' },
         h('p', { class: 'small sec' }, C.addIntro),
         field('name', XWUIInputText, { label: C.fields.name, placeholder: C.fields.namePlaceholder }),
-        field('kind', XWUISelect, { label: C.fields.kind, options: form.kinds.map((v) => ({ value: v, label: v })), value: form.kinds[0] }),
-        field('team', XWUISelect, { label: C.fields.team, options: form.teams.map((v) => ({ value: v, label: v })), value: form.teams[0] }),
-        field('scopes', XWUISelect, { label: C.fields.scopes, options: form.scopes.map((v) => ({ value: v, label: v })), value: form.scopes[0] }),
+        field('kind', XWUIInputSelect, { label: C.fields.kind, options: form.kinds.map((v) => ({ value: v, label: v })), value: form.kinds[0] }),
+        field('team', XWUIInputSelect, { label: C.fields.team, options: form.teams.map((v) => ({ value: v, label: v })), value: form.teams[0] }),
+        field('scopes', XWUIInputSelect, { label: C.fields.scopes, options: form.scopes.map((v) => ({ value: v, label: v })), value: form.scopes[0] }),
         field('secret', XWUIInputText, { label: C.fields.secret, placeholder: C.fields.secretPlaceholder, helperText: C.fields.secretHint }, { type: 'password', showPasswordToggle: false, autocomplete: 'off' }));
       const choice = await page.ui.dialog({ title: C.addTitle, content: body, actions: [{ id: 'cancel', label: C.cancel, variant: 'ghost' }, { id: 'add', label: C.add, variant: 'primary' }] });
       const pick = (v) => (Array.isArray(v) ? v[0] : v);

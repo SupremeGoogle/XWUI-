@@ -95,8 +95,8 @@ export function renderFlowchart({ flow, types, labels, uid, thumbnail }) {
     if (e.port === 'yes' && a.shape === 'decision') d = `M${a.box.x + BOX.w / 2} ${a.box.y - 25} V${by} H${bx - 6}`;
     else if (e.port === 'no' && a.shape === 'decision') d = `M${a.box.x + BOX.w / 2} ${a.box.y + 95} V${by} H${bx - 6}`;
     else d = Math.abs(ay - by) < 2 ? `M${ax} ${ay} H${bx - 6}` : `M${ax} ${ay} H${(ax + bx) / 2} V${by} H${bx - 6}`;
-    const port = e.port === 'yes' || e.port === 'no' ? e.port : null;
-    edges.push({ d, faded: b.step.node.disabled, text: port ? labels[port] : (a.exit?.yesLabel ? labels.yes : null), at: port ? [a.box.x + BOX.w / 2 + 14, port === 'yes' ? a.box.y - 40 : a.box.y + 130] : [ax + 10, ay - 10], color: port === 'no' ? '#ff8e9a' : 'var(--xw-lime)' });
+    const port = e.port !== 'out' ? e.port : null;
+    edges.push({ d, faded: b.step.node.disabled, text: port ? labels[port] ?? port : (a.exit?.yesLabel ? labels.yes : null), at: port ? [a.box.x + BOX.w / 2 + 14, port === 'yes' ? a.box.y - 40 : a.box.y + 130] : [ax + 10, ay - 10], color: port === 'no' ? '#ff8e9a' : 'var(--xw-lime)' });
   });
   // End terminal after the last column
   const sinks = flow.graph.nodes.filter((n) => !flow.graph.edges.some((e) => e.from === n.id) && pos.get(n.id));

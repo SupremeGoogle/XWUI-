@@ -62,7 +62,7 @@ export async function openStudioSearch(ctx) {
     }
   };
 
-  const input = scope.mount(XWUIInputText, inputHost, { placeholder: STUDIO_SEARCH.placeholder }, { leadingIcon: 'search', fullWidth: true, clearable: true, ariaLabel: STUDIO_SEARCH.placeholder });
+  const input = scope.mountField(XWUIInputText, inputHost, { placeholder: STUDIO_SEARCH.placeholder }, { leadingIcon: 'search', fullWidth: true, clearable: true, ariaLabel: STUDIO_SEARCH.placeholder });
   input.onChange?.((value) => {
     clearTimeout(debounce);
     debounce = setTimeout(() => search(value), STUDIO_SEARCH.debounceMs);

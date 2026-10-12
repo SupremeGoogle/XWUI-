@@ -19,8 +19,31 @@ import {
   XWUIFeedbackEmpty,
   XWUIFeedbackAlert,
   XWUIOverlayDialog,
+  linkLabelToField,
+  linkLabelToWidget,
 } from '@exonware/xwui/basic';
 import { h } from './dom.js';
+
+let fieldSequence = 0;
+
+/** Link labels in legacy CDN controls after their scheduled render. */
+function connectFieldLabel(scope, host, text) {
+  if (!text) return;
+  const id = `xwf-field-${++fieldSequence}`;
+  const link = () => {
+    const field = host.querySelector('input:not([type="hidden"]), textarea, select, [role="combobox"], [role="switch"]');
+    if (!field) return;
+    field.id ||= id;
+    const label = host.querySelector('label');
+    if (!label) { field.setAttribute('aria-label', text); return; }
+    if (field.matches('input, textarea, select')) linkLabelToField(label, field.id);
+    linkLabelToWidget(label, field, field.id);
+  };
+  const observer = new MutationObserver(link);
+  observer.observe(host, { childList: true, subtree: true });
+  link();
+  scope.onDispose(() => observer.disconnect());
+}
 
 export function createScope(owner = null) {
   const instances = new Set();
@@ -34,6 +57,11 @@ export function createScope(owner = null) {
     },
     mount(Component, host, data, conf) {
       return this.track(new Component(host, data, conf));
+    },
+    mountField(Component, host, data, conf) {
+      const component = this.mount(Component, host, data, conf);
+      connectFieldLabel(this, host, data?.label);
+      return component;
     },
     /** Listen and remember to unlisten. */
     listen(target, event, handler, options) {

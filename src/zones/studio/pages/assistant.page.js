@@ -25,6 +25,7 @@ export default {
     let previewKit = createKit();
     let recoKit = createKit();
     const [shell, catalog, assistant] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.getAssistant()]);
+    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
     const STUDIO_COPY = catalog.copy;
     ctx.setTitle(STUDIO_COPY.assistantTitle);
     const A = assistant.copy;
@@ -41,7 +42,7 @@ export default {
     /* ------------------------------ prompt */
     const { ui, scope } = page;
     const textareaHost = h('div', { class: 'assistant-prompt__input' });
-    const textarea = scope.mount(XWUITextarea, textareaHost, { placeholder: A.placeholder, rows: '3' }, { fullWidth: true, autoResize: true, resize: 'none', className: 'assistant-textarea' });
+    const textarea = scope.mountField(XWUITextarea, textareaHost, { placeholder: A.placeholder, rows: '3' }, { fullWidth: true, autoResize: true, resize: 'none', className: 'assistant-textarea' });
     const sendHost = h('span');
     const renderSend = () => sendHost.replaceChildren(ui.button(A.sendLabel, {
       variant: 'primary', icon: 'send', disabled: !state.text.trim() || state.drafting, loading: state.drafting, onClick: () => draft({ text: state.text }),

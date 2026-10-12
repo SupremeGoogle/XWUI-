@@ -126,6 +126,18 @@ function shapeRun(run) {
 
 /* ------------------------------------------------------------ API */
 
+function subFlowSnapshots() {
+  return Object.fromEntries(flows.list().map(flow => [flow.id, {
+    graph: flow.graph,
+    publishedGraph: flow.publishedVersion ? versions.get(`${flow.id}@${flow.publishedVersion}`)?.graph : null,
+  }]));
+}
+
+/** Internal API projection: use a surviving sample if the original demo was deleted. */
+export function getDemoFlowId() {
+  return flows.get(gallery.demoFlowId)?.id ?? flows.list()[0]?.id ?? null;
+}
+
 export const studioApi = {
   /** Rail, top bar and project chrome. */
   getShell: () => respond(() => ({
@@ -135,6 +147,7 @@ export const studioApi = {
     user: userById(db.currentUserId),
     usage: { ...db.usage, periodEndsAt: ago({ days: -db.usage.periodEnds.days }) },
     tabs: db.projectTabs,
+    demoFlowId: getDemoFlowId(),
   }), { latency: [120, 260] }),
 
   /** Static catalog: step types, groups, lanes, labels, notations. */
@@ -285,7 +298,7 @@ export const studioApi = {
     const flow = flows.require(flowId);
     if (mode === 'production' && !flow.publishedVersion) throw new ApiError('not_published', 'Publish the flow before running it in production.');
     const graph = mode === 'production' ? versions.require(`${flowId}@${flow.publishedVersion}`).graph : flow.graph;
-    const plan = simulateRun({ graph, types: typeIndex, payload: flow.samplePayload ?? {}, stopAtNodeId });
+    const plan = simulateRun({ graph, types: typeIndex, payload: flow.samplePayload ?? {}, stopAtNodeId, subFlows: subFlowSnapshots() });
     const sequence = runsOfFlow(flowId).reduce((max, r) => Math.max(max, r.sequence ?? 0), 0) + 1;
     const run = runs.create({
       id: newId(`run_${flowId.replace(/^flow_/, '')}`),
@@ -303,7 +316,7 @@ export const studioApi = {
     const source = runs.require(id);
     const flow = flows.require(source.flowId);
     const graph = source.graph ?? versions.get(`${source.flowId}@${source.version}`)?.graph ?? flow.graph;
-    const plan = simulateRun({ graph, types: typeIndex, payload: flow.samplePayload ?? {} });
+    const plan = simulateRun({ graph, types: typeIndex, payload: flow.samplePayload ?? {}, subFlows: subFlowSnapshots() });
     return runs.create({
       id: newId(`run_${source.flowId.replace(/^flow_/, '')}`),
       shortId: `r_${Math.random().toString(16).slice(2, 6)}`,
@@ -320,9 +333,9 @@ export const studioApi = {
     const graph = source.graph ?? versions.get(`${source.flowId}@${source.version}`)?.graph ?? flow.graph;
     const start = source.ledger.findIndex((row) => row.nodeId === nodeId);
     if (start < 0) throw new ApiError('not_found', 'This step is not in the receipt.');
-    const reusedRows = Object.fromEntries(source.ledger.slice(0, start).filter((row) => ['succeeded', 'pinned', 'took_yes', 'took_no'].includes(row.result)).map((row) => [row.nodeId, row]));
+    const reusedRows = Object.fromEntries(source.ledger.slice(0, start).filter((row) => ['succeeded', 'pinned'].includes(row.result) || row.result.startsWith('took_')).map((row) => [row.nodeId, row]));
     const retryGraph = { ...graph, nodes: graph.nodes.map((n) => n.id === nodeId ? { ...n, sim: { ...n.sim, failAttempts: 0 } } : n) };
-    const plan = simulateRun({ graph: retryGraph, types: typeIndex, payload: flow.samplePayload ?? {}, reusedRows });
+    const plan = simulateRun({ graph: retryGraph, types: typeIndex, payload: flow.samplePayload ?? {}, reusedRows, subFlows: subFlowSnapshots() });
     const run = runs.create({
       id: newId(`run_${source.flowId.replace(/^flow_/, '')}`),
       shortId: `r_${Math.random().toString(16).slice(2, 6)}`,
@@ -446,7 +459,7 @@ export const studioApi = {
   }, { latency: [600, 1100] }),
 
   /** Notations gallery: copy, render modes, families and the 24 notation cards. */
-  getNotationGallery: () => respond(() => gallery, { latency: [120, 260] }),
+  getNotationGallery: () => respond(() => ({ ...gallery, demoFlowId: getDemoFlowId() }), { latency: [120, 260] }),
 
   getEditorAssistant: () => respond(() => ({ examples: db.editorAssistant.examples }), { latency: [60, 120] }),
 

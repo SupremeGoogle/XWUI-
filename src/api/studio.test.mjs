@@ -83,3 +83,74 @@ test('simulated failure leaves an unpublished draft unchanged', async () => {
     assert.equal((await studioApi.getFlow(id)).publishedVersion, null);
   } finally { MOCK_CONFIG.enabled = false; Math.random = random; }
 });
+
+test('every directory step resolves to an addable Studio type and a live demo flow', async () => {
+  const { websiteApi } = await import('./website.api.js');
+  const directory = await websiteApi.listIntegrations({ pageSize: 100 });
+  const catalog = await studioApi.getCatalog();
+  const index = Object.fromEntries(catalog.nodeTypes.map(type => [type.id, type]));
+  for (const item of directory.items) {
+    assert.ok(index[item.nodeType]?.palette, item.id);
+    assert.equal(new URLSearchParams(item.path.split('?')[1]).get('nodeType'), item.nodeType);
+    assert.ok(catalog.assets[catalog.assetRefs.emptyFlows]);
+  }
+  // The earlier deletion test removed the original sample: the shell must select
+  // an existing demo rather than return an obsolete fixed identifier.
+  const shell = await studioApi.getShell();
+  assert.ok((await studioApi.getFlow(shell.demoFlowId)).id);
+});
+
+test('AI verdicts route only their branch and keep model/token metadata without the prompt', async () => {
+  const { simulateRun } = await import('./studio.engine.js');
+  const catalog = await studioApi.getCatalog();
+  const types = Object.fromEntries(catalog.nodeTypes.map(type => [type.id, type]));
+  for (const verdict of ['yes', 'no', 'unsure']) {
+    const graph = {
+      nodes: [{ id: 'trigger', type: 'webhook' }, { id: 'ai', type: 'ai_condition', params: { demoVerdict: verdict, question: 'Private prompt', model: 'Careful' } }, ...types.ai_condition.ports.map(port => ({ id: port, type: 'code' }))],
+      edges: [{ from: 'trigger', to: 'ai', port: 'out' }, ...types.ai_condition.ports.map(port => ({ from: 'ai', to: port, port }))],
+    };
+    const run = simulateRun({ graph, types, payload: { order: { total: 600 } } });
+    assert.equal(run.status, 'succeeded');
+    const row = run.ledger.find(row => row.nodeId === 'ai');
+    assert.equal(row.result, `took_${verdict}`);
+    assert.deepEqual(row.output, { branch: verdict, verdict, model: 'Careful', tokenCount: 64 });
+    assert.ok(!JSON.stringify(row).includes('Private prompt'));
+    for (const port of types.ai_condition.ports) assert.equal(run.ledger.find(row => row.nodeId === port).result, port === verdict ? 'succeeded' : 'not_run');
+  }
+});
+
+test('field-change trigger and switch execute the matching case or default', async () => {
+  const { simulateRun } = await import('./studio.engine.js');
+  const types = Object.fromEntries((await studioApi.getCatalog()).nodeTypes.map(type => [type.id, type]));
+  const graph = {
+    nodes: [{ id: 'trigger', type: 'field_changed' }, { id: 'switch', type: 'switch', params: { path: 'order.priority', case_1: 'high', case_2: 'normal' } }, ...types.switch.ports.map(port => ({ id: port, type: 'code' }))],
+    edges: [{ from: 'trigger', to: 'switch', port: 'out' }, ...types.switch.ports.map(port => ({ from: 'switch', to: port, port }))],
+  };
+  for (const [priority, chosen] of [['high', 'case_1'], ['normal', 'case_2'], ['other', 'default']]) {
+    const run = simulateRun({ graph, types, payload: { order: { priority } } });
+    assert.equal(run.ledger.find(row => row.nodeId === 'switch').output.branch, chosen);
+    for (const port of types.switch.ports) assert.equal(run.ledger.find(row => row.nodeId === port).result, port === chosen ? 'succeeded' : 'not_run');
+  }
+});
+
+test('sub-flow respects publication, records the child result and rejects recursive calls', async () => {
+  const { id: childId } = await studioApi.createFlow({ name: 'Child' });
+  const { id: parentId } = await studioApi.createFlow({ name: 'Parent' });
+  const parent = await studioApi.getFlow(parentId);
+  const trigger = parent.graph.nodes[0];
+  const child = { id: 'child', type: 'sub_flow', name: 'Call child', x: 400, y: 200, params: { flowId: childId, mode: 'Published version' } };
+  const graph = { ...parent.graph, nodes: [trigger, child], edges: [{ id: 'child-edge', from: trigger.id, to: child.id, port: 'out' }] };
+  await studioApi.saveDraft(parentId, graph);
+  const unpublished = await complete((await studioApi.startRun(parentId)).id);
+  assert.equal(unpublished.status, 'failed');
+  assert.match(unpublished.ledger[1].error.message, /Publish/);
+  await studioApi.publishFlow(childId);
+  const successful = await complete((await studioApi.startRun(parentId)).id);
+  assert.equal(successful.status, 'succeeded');
+  assert.equal(successful.ledger[1].output.flowId, childId);
+  assert.equal(successful.ledger[1].output.ledger[0].result, 'succeeded');
+  await studioApi.saveDraft(parentId, { ...graph, nodes: [trigger, { ...child, params: { flowId: parentId, mode: 'Current draft' } }] });
+  const recursive = await complete((await studioApi.startRun(parentId)).id);
+  assert.equal(recursive.status, 'failed');
+  assert.match(JSON.stringify(recursive.ledger), /Recursive/);
+});

@@ -30,9 +30,11 @@ export default {
   async mount(el, ctx) {
     const { studioApi } = ctx.api;
     const page = createKit();
-    const [shell, catalog, flow, connections] = await Promise.all([
+    const [shell, catalog, flow, connections, flowList] = await Promise.all([
       studioApi.getShell(), studioApi.getCatalog(), studioApi.getFlow(ctx.params.flowId), studioApi.listConnections(),
+      studioApi.listFlows(),
     ]);
+    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.editor;
     ctx.setTitle(flow.name);
@@ -48,6 +50,7 @@ export default {
       running: false,
       saving: false,
       connections,
+      flows: flowList.items.filter(item => item.id !== flow.id),
     };
     if (ctx.query.run) {
       try { state.run = await studioApi.getRun(ctx.query.run); } catch { /* keep the latest run */ }
@@ -72,7 +75,7 @@ export default {
         const node = state.graph.nodes.find((n) => n.id === id);
         commit(updateNode(state.graph, id, { params: { ...node.params, ...params } }), { inspector: false });
       },
-      onNode: (id, patch) => commit(updateNode(state.graph, id, patch)),
+      onNode: (id, patch) => commit(updateNode(state.graph, id, patch), { inspector: !Object.hasOwn(patch, 'notes') }),
       onExecuteTo: (id) => startRun({ stopAtNodeId: id }),
       onDelete: (id) => deleteSelection(id),
     } });
@@ -160,7 +163,10 @@ export default {
       state.selectedId = '';
       canvas.setSelected('');
       commit(graph);
-      if (isNode) ctx.notify.info(C.stepDeleted);
+      if (isNode) {
+        requestAnimationFrame(() => canvas.fit());
+        ctx.notify.info(C.stepDeleted);
+      }
     }
 
     async function rename(id) {
@@ -168,7 +174,7 @@ export default {
       if (!node) return;
       const { scope } = createKit();
       const host = h('div');
-      const input = scope.mount(XWUIInputText, host, { value: node.name, label: C.renameLabel }, { fullWidth: true });
+      const input = scope.mountField(XWUIInputText, host, { value: node.name, label: C.renameLabel }, { fullWidth: true });
       requestAnimationFrame(() => { input.focus?.(); input.select?.(); });
       const choice = await page.ui.dialog({ title: C.renameTitle, content: host, actions: [{ id: 'cancel', label: C.cancel, variant: 'ghost' }, { id: 'ok', label: C.renameConfirm, variant: 'primary' }], size: 'sm' });
       const value = input.getValue?.()?.trim();
@@ -224,7 +230,7 @@ export default {
       const host = h('div', { class: 'stack gap12' }, h('p', { class: 'small sec' }, C.publishBody));
       const noteHost = h('div');
       host.append(noteHost);
-      const note = scope.mount(XWUITextarea, noteHost, { label: C.publishNoteLabel, placeholder: C.publishNotePlaceholder, rows: '3' }, { fullWidth: true });
+      const note = scope.mountField(XWUITextarea, noteHost, { label: C.publishNoteLabel, placeholder: C.publishNotePlaceholder, rows: '3' }, { fullWidth: true });
       const choice = await page.ui.dialog({
         title: template(C.publishTitle, { v: next }), content: host,
         actions: [{ id: 'cancel', label: C.cancel, variant: 'ghost' }, { id: 'publish', label: C.publishConfirm, variant: 'primary' }],
@@ -279,7 +285,7 @@ export default {
       const host = h('div', { class: 'stack gap12' });
       const inputHost = h('div');
       host.append(inputHost, h('div', { class: 'wrapf gap8' }, examples.map((ex) => ui.button(ex, { variant: 'ghost', size: 'sm', onClick: () => input.setValue?.(ex) }))));
-      const input = scope.mount(XWUIInputText, inputHost, { label: C.askLabel, placeholder: C.askPlaceholder }, { fullWidth: true, leadingIcon: 'sparkles' });
+      const input = scope.mountField(XWUIInputText, inputHost, { label: C.askLabel, placeholder: C.askPlaceholder }, { fullWidth: true, leadingIcon: 'sparkles' });
       requestAnimationFrame(() => input.focus?.());
       const choice = await page.ui.dialog({ title: C.askTitle, content: host, actions: [{ id: 'cancel', label: C.cancel, variant: 'ghost' }, { id: 'ask', label: C.askConfirm, variant: 'primary' }], size: 'md' });
       const text = input.getValue?.() || C.askPlaceholder;
@@ -312,10 +318,11 @@ export default {
 
     refreshPanels();
     if (state.selectedId) requestAnimationFrame(() => canvas.focusNode(state.selectedId));
-    if (ctx.query.demo) setTimeout(() => startRun(), 400);
+    const demoTimer = ctx.query.demo ? setTimeout(() => startRun(), 400) : null;
     // deep link from the integrations directory: ?nodeType=http-request adds that step
     const linkedType = ctx.query.nodeType?.replace(/-/g, '_');
-    if (linkedType && typeIndex[linkedType]) setTimeout(() => addStep(linkedType), 300);
+    const linkedTimer = linkedType && typeIndex[linkedType] ? setTimeout(() => addStep(linkedType), 300) : null;
+    page.scope.onDispose(() => { clearTimeout(demoTimer); clearTimeout(linkedTimer); });
 
     return {
       unmount() {

@@ -11,8 +11,6 @@ import {
   statusEl, kpiEl, chainEl, ownerEl, projectTabsEl, searchEl, selectEl,
 } from '../shared/studio-ui.js';
 
-const DEMO_FLOW_ID = 'flow_order_alert';
-
 export default {
   id: 'studio-flows',
   path: STUDIO_ROUTES.flows,
@@ -26,6 +24,7 @@ export default {
     const [shell, catalog, initial] = await Promise.all([
       studioApi.getShell(), studioApi.getCatalog(), studioApi.listFlows(filters),
     ]);
+    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.flows;
     ctx.setTitle(C.title);
@@ -53,7 +52,7 @@ export default {
           h('div', { class: 'rowf gap12' }, h('h1', { class: 'h2 studio-hero__title' }, project.name), page.ui.tag(project.visibility)),
           h('p', { class: 'sec' }, project.description)),
         h('div', { class: 'rowf gap8' },
-          page.ui.button(C.liveDemo, { variant: 'outline', icon: 'play', onClick: () => ctx.navigate(`/studio/flows/${DEMO_FLOW_ID}?demo=1`) }),
+          page.ui.button(C.liveDemo, { variant: 'outline', icon: 'play', disabled: !shell.demoFlowId, onClick: () => ctx.navigate(ctx.href(STUDIO_ROUTES.editor, { flowId: shell.demoFlowId }, { demo: '1' }).slice(1)) }),
           page.ui.button(C.createFlow, { variant: 'primary', icon: 'plus', onClick: createFlow }))));
 
     const kpis = h('div', { class: 'studio-kpis' });

@@ -5,7 +5,7 @@
  * needs to patch positions while dragging without re-rendering everything.
  */
 import { h } from '../../core/dom.js';
-import { edgeGeometry, nodeHeight, isBranching } from './XWFFlowCanvas.logic.js';
+import { edgeGeometry, nodeHeight, isBranching, outputPorts } from './XWFFlowCanvas.logic.js';
 import { XWF_NODE_GEOMETRY as G } from './XWFFlowCanvas.model.js';
 
 const tone = (name) => `var(--xw-${name ?? 'violet'})`;
@@ -21,12 +21,12 @@ function nodeCard(node, type, state, { width, selected, readOnly, ui, statusEl, 
   }];
   const pins = [];
   pins.push(h('span', { class: ['pin', 'l', { on: !node.disabled }], style: { top: `${G.portY - 6}px` }, 'aria-hidden': 'true' }));
-  const outPorts = branching ? Object.entries(G.branchPortsY) : (type?.ports?.length ? [['out', G.portY]] : []);
+  const outPorts = outputPorts(type);
   outPorts.forEach(([port, y]) => pins.push(h('span', {
     class: ['pin', 'r', 'on', 'xwf-node__out'],
     style: { top: `${y - 6}px` },
     dataset: { port, nodeId: node.id },
-    title: branching ? portLabels[port] : null,
+    title: branching ? portLabels[port] ?? port : null,
     'aria-hidden': 'true',
   })));
   return h('div', {
@@ -73,11 +73,11 @@ export function projectXWFFlowCanvasView(model, ctx) {
   const svg = h('svg', { class: 'xwf-flow-canvas__wires wires', width: '1', height: '1', 'aria-hidden': 'true' }, defs, edgeEls,
     h('path', { class: 'xwf-edge xwf-edge--draft', d: '', 'data-draft': 'true' }));
 
-  const portLabelEls = edges.filter((e) => e.port === 'yes' || e.port === 'no').map((e) => h('span', {
+  const portLabelEls = edges.filter((e) => e.port !== 'out').map((e) => h('span', {
     class: ['xs', 'b', 'xwf-edge__label', `xwf-edge__label--${e.port}`],
     style: { left: `${e.labelAt.x}px`, top: `${e.port === 'no' ? e.a.y + 6 : e.labelAt.y - 10}px` },
     dataset: { edgeLabel: e.id },
-  }, portLabels[e.port]));
+  }, portLabels[e.port] ?? e.port));
 
   const frames = (graph.frames ?? []).map((f) => [
     h('div', { class: 'xwf-frame', style: { left: `${f.x}px`, top: `${f.y}px`, width: `${f.w}px`, height: `${f.h}px`, '--fc': tone(f.tone) } }),

@@ -26,6 +26,7 @@ export default {
 
     const [shell, catalog, first] = await Promise.all([studioApi.getShell(), studioApi.getCatalog(), studioApi.listRuns(filters)]);
 
+    if (ctx.isActive && !ctx.isActive()) { page.scope.destroy(); return { unmount() {} }; }
     const STUDIO_COPY = catalog.copy;
     const C = STUDIO_COPY.runs;
     ctx.setTitle(C.title);

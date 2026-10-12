@@ -1,5 +1,7 @@
+import { publicNodeTypes } from './node-catalog.data.js';
+import { gallery } from './notations.data.js';
 /** Public-site content and sample catalog. UI receives these records only through websiteApi. */
-const demoFlow = '/studio/flows/flow_order_alert';
+const demoFlow = `/studio/flows/${gallery.demoFlowId}`;
 const anchor = (section) => `/?section=${section}`;
 export const websiteData = {
   assetRefs: {
@@ -295,13 +297,13 @@ export const websiteData = {
     },
     stats: [
       {
-        title: 'connectors',
-        value: 'N',
-        footnote: 'Counted from the registry at build time.',
+        title: 'steps and connectors',
+        countSource: 'integrations',
+        footnote: 'Available in the local registry.',
       },
       {
         title: 'workflow dialects',
-        value: 10,
+        countSource: 'dialects',
         footnote: 'Import from the tools you use today.',
       },
       {
@@ -513,17 +515,19 @@ export const websiteData = {
     },
   },
   directory: {
+    editorPath: '/studio/flows/:flowId',
+    emptyStudioPath: '/studio/flows',
     title: 'Integrations directory',
     eyebrow: 'Integrations',
     heading: 'Every step.',
     accent: 'One registry.',
     description:
-      'N steps and connectors, read from the same catalog the studio palette uses. If it is listed here, you can drag it onto a canvas.',
+      '{count} steps and connectors, read from the same catalog the studio palette uses. If it is listed here, you can drag it onto a canvas.',
     search: 'Search by name or what it does',
     searchLabel: 'Search integrations',
     groupsLabel: 'Groups',
     notice:
-      'Design mock. The live directory renders every card from the node-type catalog, so nothing appears here that is not registered.',
+      'Local demo. Every card comes from the node-type catalog and is available in the studio palette.',
     empty: 'No integrations match your search',
     emptyDescription: 'Try another name or choose a different group.',
     extra: {
@@ -542,98 +546,7 @@ export const websiteData = {
     { id: 'ai', label: 'AI', tone: 'pink' },
     { id: 'int', label: 'Apps and APIs', tone: 'cyan' },
   ],
-  integrations: [
-    {
-      id: 'ai-condition',
-      name: 'AI condition',
-      category: 'ai',
-      icon: 'sparkles',
-      featured: true,
-      description:
-        "Branch on a model's answer with three honest outputs: yes, no and unsure. The receipt records the verdict, model and token count, never the prompt.",
-    },
-    {
-      id: 'webhook',
-      name: 'Webhook',
-      category: 'trig',
-      icon: 'bolt',
-      description: 'Start a run when an HTTP request arrives.',
-    },
-    {
-      id: 'schedule',
-      name: 'Schedule',
-      category: 'trig',
-      icon: 'clock',
-      description: 'Start a run on a cron schedule, in your time zone.',
-    },
-    {
-      id: 'field-changed',
-      name: 'Field changed',
-      category: 'trig',
-      icon: 'edit',
-      description: 'Start a run when a record field changes.',
-    },
-    {
-      id: 'http-request',
-      name: 'HTTP request',
-      category: 'int',
-      icon: 'world',
-      description: 'Call any HTTP API with your own credentials.',
-    },
-    {
-      id: 'code',
-      name: 'Code',
-      category: 'data',
-      icon: 'code',
-      description: 'Run a script once per item or once per run.',
-    },
-    {
-      id: 'set-fields',
-      name: 'Set fields',
-      category: 'data',
-      icon: 'adjustments',
-      description: 'Add, rename or remove fields on each item.',
-    },
-    {
-      id: 'condition',
-      name: 'Condition',
-      category: 'ctrl',
-      icon: 'git-branch',
-      description: 'Send items down a yes or a no branch.',
-    },
-    {
-      id: 'switch',
-      name: 'Switch',
-      category: 'ctrl',
-      icon: 'arrows-shuffle',
-      description: 'Route items to one of several outputs.',
-    },
-    {
-      id: 'merge',
-      name: 'Merge',
-      category: 'ctrl',
-      icon: 'git-merge',
-      description: 'Join branches back into one stream.',
-    },
-    {
-      id: 'wait',
-      name: 'Wait',
-      category: 'ctrl',
-      icon: 'player-pause',
-      description: 'Pause until a time or a condition.',
-    },
-    {
-      id: 'sub-flow',
-      name: 'Sub-flow',
-      category: 'ctrl',
-      icon: 'sitemap',
-      description: 'Call another flow as one step.',
-    },
-  ].map((item) => ({
-    ...item,
-    assetId: `node-${{ 'field-changed': 'set-fields', switch: 'condition', 'sub-flow': 'merge' }[item.id] ?? item.id}`,
-    path: `${demoFlow}?nodeType=${item.id}`,
-  })),
+  integrations: publicNodeTypes.map(item => ({ ...item, path: `${demoFlow}?nodeType=${item.nodeType}` })),
   dialects: [
     ['n8n', 'n8', 'pink'],
     ['Zapier', 'Za', 'orange'],

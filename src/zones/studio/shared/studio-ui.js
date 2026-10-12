@@ -2,7 +2,7 @@
  * Studio view helpers shared by several pages: status markers, KPI tiles, step chains,
  * owner chips, project tabs and the "not in this prototype" notice.
  */
-import { XWUIDisplayStatistic, XWUINavTabs, XWUISelect, XWUIInputText, XWUIDisplayAvatar } from '@exonware/xwui/basic';
+import { XWUIDisplayStatistic, XWUINavTabs, XWUIInputSelect, XWUIInputText, XWUIDisplayAvatar } from '@exonware/xwui/basic';
 import { h } from '../../../core/dom.js';
 import { template } from '../../../core/format.js';
 import { XWFStatus } from '../../../components/XWFStatus/XWFStatus.js';
@@ -60,7 +60,7 @@ export function projectTabsEl(scope, ctx, tabs, activeId, STUDIO_COPY) {
 
 export function searchEl(scope, { placeholder, value = '', onChange, debounceMs = 220 }) {
   const host = h('div', { class: 'studio-filters__search' });
-  const input = scope.mount(XWUIInputText, host, { placeholder, value }, { leadingIcon: 'search', fullWidth: true, clearable: true, ariaLabel: placeholder, size: 'md' });
+  const input = scope.mountField(XWUIInputText, host, { placeholder, value }, { leadingIcon: 'search', fullWidth: true, clearable: true, ariaLabel: placeholder, size: 'md' });
   let timer = null;
   input.onChange?.((v) => {
     clearTimeout(timer);
@@ -72,7 +72,7 @@ export function searchEl(scope, { placeholder, value = '', onChange, debounceMs 
 
 export function selectEl(scope, { label, options, value, onChange }) {
   const host = h('div', { class: 'studio-filters__select' });
-  const select = scope.mount(XWUISelect, host, { options, value, placeholder: label }, { size: 'medium', fullWidth: true });
+  const select = scope.mountField(XWUIInputSelect, host, { options, value, placeholder: label, label }, { size: 'md', fullWidth: true, showLabel: false });
   select.onChange?.((v) => onChange(Array.isArray(v) ? v[0] : v));
   host.setAttribute('aria-label', label);
   return host;

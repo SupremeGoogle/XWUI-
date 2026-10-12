@@ -53,10 +53,10 @@ export function renderSequence({ flow, types, run, labels, uid, systemsModel, on
       h('path', { d: `M${fx} ${y1} h56 v16 l-10 10 h-46 z`, fill: 'var(--xw-lime)' }),
       h('text', { x: fx + 24, y: y1 + 18, 'text-anchor': 'middle', 'font-size': '13', fill: '#0a0a0a' }, labels.alt),
       h('text', { x: fx + 70, y: y1 + 18, 'font-size': '13', fill: 'var(--xw-lime)' }, `[${f.guard}]`));
-    if (f.elseAt >= 0) {
-      const ey = rowY(f.elseAt) - 30;
+    for (const separator of f.separators) {
+      const ey = rowY(separator.at) - 30;
       out.push(h('path', { d: `M${fx} ${ey} H${fx + fw}`, stroke: 'var(--xw-lime)', 'stroke-width': '1.4', 'stroke-dasharray': '6 5' }),
-        h('text', { x: fx + 20, y: ey + 18, 'font-size': '13', fill: 'var(--xw-lime)' }, `[${labels.else}]`));
+        h('text', { x: fx + 20, y: ey + 18, 'font-size': '13', fill: 'var(--xw-lime)' }, `[${separator.branch === 'no' ? labels.else : labels[separator.branch] ?? separator.branch}]`));
     }
   });
 

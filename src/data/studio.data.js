@@ -33,152 +33,7 @@ export const usage = {
 
 /* ------------------------------------------------------------- node catalog */
 
-/** Palette groups, in display order. `tone` names a --xw-* colour token. */
-export const nodeGroups = [
-  { id: 'trigger', label: 'Triggers', tone: 'lime' },
-  { id: 'control', label: 'Control flow', tone: 'orange' },
-  { id: 'data', label: 'Data', tone: 'violet' },
-  { id: 'ai', label: 'AI', tone: 'pink' },
-  { id: 'apps', label: 'Apps and APIs', tone: 'cyan' },
-];
-
-/**
- * Step types. `fields` drive the inspector form (XWUI inputs), `ports` the outputs,
- * `notation` how each diagram view draws the step, `lane` the swimlane it belongs to.
- */
-export const nodeTypes = [
-  {
-    id: 'webhook', label: 'Webhook', group: 'trigger', tone: 'lime', icon: 'webhook', palette: true,
-    description: 'Starts the flow when an HTTP call arrives.',
-    notation: { flowchart: 'terminal', bpmn: 'start-message', sequence: 'source' }, lane: 'source',
-    ports: ['out'],
-    fields: [
-      { key: 'path', label: 'Path', kind: 'text', mono: true, default: '/hooks/orders' },
-      { key: 'method', label: 'Method', kind: 'select', options: ['POST', 'PUT'], default: 'POST' },
-    ],
-    sim: { durationMs: null },
-  },
-  {
-    id: 'schedule', label: 'Schedule', group: 'trigger', tone: 'lime', icon: 'clock', palette: true,
-    description: 'Starts the flow on a timetable.',
-    notation: { flowchart: 'terminal', bpmn: 'start-timer', sequence: 'source' }, lane: 'source',
-    ports: ['out'],
-    fields: [
-      { key: 'every', label: 'Runs', kind: 'select', options: ['Every hour', 'Every day 08:00', 'Every Monday 08:00'], default: 'Every hour' },
-      { key: 'timezone', label: 'Time zone', kind: 'select', options: ['UTC', 'Asia/Riyadh', 'Europe/London'], default: 'UTC' },
-    ],
-    sim: { durationMs: null },
-  },
-  {
-    id: 'condition', label: 'Condition', group: 'control', tone: 'orange', icon: 'git-branch', palette: true,
-    description: 'Sends items down the yes or the no branch.',
-    notation: { flowchart: 'decision', bpmn: 'gateway-xor', sequence: 'alt' }, lane: 'engine',
-    ports: ['yes', 'no'],
-    fields: [
-      { key: 'expression', label: 'Condition', kind: 'text', mono: true, expression: true, default: 'order.total > 500' },
-    ],
-    sim: { durationMs: 3 },
-  },
-  {
-    id: 'wait', label: 'Wait', group: 'control', tone: 'orange', icon: 'hourglass', palette: true,
-    description: 'Pauses the run for a time or until someone answers.',
-    notation: { flowchart: 'delay', bpmn: 'intermediate-timer', sequence: 'self' }, lane: 'engine',
-    ports: ['out'],
-    fields: [
-      { key: 'until', label: 'Wait until', kind: 'select', options: ['A reply arrives', 'A fixed time passes'], default: 'A reply arrives' },
-      { key: 'timeoutHours', label: 'Give up after (hours)', kind: 'number', default: 48 },
-    ],
-    sim: { durationMs: 1500 },
-  },
-  {
-    id: 'merge', label: 'Merge', group: 'control', tone: 'orange', icon: 'git-merge', palette: true,
-    description: 'Joins branches back together.',
-    notation: { flowchart: 'junction', bpmn: 'gateway-and', sequence: 'self' }, lane: 'engine',
-    ports: ['out'],
-    fields: [
-      { key: 'mode', label: 'Mode', kind: 'select', options: ['Wait for all', 'First to arrive'], default: 'Wait for all' },
-    ],
-    sim: { durationMs: 2 },
-  },
-  {
-    id: 'code', label: 'Code', group: 'data', tone: 'violet', icon: 'code', palette: true,
-    description: 'Runs a short script on every item.',
-    notation: { flowchart: 'process', bpmn: 'task-script', sequence: 'self' }, lane: 'engine',
-    ports: ['out'],
-    fields: [
-      { key: 'source', label: 'Script', kind: 'textarea', mono: true, default: 'return items.map(i => ({ ...i }));' },
-    ],
-    sim: { durationMs: 18 },
-  },
-  {
-    id: 'set_fields', label: 'Set fields', group: 'data', tone: 'violet', icon: 'variable', palette: true,
-    description: 'Adds, renames or removes fields.',
-    notation: { flowchart: 'process', bpmn: 'task', sequence: 'self' }, lane: 'engine',
-    ports: ['out'],
-    fields: [
-      { key: 'mapping', label: 'Fields', kind: 'textarea', mono: true, default: 'score = lead.size * 2' },
-    ],
-    sim: { durationMs: 6 },
-  },
-  {
-    id: 'ai_condition', label: 'AI condition', group: 'ai', tone: 'pink', icon: 'sparkles', palette: true,
-    description: 'Lets a model decide which branch an item takes.',
-    notation: { flowchart: 'decision', bpmn: 'gateway-xor', sequence: 'alt' }, lane: 'ai',
-    ports: ['yes', 'no'],
-    fields: [
-      { key: 'question', label: 'Question for the model', kind: 'textarea', default: 'Is this request legitimate?' },
-      { key: 'model', label: 'Model', kind: 'select', options: ['Fast', 'Careful'], default: 'Fast' },
-    ],
-    sim: { durationMs: 640 },
-  },
-  {
-    id: 'http_request', label: 'HTTP request', group: 'apps', tone: 'cyan', icon: 'globe', palette: true,
-    description: 'Calls any API.',
-    notation: { flowchart: 'process', bpmn: 'task-service', sequence: 'call' }, lane: 'apps',
-    ports: ['out'],
-    fields: [
-      { key: 'method', label: 'Method', kind: 'select', options: ['GET', 'POST', 'PUT', 'DELETE'], default: 'GET' },
-      { key: 'url', label: 'URL', kind: 'text', mono: true, default: 'https://api.example.com/' },
-      { key: 'urlExpression', label: 'Expression', kind: 'expression', default: '' },
-      { key: 'connectionId', label: 'Credential', kind: 'connection', default: '' },
-      { key: 'retry', label: 'Retry on failure', kind: 'switch', default: true, hint: 'Up to {tries} tries, {delayMs} ms apart' },
-    ],
-    retry: { tries: 3, delayMs: 1000 },
-    sim: { durationMs: 212 },
-  },
-  {
-    id: 'post_message', label: 'Post a message', group: 'apps', tone: 'pink', icon: 'message', palette: false,
-    description: 'Posts to a chat channel.',
-    notation: { flowchart: 'io', bpmn: 'task-send', sequence: 'call' }, lane: 'apps',
-    ports: [],
-    fields: [
-      { key: 'channel', label: 'Channel', kind: 'text', default: '#sales' },
-      { key: 'connectionId', label: 'Chat connection', kind: 'connection', default: '' },
-    ],
-    sim: { durationMs: 160 },
-  },
-  {
-    id: 'append_row', label: 'Append a row', group: 'data', tone: 'violet', icon: 'table', palette: false,
-    description: 'Adds a row to a table.',
-    notation: { flowchart: 'data', bpmn: 'task-data', sequence: 'call' }, lane: 'data',
-    ports: [],
-    fields: [
-      { key: 'table', label: 'Table', kind: 'select', options: ['Orders', 'Customers', 'Leads'], default: 'Orders' },
-    ],
-    sim: { durationMs: 48 },
-  },
-  {
-    id: 'send_email', label: 'Send email', group: 'apps', tone: 'pink', icon: 'mail', palette: false,
-    description: 'Sends an email.',
-    notation: { flowchart: 'io', bpmn: 'task-send', sequence: 'call' }, lane: 'apps',
-    ports: [],
-    fields: [
-      { key: 'to', label: 'To', kind: 'text', default: 'finance@example.com' },
-      { key: 'subject', label: 'Subject', kind: 'text', default: 'Weekly invoice digest' },
-    ],
-    sim: { durationMs: 310 },
-  },
-];
+export { nodeGroups, nodeTypes } from './node-catalog.data.js';
 
 /** Lanes used by the swimlane, BPMN and sequence views. */
 export const lanes = [
@@ -482,6 +337,10 @@ export const stepResults = {
   failed: { label: 'Failed', st: 'err' },
   took_yes: { label: 'Took yes', st: 'ok' },
   took_no: { label: 'Took no', st: 'ok' },
+  took_unsure: { label: 'Took unsure', st: 'warn' },
+  took_case_1: { label: 'Took case 1', st: 'ok' },
+  took_case_2: { label: 'Took case 2', st: 'ok' },
+  took_default: { label: 'Took default', st: 'ok' },
   disabled: { label: 'Disabled', st: 'dis' },
   not_run: { label: 'Not run', st: 'idle' },
   running: { label: 'Running', st: 'run' },
@@ -610,6 +469,7 @@ export const studioAssetRefs = {
 export const studioNav = {
   brand: 'xwflow',
   collapseLabel: 'Collapse the rail',
+  expandLabel: 'Expand the rail',
   expandLabel: 'Expand the rail',
   searchPlaceholder: 'Search',
   searchLabel: 'Search everything',
