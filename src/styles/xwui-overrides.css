@@ -102,6 +102,8 @@ html body .xwui-table-wrapper {
   border-radius: 18px;
   background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .015));
   overflow: hidden;
+  /* Contain XWUITable's absolutely positioned sr-only labels inside the scroll box. */
+  position: relative;
 }
 html body .xwui-table { font-family: var(--xw-font-body); font-size: .875rem; background: transparent; }
 html body .xwui-table th, html body .xwui-table .xwui-table-header {

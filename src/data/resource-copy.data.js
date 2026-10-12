@@ -7,7 +7,7 @@ export const RESOURCE_COPY = {
   all: 'All current records', archivedOnly: 'Archived records', search: 'Search records', filter: 'Record status',
   total: 'Total records', active: 'Enabled records', saved: 'Changes saved.', created: 'Record created.',
   archivedNotice: 'Record archived. You can restore it from the archived list.', restored: 'Record restored.',
-  updated: 'Updated', actions: 'Record actions', rows: '{n} matching records',
+  updated: 'Updated', actions: 'Record actions', rows: '{n} matching records', rowsOne: '1 matching record',
   empty: 'No records to show', emptyBody: 'Create a record or change the search and filters.',
   error: 'Could not load these records', retry: 'Try again',
   archiveTitle: 'Archive {name}?', archiveBody: 'The record leaves the current list. You can restore it from Archived records.',

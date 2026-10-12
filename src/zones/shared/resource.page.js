@@ -100,7 +100,7 @@ export function createResourcePage({ id, path, layout, resource, domain }) {
           ].map(item => ({ ...item, onClick: row => act(item.id, row) })),
         });
       }
-      footer.replaceChildren(h('span', { class: 'small sec' }, template(C.rows, { n: result.total })),
+      footer.replaceChildren(h('span', { class: 'small sec' }, result.total === 1 ? C.rowsOne : template(C.rows, { n: result.total })),
         ...result.pages > 1 ? [kit.ui.pager(result, page => { filters.page = page; reload(); })] : []);
     }
     const header = h('div', { class: 'stack gap12' },

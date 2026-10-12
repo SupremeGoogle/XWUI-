@@ -29,9 +29,20 @@ To demonstrate isolated panel recovery, open `#/admin?failPanel=chart` in normal
   parameter/settings/notes inspector, published versions and restore, test/production
   runs, immutable receipts, retry, connection creation/test/reconnect, and six notation
   views (flowchart, swimlanes, BPMN, sequence, simulation and 3D).
+- Studio project sections: Agents, Tables, Forms, Variables, MCP servers, Templates,
+  Insights and Settings. Each has search, status filter, pagination, create/edit dialogs
+  with API-side validation, enable/disable, archive/restore and JSON export. Templates
+  create a real draft flow; Insights are computed from recorded runs.
 - Admin/System: overview with independent panel recovery, saved branding and previews,
   audit filtering/CSV/SIEM configuration, health checks and operational actions,
   and the Quotas access-denied/request screen.
+- Admin management sections: Tenants, Credentials policy, Node registry, Adapters, Usage,
+  AI governance, Schedules, Workers, All executions, Config and Backups. Several are
+  derived from live demo state rather than separate samples: Node registry from the
+  shared step registry, Schedules from scheduled flows (pause/resume), Workers and Config
+  from Health (drain/resume, scheduler admission), All executions from Studio receipts
+  (with retry), Usage from the project allowance, and Backups from a browser-local
+  snapshot of workflows, receipts and health.
 
 The website directory and Studio palette use one shared step registry. Switch routes
 to two cases or its default output; AI condition records a configurable demo verdict
@@ -69,12 +80,11 @@ browser's site storage and reload. There is no live backend or authentication.
 
 ## Assumptions and incomplete items
 
-- Artboards define the implemented pages. Eleven menu destinations without artboards
-  show an explicit placeholder: Tenants, Credentials policy, Node registry, Adapters,
-  Usage, AI governance, Schedules, Workers, All executions, Config and Backups.
-- Studio Agents, Tables, Forms, Variables, MCP servers, Templates, Insights and Settings
-  have no supplied page designs. Their controls explain this limitation. Assistant
-  attachment and microphone controls are informational.
+- Artboards define the visual design of the main pages. The nineteen Studio and Admin
+  management sections above have no supplied artboards; they share one
+  schema-driven management page (`src/zones/shared/resource.page.js`) built from
+  XWUI basic components in the same visual language, instead of invented layouts.
+- Assistant attachment and microphone controls are informational.
 - Arabic translates navigation and mirrors the surrounding layout; body copy remains
   English. Canvas content remains left-to-right.
 - AI drafting, connectors, HTTP, scripts, schedules, execution timing and infrastructure
@@ -96,10 +106,12 @@ With Node.js installed, run the local regression suite:
 node --test src/core/router.test.mjs src/api/studio.test.mjs src/api/website-admin.test.mjs src/api/resources.test.mjs
 ```
 
-The regression suite has 26 passing tests. Browser checks cover navigation,
-responsive pages, editor/publish/run/retry, connections, branding, audit, health,
-errors and empty states: 468 route checks, plus hero checks at 17 widths from
-320 to 3440 px. Scope and limits are documented in `docs/mobile-qa.md`.
+The regression suite has 38 passing tests covering the router, run engine, publish/run/
+retry, waiting runs and decisions, website/admin APIs and the management resources.
+Browser checks cover every route at 375 px and 1440 px (no script errors, no page-level
+horizontal overflow), in fast and normal asynchronous mode, plus the end-to-end flow
+edit → publish → run → wait → approve → receipt. Scope and limits are documented in
+`docs/mobile-qa.md`.
 
 Codex and Claude Code were used to investigate public documentation, implement and
 review the frontend, and create assets. AI image generation was used for raster artwork.
@@ -108,4 +120,11 @@ documentation, schemas and source.
 
 ## Known XWUI CDN issues
 
-The current `basic.bundle.js` exports `XWUIDisplayStatusPill` without registering its component stylesheet path. `createXwfKit` loads the public `XWUIDisplayStatus.css` once, because the pill uses that shared projection/style. Chip closing, input changes and modal lifecycle use their public component methods; no fallback DOM event handlers are needed.
+- The current `basic.bundle.js` exports `XWUIDisplayStatusPill` without registering its
+  component stylesheet path. `createXwfKit` loads the public `XWUIDisplayStatus.css` once,
+  because the pill uses that shared projection/style.
+- `XWUITable` renders absolutely positioned screen-reader labels in its action column.
+  `.xwui-table-wrapper` is given `position: relative` so they stay inside the table's
+  scroll box on narrow screens.
+- Chip closing, input changes and modal lifecycle use their public component methods;
+  no fallback DOM event handlers are needed.
